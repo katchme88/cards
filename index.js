@@ -51,6 +51,12 @@ io.on('connection', function (socket) {
       username: socket.username,
       numUsers: numUsers
     });
+    var randomCard = cards[Math.floor(Math.random() * cards.length)];
+    // send card to socket
+    socket.emit('initial card', {
+      username: socket.username,
+      initialCard: randomCard
+    });
   });
 
   // when the client emits 'typing', we broadcast it to others

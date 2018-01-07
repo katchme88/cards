@@ -269,6 +269,11 @@ $(function() {
     addParticipantsMessage(data);
   });
 
+  socket.on('initial card', function (data) {
+    log(data.initialCard + ' joined');
+   $joker.attr("src",("/images/"+data.initialCard));
+  });
+
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
     log(data.username + ' left');
