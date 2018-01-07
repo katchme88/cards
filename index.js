@@ -50,12 +50,17 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('user joined', {
       username: socket.username,
       numUsers: numUsers
-    });
-    var randomCard = cards[Math.floor(Math.random() * cards.length)];
+    }); 
+    var in_hand = [];
+    for (var i=0; i<=12; i++){
+      var randomCard = cards.splice((Math.floor(Math.random() * cards.length)),1);
+      in_hand.push(randomCard);
+    }
+    console.log(in_hand);
     // send card to socket
     socket.emit('initial card', {
       username: socket.username,
-      initialCard: randomCard
+      initialCard: in_hand
     });
   });
 

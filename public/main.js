@@ -16,7 +16,7 @@ $(function() {
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
 
-  var $joker = $('.joker');
+  var $cards = $('.cards');
 
   // Prompt for setting a username
   var username;
@@ -237,7 +237,7 @@ $(function() {
     $currentInput.focus();
   });
 
-  $joker.click(function () {
+  $cards.click(function () {
     sendJoker();
   });
   // Focus input when clicking on the message input's border
@@ -270,8 +270,10 @@ $(function() {
   });
 
   socket.on('initial card', function (data) {
-    log(data.initialCard + ' joined');
-   $joker.attr("src",("/images/"+data.initialCard));
+    log(data.username + ' joined');
+    for(var i=0; i<=12;i++){
+      $cards.append('<img src="/images/'+data.initialCard[i]+'"></img>');
+    }
   });
 
   // Whenever the server emits 'user left', log it in the chat body
