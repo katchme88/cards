@@ -149,5 +149,23 @@ ul {
 }
 
 .joker img {
-  padding: 0px
+  padding: 0
+  border: 10px solid #000;
+  bottom: 0;
+  height: 100px;
+  left: 0;
+  outline: none;
+  position: absolute;
+  right: 0;
 }
+.joker {
+  padding: 0
+  border: 10px solid #000;
+  bottom: 0;
+  height: 100px;
+  left: 0;
+  outline: none;
+  position: absolute;
+  right: 0;
+}
+
