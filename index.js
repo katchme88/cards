@@ -17,11 +17,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Chatroom
 
 var numUsers = 0;
-var cards = [];
+var deck = [];
 
 fs.readdir('public/images', function(err, items) {
-    cards = items
+    deck = items
 });
+
+function deal(){
+    var this_hand = [];
+    for (var i=0; i<=12; i++){
+      var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
+      this_hand.push(randomCard);
+    }
+    return this_hand.sort();
+}
 
 io.on('connection', function (socket) {
   var addedUser = false;
@@ -43,6 +52,10 @@ io.on('connection', function (socket) {
     socket.username = username;
     ++numUsers;
     addedUser = true;
+    var hand = deal();
+    console.log(hand);
+
+    
     socket.emit('login', {
       numUsers: numUsers
     });
@@ -51,15 +64,10 @@ io.on('connection', function (socket) {
       username: socket.username,
       numUsers: numUsers
     }); 
-    var in_hand = [];
-    for (var i=0; i<=12; i++){
-      var randomCard = cards.splice((Math.floor(Math.random() * cards.length)),1);
-      in_hand.push(randomCard);
-    }
+    
     // send card to socket
-    socket.emit('initial card', {
-      username: socket.username,
-      initialCard: in_hand.sort()
+    socket.emit('deal', {
+      'hand': hand
     });
   });
 

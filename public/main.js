@@ -207,6 +207,12 @@ $(function() {
     return COLORS[index];
   }
 
+  function drawCardsInHand (data) {
+    for(var i=0; i<=12;i++){
+      $cards.append('<img id="'+data.hand[i]+'" src="/images/'+data.hand[i]+'"></img>');
+    }
+  }
+
   // Keyboard events
 
   $window.keydown(function (event) {
@@ -269,11 +275,8 @@ $(function() {
     addParticipantsMessage(data);
   });
 
-  socket.on('initial card', function (data) {
-    log(data.username + ' joined');
-    for(var i=0; i<=12;i++){
-      $cards.append('<img src="/images/'+data.initialCard[i]+'"></img>');
-    }
+  socket.on('deal', function (data) {
+    drawCardsInHand(data);
   });
 
   // Whenever the server emits 'user left', log it in the chat body
