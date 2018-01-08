@@ -9,6 +9,7 @@ $(function() {
 
   // Initialize variables
   var $window = $(window);
+  var $document = $(document);
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
@@ -71,10 +72,10 @@ $(function() {
   }
 
     // Sends a chat message
-  function sendJoker () {
-    var message = 'joker';
+  function throwCard (id) {
+    var message = id;
     // Prevent markup from being injected into the message
-    message = cleanInput(message);
+    //message = cleanInput(message);
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
@@ -207,9 +208,10 @@ $(function() {
     return COLORS[index];
   }
 
+  // draw cards on screen
   function drawCardsInHand (data) {
     for(var i=0; i<=12;i++){
-      $cards.append('<img id="'+data.hand[i]+'" src="/images/'+data.hand[i]+'"></img>');
+      $cards.append('<img id="'+data.hand[i].split('.')[0]+'" src="/images/'+data.hand[i]+'" class="card"></img>');
     }
   }
 
@@ -232,6 +234,10 @@ $(function() {
     }
   });
 
+  $document.on("click", "img.card" , function() {
+    throwCard($(this));
+  });
+
   $inputMessage.on('input', function() {
     updateTyping();
   });
@@ -243,9 +249,7 @@ $(function() {
     $currentInput.focus();
   });
 
-  $cards.click(function () {
-    sendJoker();
-  });
+
   // Focus input when clicking on the message input's border
   $inputMessage.click(function () {
     $inputMessage.focus();
@@ -257,7 +261,7 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to Socket.IO Chat – ";
+    var message = "Welcome to MOODA";
     log(message, {
       prepend: true
     });
@@ -275,6 +279,7 @@ $(function() {
     addParticipantsMessage(data);
   });
 
+  // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
   });

@@ -27,7 +27,7 @@ function deal(){
     var this_hand = [];
     for (var i=0; i<=12; i++){
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
-      this_hand.push(randomCard);
+      this_hand.push(randomCard[0]);
     }
     return this_hand.sort();
 }
@@ -55,7 +55,7 @@ io.on('connection', function (socket) {
     var hand = deal();
     console.log(hand);
 
-    
+
     socket.emit('login', {
       numUsers: numUsers
     });
