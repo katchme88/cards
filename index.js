@@ -56,11 +56,10 @@ io.on('connection', function (socket) {
       var randomCard = cards.splice((Math.floor(Math.random() * cards.length)),1);
       in_hand.push(randomCard);
     }
-    console.log(in_hand);
     // send card to socket
     socket.emit('initial card', {
       username: socket.username,
-      initialCard: in_hand
+      initialCard: in_hand.sort()
     });
   });
 

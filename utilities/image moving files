@@ -50,4 +50,36 @@ mv	queen_of_clubs2.svg	C12.svg
 mv	queen_of_diamonds2.svg	D12.svg
 mv	queen_of_hearts2.svg	H12.svg
 mv	queen_of_spades2.svg	S12.svg
-
+	
+mv	C2.svg	C02.svg
+mv	C3.svg	C03.svg
+mv	C4.svg	C04.svg
+mv	C5.svg	C05.svg
+mv	C6.svg	C06.svg
+mv	C7.svg	C07.svg
+mv	C8.svg	C08.svg
+mv	C9.svg	C09.svg
+mv	D2.svg	D02.svg
+mv	D3.svg	D03.svg
+mv	D4.svg	D04.svg
+mv	D5.svg	D05.svg
+mv	D6.svg	D06.svg
+mv	D7.svg	D07.svg
+mv	D8.svg	D08.svg
+mv	D9.svg	D09.svg
+mv	H2.svg	H02.svg
+mv	H3.svg	H03.svg
+mv	H4.svg	H04.svg
+mv	H5.svg	H05.svg
+mv	H6.svg	H06.svg
+mv	H7.svg	H07.svg
+mv	H8.svg	H08.svg
+mv	H9.svg	H09.svg
+mv	S2.svg	S02.svg
+mv	S3.svg	S03.svg
+mv	S4.svg	S04.svg
+mv	S5.svg	S05.svg
+mv	S6.svg	S06.svg
+mv	S7.svg	S07.svg
+mv	S8.svg	S08.svg
+mv	S9.svg	S09.svg
