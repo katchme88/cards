@@ -141,7 +141,7 @@ $(function() {
       .addClass(typingClass)
       .append($usernameDiv, '<img id="'+data.message+'.svg" src="/images/'+data.message+'.svg" class="card"></img>');
 
-    addMessageElement($messageDiv, options);
+    addCardElement($messageDiv, options);
   }
 
   // Adds the visual chat typing message
@@ -164,6 +164,37 @@ $(function() {
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
   function addMessageElement (el, options) {
+    var $el = $(el);
+
+    // Setup default options
+    if (!options) {
+      options = {};
+    }
+    if (typeof options.fade === 'undefined') {
+      options.fade = true;
+    }
+    if (typeof options.prepend === 'undefined') {
+      options.prepend = false;
+    }
+
+    // Apply options
+    if (options.fade) {
+      $el.hide().fadeIn(FADE_TIME);
+    }
+    if (options.prepend) {
+      $messages.prepend($el);
+    } else {
+      $messages.append($el);
+    }
+    $messages[0].scrollTop = $messages[0].scrollHeight;
+  }
+
+  // Adds a message element to the messages and scrolls to the bottom
+  // el - The element to add as a message
+  // options.fade - If the element should fade-in (default = true)
+  // options.prepend - If the element should prepend
+  //   all other messages (default = false)
+  function addCardElement (el, options) {
     var $el = $(el);
 
     // Setup default options
