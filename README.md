@@ -1,12 +1,12 @@
 
-# Socket.IO Chat
+# Socket.IO Cards
 
-A simple chat demo for socket.io
+A simple cards game for socket.io
 
 ## How to use
 
 ```
-$ cd socket.io
+$ cd cards
 $ npm install
 $ cd examples/chat
 $ npm install
