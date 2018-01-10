@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var numUsers = 0;
 var deck = [];
+var usersCards = {};
 
 fs.readdir('public/images', function(err, items) {
     deck = items
@@ -49,11 +50,17 @@ io.on('connection', function (socket) {
     if (addedUser) return;
 
     // we store the username in the socket session for this client
-    socket.username = username;
-    ++numUsers;
-    addedUser = true;
-    var hand = deal();
-    console.log(hand);
+    if (!(username in usersCards)){
+      socket.username = username;
+      ++numUsers;
+      addedUser = true;
+      var hand = deal();
+      usersCards[socket.username] = hand;
+      console.log(usersCards);
+    } else {
+      socket.username = username;
+      var hand = usersCards[username];
+    }
 
 
     socket.emit('login', {
