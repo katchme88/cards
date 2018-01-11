@@ -45,6 +45,15 @@ io.on('connection', function (socket) {
     });
   });
 
+  socket.on('card thrown', function (data) {
+    // we tell the client to execute 'card thrown'
+    socket.broadcast.emit('card thrown', {
+      username: socket.username,
+      message: data
+    });
+    usersCards[socket.username].splice(usersCards[socket.username].indexOf(data+'.svg'),1);
+  });
+
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
     if (addedUser) return;
@@ -56,7 +65,7 @@ io.on('connection', function (socket) {
       addedUser = true;
       var hand = deal();
       usersCards[socket.username] = hand;
-      console.log(usersCards);
+      //console.log(usersCards);
     } else {
       socket.username = username;
       var hand = usersCards[username];
