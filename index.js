@@ -73,6 +73,7 @@ io.on('connection', function (socket) {
         turn = 0;
         var seniorPlayer = getSenior(gamePlay);
         console.log(seniorPlayer);
+        gamePlay = {};
       }
     }
 
