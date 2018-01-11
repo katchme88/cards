@@ -266,8 +266,8 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
-    for(var i=0; i<=12;i++){
-      $cards.append('<img id="'+data.hand[i].split('.')[0]+'" src="/images/'+data.hand[i]+'" class="card"></img>');
+    for(var i=0; i < data.hand.length;i++){
+      $cards.append('<img id="'+data.hand[i]+'" src="/images/'+data.hand[i]+'.svg" class="card"></img>');
     }
   }
 
@@ -327,6 +327,11 @@ $(function() {
 
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
+    addChatMessage(data);
+  });
+
+  // Whenever the server emits 'card thrown', update the gameplay body
+  socket.on('card thrown', function (data) {
     addCard(data);
   });
 

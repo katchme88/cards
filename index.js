@@ -19,18 +19,37 @@ app.use(express.static(path.join(__dirname, 'public')));
 var numUsers = 0;
 var deck = [];
 var usersCards = {};
+var turn = 0;
+var gamePlay = {};
+var players = {};
+var teamA = [];
+var teamB = [];
 
 fs.readdir('public/images', function(err, items) {
-    deck = items
+    deck = items;
 });
 
 function deal(){
     var this_hand = [];
     for (var i=0; i<=12; i++){
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
-      this_hand.push(randomCard[0]);
+      this_hand.push(randomCard[0].split('.')[0]);
+      
     }
+    //console.log(this_hand);
     return this_hand.sort();
+}
+
+function getSenior(data) {
+  currentSuite = Object.keys(data)[0].charAt(0);
+  var x = (Object.keys(data)[1].charAt(0) == currentSuite);
+  var y = (Object.keys(data)[2].charAt(0) == currentSuite);
+  var z = (Object.keys(data)[3].charAt(0) == currentSuite);
+  console.log(Object.keys(data)[1].charAt(0));
+    if (x && y && z){
+      console.log('yes');
+      return data[Object.keys(data).sort()[3]];
+  }
 }
 
 io.on('connection', function (socket) {
@@ -47,11 +66,22 @@ io.on('connection', function (socket) {
 
   socket.on('card thrown', function (data) {
     // we tell the client to execute 'card thrown'
+    turn++;
+    if (turn <= 4){
+      gamePlay[data] = socket.username;
+      if (turn==4){
+        turn = 0;
+        var seniorPlayer = getSenior(gamePlay);
+        console.log(seniorPlayer);
+      }
+    }
+
+
     socket.broadcast.emit('card thrown', {
       username: socket.username,
       message: data
     });
-    usersCards[socket.username].splice(usersCards[socket.username].indexOf(data+'.svg'),1);
+    usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
   });
 
   // when the client emits 'add user', this listens and executes
@@ -65,13 +95,20 @@ io.on('connection', function (socket) {
       addedUser = true;
       var hand = deal();
       usersCards[socket.username] = hand;
-      //console.log(usersCards);
+      if (numUsers <= 4){
+        players[numUsers] = {name:socket.username, cardsInHand:hand}
+        if (numUsers%2 == 1){
+          teamA.push(players[numUsers]);
+        } else {
+          teamB.push(players[numUsers]);
+        }
+      }
     } else {
       socket.username = username;
       var hand = usersCards[username];
+
     }
-
-
+  
     socket.emit('login', {
       numUsers: numUsers
     });
