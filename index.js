@@ -20,10 +20,12 @@ var numUsers = 0;
 var deck = [];
 var usersCards = {};
 var turn = 0;
+var totalTurns = 0;
 var gamePlay = {};
 var players = {};
 var teamA = [];
 var teamB = [];
+var trumpRevealed = 0;
 
 fs.readdir('public/images', function(err, items) {
     deck = items;
@@ -42,14 +44,53 @@ function deal(){
 
 function getSenior(data) {
   currentSuite = Object.keys(data)[0].charAt(0);
-  var x = (Object.keys(data)[1].charAt(0) == currentSuite);
-  var y = (Object.keys(data)[2].charAt(0) == currentSuite);
-  var z = (Object.keys(data)[3].charAt(0) == currentSuite);
-  console.log(Object.keys(data)[1].charAt(0));
+  console.log(('currentsuite:'+currentSuite));
+  if (!trumpRevealed){
+    var x = (Object.keys(data)[1].charAt(0) == currentSuite);
+    var y = (Object.keys(data)[2].charAt(0) == currentSuite);
+    var z = (Object.keys(data)[3].charAt(0) == currentSuite);
     if (x && y && z){
-      console.log('yes');
       return data[Object.keys(data).sort()[3]];
+    }
+    if (x && y && !z){
+      console.log('z deleted');
+      delete data[Object.keys(data)[3]];
+      return data[Object.keys(data).sort()[2]];
+    }
+    if (x && !y && z){
+      console.log('y deleted');
+      delete data[Object.keys(data)[2]];
+      return data[Object.keys(data).sort()[2]];
+    }
+    if (!x && y && z){
+      console.log('x deleted');
+      delete data[Object.keys(data)[1]];      
+      return data[Object.keys(data).sort()[2]];
+    }
+    if (x && !y && !z){
+      console.log('yz deleted');
+      delete data[Object.keys(data)[2]];
+      delete data[Object.keys(data)[2]];      
+      return data[Object.keys(data).sort()[1]];
+    }
+    if (!x && !y && z){
+      console.log('xy deleted');
+      delete data[Object.keys(data)[1]];
+      delete data[Object.keys(data)[1]];      
+      return data[Object.keys(data).sort()[1]];
+    }
+    if (!x && y && !z){
+      console.log('xz deleted');
+      delete data[Object.keys(data)[1]];
+      delete data[Object.keys(data)[2]];
+      return data[Object.keys(data).sort()[1]];
+    }
+    if (!x && !y && !z){
+      console.log('xyz deleted');
+      return data[Object.keys(data).sort()  [0]];
+    }
   }
+  
 }
 
 io.on('connection', function (socket) {
@@ -71,6 +112,7 @@ io.on('connection', function (socket) {
       gamePlay[data] = socket.username;
       if (turn==4){
         turn = 0;
+        totalTurns++;
         var seniorPlayer = getSenior(gamePlay);
         console.log(seniorPlayer);
         gamePlay = {};
