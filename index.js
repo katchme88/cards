@@ -31,9 +31,9 @@ fs.readdir('public/images', function(err, items) {
     deck = items;
 });
 
-function deal(){
+function deal() {
     var this_hand = [];
-    for (var i=0; i<=12; i++){
+    for (var i=0; i<=12; i++) {
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
       this_hand.push(randomCard[0].split('.')[0]);
       
@@ -43,54 +43,80 @@ function deal(){
 }
 
 function getSenior(data) {
-  currentSuite = Object.keys(data)[0].charAt(0);
-  console.log(('currentsuite:'+currentSuite));
-  if (!trumpRevealed){
-    var x = (Object.keys(data)[1].charAt(0) == currentSuite);
-    var y = (Object.keys(data)[2].charAt(0) == currentSuite);
-    var z = (Object.keys(data)[3].charAt(0) == currentSuite);
-    if (x && y && z){
-      return data[Object.keys(data).sort()[3]];
+  var turn = JSON.parse(data);
+  var thisGamePlay =  JSON.parse(data); 
+  var currentSuite = Object.keys(turn)[0].charAt(0);
+  console.log(('currentsuite : '+currentSuite));
+  if (!trumpRevealed) {
+    var x = (Object.keys(turn)[1].charAt(0) == currentSuite);
+    var y = (Object.keys(turn)[2].charAt(0) == currentSuite);
+    var z = (Object.keys(turn)[3].charAt(0) == currentSuite);
+    if (x && y && z) {
+      seniorCard = Object.keys(turn).sort()[3]
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-    if (x && y && !z){
+    if (x && y && !z) {
       console.log('z deleted');
-      delete data[Object.keys(data)[3]];
-      return data[Object.keys(data).sort()[2]];
+      delete turn[Object.keys(turn)[3]];
+      seniorCard = Object.keys(turn).sort()[2];
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-    if (x && !y && z){
+    if (x && !y && z) {
       console.log('y deleted');
-      delete data[Object.keys(data)[2]];
-      return data[Object.keys(data).sort()[2]];
+      delete turn[Object.keys(turn)[2]];
+      seniorCard = Object.keys(turn).sort()[2]
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-    if (!x && y && z){
+    if (!x && y && z) {
       console.log('x deleted');
-      delete data[Object.keys(data)[1]];      
-      return data[Object.keys(data).sort()[2]];
+      delete turn[Object.keys(turn)[1]];
+      seniorCard = Object.keys(turn).sort()[2];
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-    if (x && !y && !z){
+    if (x && !y && !z) {
       console.log('yz deleted');
-      delete data[Object.keys(data)[2]];
-      delete data[Object.keys(data)[2]];      
-      return data[Object.keys(data).sort()[1]];
+      delete turn[Object.keys(turn)[2]];
+      delete turn[Object.keys(turn)[2]];
+      seniorCard = Object.keys(turn).sort()[1];
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];       
     }
-    if (!x && !y && z){
+    if (!x && !y && z) {
       console.log('xy deleted');
-      delete data[Object.keys(data)[1]];
-      delete data[Object.keys(data)[1]];      
-      return data[Object.keys(data).sort()[1]];
+      delete turn[Object.keys(turn)[1]];
+      delete turn[Object.keys(turn)[1]];
+      console.log(turn);
+      seniorCard = Object.keys(turn).sort()[1];
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-    if (!x && y && !z){
+    if (!x && y && !z) {
       console.log('xz deleted');
-      delete data[Object.keys(data)[1]];
-      delete data[Object.keys(data)[2]];
-      return data[Object.keys(data).sort()[1]];
+      delete turn[Object.keys(turn)[1]];
+      delete turn[Object.keys(turn)[2]];
+      seniorCard = Object.keys(turn).sort()[1];
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-    if (!x && !y && !z){
+    if (!x && !y && !z) {
       console.log('xyz deleted');
-      return data[Object.keys(data).sort()  [0]];
+      seniorCard = Object.keys(turn)[0];
+      senior = turn[seniorCard];
+      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
+      return [senior,seniorCard,seniorTurn+1];
     }
-  }
-  
+  } 
 }
 
 io.on('connection', function (socket) {
@@ -108,12 +134,12 @@ io.on('connection', function (socket) {
   socket.on('card thrown', function (data) {
     // we tell the client to execute 'card thrown'
     turn++;
-    if (turn <= 4){
+    if (turn <= 4) {
       gamePlay[data] = socket.username;
-      if (turn==4){
+      if (turn==4) {
         turn = 0;
         totalTurns++;
-        var seniorPlayer = getSenior(gamePlay);
+        var seniorPlayer = getSenior(JSON.stringify(gamePlay));
         console.log(seniorPlayer);
         gamePlay = {};
       }
@@ -132,15 +158,15 @@ io.on('connection', function (socket) {
     if (addedUser) return;
 
     // we store the username in the socket session for this client
-    if (!(username in usersCards)){
+    if (!(username in usersCards)) {
       socket.username = username;
       ++numUsers;
       addedUser = true;
       var hand = deal();
       usersCards[socket.username] = hand;
-      if (numUsers <= 4){
+      if (numUsers <= 4) {
         players[numUsers] = {name:socket.username, cardsInHand:hand}
-        if (numUsers%2 == 1){
+        if (numUsers%2 == 1) {
           teamA.push(players[numUsers]);
         } else {
           teamB.push(players[numUsers]);
