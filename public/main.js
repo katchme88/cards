@@ -139,7 +139,7 @@ $(function() {
     var $messageDiv = $('<li class="message"/>')
       .data('username', data.username)
       .addClass(typingClass)
-      .append($usernameDiv, '<img id="'+data.message+'.svg" src="/images/'+data.message+'.svg" class="card"></img>');
+      .append($usernameDiv, '<img id="'+data.message+'.svg" src="/images/'+data.message+'.svg" class="tablecard"></img>');
 
     addCardElement($messageDiv, options);
   }
