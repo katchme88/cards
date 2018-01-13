@@ -21,13 +21,15 @@ var numUsers = 0;
 var deck = [];
 var usersCards = {};
 var turn = 0;
-var totalTurns = 0;
-var gamePlay = {};
+var totalRounds = 0;
+var currentRoundObj = {};
 var players = {};
 var teamA = [];
 var teamB = [];
 var trumpRevealed = 0;
-var trumpSuit
+var trumpSuit = '';
+var currentRoundCards = [];
+var revealedInThis = 0;
 
 fs.readdir('public/images', function(err, items) {
     deck = items;
@@ -60,13 +62,12 @@ io.on('connection', function (socket) {
     // we tell the client to execute 'card thrown'
     turn++;
     if (turn <= 4) {
-      gamePlay[data] = socket.username;
+      currentRoundObj[data] = socket.username;
+      currentRoundCards.push(data);
       if (turn==4) {
-        turn = 0;
-        totalTurns++;
-        var seniorPlayer = rules.getSenior(JSON.stringify(gamePlay),trumpRevealed);
-        console.log(seniorPlayer);
-        gamePlay = {};
+        totalRounds++;
+        var seniorCard = rules.getSenior(currentRoundCards ,1, 'C', revealedInThis);
+        console.log(seniorCard);
       }
     }
 
@@ -74,6 +75,15 @@ io.on('connection', function (socket) {
       username: socket.username,
       message: data
     });
+
+    console.log(turn);
+    if(turn==4){
+      io.sockets.emit('senior player', currentRoundObj[seniorCard[0]]);
+      currentRoundObj = {};
+      currentRoundCards = [];
+      turn=0;
+    }
+    
     usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
   });
 

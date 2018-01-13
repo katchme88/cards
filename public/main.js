@@ -335,6 +335,10 @@ $(function() {
     addCard(data);
   });
 
+  socket.on('senior player', function (data) {
+    alert((data +' is senior'));
+  });
+
   // Whenever the server emits 'user joined', log it in the chat body
   socket.on('user joined', function (data) {
     log(data.username + ' joined');
