@@ -6,6 +6,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 var fs = require('fs');
+var rules = require('./gameplay/rules.js');
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -26,6 +27,7 @@ var players = {};
 var teamA = [];
 var teamB = [];
 var trumpRevealed = 0;
+var trumpSuit
 
 fs.readdir('public/images', function(err, items) {
     deck = items;
@@ -40,83 +42,6 @@ function deal() {
     }
     //console.log(this_hand);
     return this_hand.sort();
-}
-
-function getSenior(data) {
-  var turn = JSON.parse(data);
-  var thisGamePlay =  JSON.parse(data); 
-  var currentSuite = Object.keys(turn)[0].charAt(0);
-  console.log(('currentsuite : '+currentSuite));
-  if (!trumpRevealed) {
-    var x = (Object.keys(turn)[1].charAt(0) == currentSuite);
-    var y = (Object.keys(turn)[2].charAt(0) == currentSuite);
-    var z = (Object.keys(turn)[3].charAt(0) == currentSuite);
-    if (x && y && z) {
-      seniorCard = Object.keys(turn).sort()[3]
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-    if (x && y && !z) {
-      console.log('z deleted');
-      delete turn[Object.keys(turn)[3]];
-      seniorCard = Object.keys(turn).sort()[2];
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-    if (x && !y && z) {
-      console.log('y deleted');
-      delete turn[Object.keys(turn)[2]];
-      seniorCard = Object.keys(turn).sort()[2]
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-    if (!x && y && z) {
-      console.log('x deleted');
-      delete turn[Object.keys(turn)[1]];
-      seniorCard = Object.keys(turn).sort()[2];
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-    if (x && !y && !z) {
-      console.log('yz deleted');
-      delete turn[Object.keys(turn)[2]];
-      delete turn[Object.keys(turn)[2]];
-      seniorCard = Object.keys(turn).sort()[1];
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];       
-    }
-    if (!x && !y && z) {
-      console.log('xy deleted');
-      delete turn[Object.keys(turn)[1]];
-      delete turn[Object.keys(turn)[1]];
-      console.log(turn);
-      seniorCard = Object.keys(turn).sort()[1];
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-    if (!x && y && !z) {
-      console.log('xz deleted');
-      delete turn[Object.keys(turn)[1]];
-      delete turn[Object.keys(turn)[2]];
-      seniorCard = Object.keys(turn).sort()[1];
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-    if (!x && !y && !z) {
-      console.log('xyz deleted');
-      seniorCard = Object.keys(turn)[0];
-      senior = turn[seniorCard];
-      seniorTurn = Object.keys(thisGamePlay).indexOf(seniorCard);
-      return [senior,seniorCard,seniorTurn+1];
-    }
-  } 
 }
 
 io.on('connection', function (socket) {
@@ -139,12 +64,11 @@ io.on('connection', function (socket) {
       if (turn==4) {
         turn = 0;
         totalTurns++;
-        var seniorPlayer = getSenior(JSON.stringify(gamePlay));
+        var seniorPlayer = rules.getSenior(JSON.stringify(gamePlay),trumpRevealed);
         console.log(seniorPlayer);
         gamePlay = {};
       }
     }
-
 
     socket.broadcast.emit('card thrown', {
       username: socket.username,
@@ -175,18 +99,18 @@ io.on('connection', function (socket) {
     } else {
       socket.username = username;
       var hand = usersCards[username];
-
     }
   
     socket.emit('login', {
       numUsers: numUsers
     });
+    
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
       username: socket.username,
       numUsers: numUsers
     }); 
-    
+
     // send card to socket
     socket.emit('deal', {
       'hand': hand
