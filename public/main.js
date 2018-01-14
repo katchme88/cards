@@ -13,7 +13,8 @@ $(function() {
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
-
+  var $revealTrump = $('.revealTrump');
+  var $askTrump = $('.askTrump');
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
 
@@ -295,6 +296,14 @@ $(function() {
     $(this).remove();
   });
 
+  $revealTrump.on("click", function() {
+    socket.emit('reveal trump'); 
+  });
+  
+  $askTrump.on("click", function() {
+    socket.emit('ask trump');
+  });
+  
   $inputMessage.on('input', function() {
     updateTyping();
   });
@@ -337,6 +346,14 @@ $(function() {
 
   socket.on('senior player', function (data) {
     alert((data +' is senior'));
+  });
+  
+  socket.on("ask trump", function(data) {
+    log((data.username + " has asked to reveal the Trump"));
+  });
+
+  socket.on("reveal trump", function(data) {
+    log(("The trump is " + data.trumpSuit));
   });
 
   // Whenever the server emits 'user joined', log it in the chat body

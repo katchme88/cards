@@ -26,8 +26,9 @@ var currentRoundObj = {};
 var players = {};
 var teamA = [];
 var teamB = [];
-var trumpRevealed = 0;
-var trumpSuit = '';
+var trumpRevealed = 1;
+var revealedInThis = 0;
+var trumpSuit = 'C';
 var currentRoundCards = [];
 var revealedInThis = 0;
 
@@ -48,7 +49,7 @@ function deal() {
 
 io.on('connection', function (socket) {
   var addedUser = false;
-
+ 
   // when the client emits 'new message', this listens and executes
   socket.on('new message', function (data) {
     // we tell the client to execute 'new message'
@@ -66,7 +67,7 @@ io.on('connection', function (socket) {
       currentRoundCards.push(data);
       if (turn==4) {
         totalRounds++;
-        var seniorCard = rules.getSenior(currentRoundCards ,1, 'C', revealedInThis);
+        var seniorCard = rules.getSenior(currentRoundCards ,1, trumpSuit, revealedInThis);
         console.log(seniorCard);
       }
     }
@@ -91,7 +92,6 @@ io.on('connection', function (socket) {
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
     if (addedUser) return;
-
     // we store the username in the socket session for this client
     if (!(username in usersCards)) {
       socket.username = username;
@@ -100,7 +100,7 @@ io.on('connection', function (socket) {
       var hand = deal();
       usersCards[socket.username] = hand;
       if (numUsers <= 4) {
-        players[numUsers] = {name:socket.username, cardsInHand:hand}
+        players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
         if (numUsers%2 == 1) {
           teamA.push(players[numUsers]);
         } else {
@@ -139,6 +139,24 @@ io.on('connection', function (socket) {
   socket.on('stop typing', function () {
     socket.broadcast.emit('stop typing', {
       username: socket.username
+    });
+  });
+  
+  socket.on('ask trump', function () {
+   console.log(socket.username+' asked for trump');
+   //players.p1.socket.emit('reveal trump', {
+   io.sockets.emit('ask trump', {
+      username:socket.username, 
+    });
+  });
+
+ socket.on('reveal trump', function () {
+   console.log('revealed trump');
+   revealedInThis = turn;
+   console.log(revealedInThis);
+   socket.broadcast.emit('reveal trump', {
+     username: socket.username,
+     trumpSuit: trumpSuit
     });
   });
 
