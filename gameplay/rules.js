@@ -31,5 +31,18 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
         console.log(currentRoundCards);
         seniorCard = data.sort()[data.length -1];
         return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
+    } else {
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].charAt(0) == trumpSuit) {
+                trumpExist = 1;
+                break;
+            }
+        }
+        
+        if (trumpExist) {
+            currentSuit = trumpSuit;
+        } else {
+            currentSuit = data[0].charAt(0);
+        }
     }
 }

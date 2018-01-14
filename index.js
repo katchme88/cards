@@ -82,6 +82,7 @@ io.on('connection', function (socket) {
       currentRoundObj = {};
       currentRoundCards = [];
       turn=0;
+      revealedInThis=0;
     }
     
     usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
