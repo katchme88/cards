@@ -26,11 +26,10 @@ var currentRoundObj = {};
 var players = {};
 var teamA = [];
 var teamB = [];
-var trumpRevealed = 1;
+var trumpRevealed = 0;
 var revealedInThis = 0;
-var trumpSuit = 'C';
+var trumpSuit = '';
 var currentRoundCards = [];
-var revealedInThis = 0;
 
 fs.readdir('public/images', function(err, items) {
     deck = items;
@@ -67,7 +66,7 @@ io.on('connection', function (socket) {
       currentRoundCards.push(data);
       if (turn==4) {
         totalRounds++;
-        var seniorCard = rules.getSenior(currentRoundCards ,1, trumpSuit, revealedInThis);
+        var seniorCard = rules.getSenior(currentRoundCards , trumpRevealed, trumpSuit, revealedInThis);
         console.log(seniorCard);
       }
     }
@@ -153,6 +152,7 @@ io.on('connection', function (socket) {
  socket.on('reveal trump', function () {
    console.log('revealed trump');
    revealedInThis = turn;
+   trumpRevealed = 1;
    console.log(revealedInThis);
    socket.broadcast.emit('reveal trump', {
      username: socket.username,
