@@ -40,24 +40,13 @@ function deal() {
     for (var i=0; i<=12; i++) {
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
       this_hand.push(randomCard[0].split('.')[0]);
-      
     }
-    //console.log(this_hand);
     return this_hand.sort();
 }
 
 io.on('connection', function (socket) {
   var addedUser = false;
  
-  // when the client emits 'new message', this listens and executes
-  socket.on('new message', function (data) {
-    // we tell the client to execute 'new message'
-    socket.broadcast.emit('new message', {
-      username: socket.username,
-      message: data
-    });
-  });
-
   socket.on('card thrown', function (data) {
     // we tell the client to execute 'card thrown'
     turn++;
@@ -76,7 +65,6 @@ io.on('connection', function (socket) {
       message: data
     });
 
-    console.log(turn);
     if(turn==4){
       io.sockets.emit('senior player', currentRoundObj[seniorCard[0]]);
       currentRoundObj = {};
@@ -84,7 +72,6 @@ io.on('connection', function (socket) {
       turn=0;
       revealedInThis=0;
     }
-    
     usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
   });
 
@@ -121,26 +108,20 @@ io.on('connection', function (socket) {
       numUsers: numUsers
     }); 
 
-    // send card to socket
-    socket.emit('deal', {
-      'hand': hand
-    });
+    if (numUsers > 1){
+      // send cards to socket
+      socket.emit('deal', {
+        'hand': hand
+      });
+    } else {
+      // send player 1 cards to select trump
+      var first5 = hand.splice(8,5);
+      socket.emit('choose trump', {
+        'hand': first5
+      });
+    }
   });
 
-  // when the client emits 'typing', we broadcast it to others
-  socket.on('typing', function () {
-    socket.broadcast.emit('typing', {
-      username: socket.username
-    });
-  });
-
-  // when the client emits 'stop typing', we broadcast it to others
-  socket.on('stop typing', function () {
-    socket.broadcast.emit('stop typing', {
-      username: socket.username
-    });
-  });
-  
   socket.on('ask trump', function () {
    console.log(socket.username+' asked for trump');
    //players.p1.socket.emit('reveal trump', {
@@ -149,7 +130,7 @@ io.on('connection', function (socket) {
     });
   });
 
- socket.on('reveal trump', function () {
+  socket.on('reveal trump', function () {
    console.log('revealed trump');
    revealedInThis = turn;
    trumpRevealed = 1;
@@ -159,6 +140,15 @@ io.on('connection', function (socket) {
      trumpSuit: trumpSuit
     });
   });
+
+  socket.on('trump card', function (data) {
+    console.log(('Trump setted '+ data));
+    trumpSuit = data.charAt(0);
+    //players.p1.socket.emit('reveal trump', {
+    //io.sockets.emit('ask trump', {
+    //   username:socket.username, 
+     //});
+   });
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {

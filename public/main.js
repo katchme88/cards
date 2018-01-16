@@ -19,6 +19,7 @@ $(function() {
   var $chatPage = $('.chat.page'); // The chatroom page
 
   var $cards = $('.cards');
+  var choosingTrump = false;
 
   // Prompt for setting a username
   var username;
@@ -221,6 +222,22 @@ $(function() {
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }
 
+  function sendTrumpCard (id) {
+    var message = id;
+    if (message && connected) {
+      $inputMessage.val('');
+      //addCard({
+        //username: username,
+        //message: message
+      //});
+      // tell server to execute 'new message' and send along one parameter
+      socket.emit('trump card', message);
+    }
+  }
+
+  function addTrumpElement () {
+    choosingTrump = false;
+  }
   // Prevents input from having injected markup
   function cleanInput (input) {
     return $('<div/>').text(input).html();
@@ -292,8 +309,14 @@ $(function() {
   });
 
   $document.on("click", "img.card" , function() {
-    throwCard($(this).attr('id'));
-    $(this).remove();
+    if (choosingTrump){
+      sendTrumpCard($(this).attr('id'));
+      addTrumpElement();
+    } else {
+      throwCard($(this).attr('id'));
+      $(this).remove();
+    }
+      
   });
 
   $revealTrump.on("click", function() {
@@ -365,6 +388,13 @@ $(function() {
   // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
+  });
+
+  // draw cards and ask him to choose trump
+  socket.on('choose trump', function (data) {
+    drawCardsInHand(data);
+    log('Choose the Trump');
+    choosingTrump = true; 
   });
 
   // Whenever the server emits 'user left', log it in the chat body
