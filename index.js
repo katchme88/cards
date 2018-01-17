@@ -72,13 +72,12 @@ io.on('connection', function (socket) {
           
           if (revealedInThis) {
             roundsSinceLastWin = totalRounds;
+          } else {
+            roundsSinceLastWin++;
           }
           
           var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis);
           
-          if (!winnerFlag) {
-            roundsSinceLastWin++;
-          } 
         }
         console.log(seniorCard);
       }
