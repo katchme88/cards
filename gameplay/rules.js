@@ -41,3 +41,10 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
     seniorCard = data.sort()[data.length -1];
     return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
 }
+
+exports.getWinner = function (seniorIndex, roundsSinceLastWin, revealedInThis) {
+    if (seniorIndex == 1 && roundsSinceLastWin > 0 && revealedInThis < 1) {
+        return (1);
+    }
+    return (0);
+}

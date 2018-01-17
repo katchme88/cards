@@ -22,7 +22,7 @@ var deck = [];
 var usersCards = {};
 var turn = 0;
 var totalRounds = 0;
-var currentRoundObj = {};
+
 var players = {};
 var teamA = [];
 var teamB = [];
@@ -30,6 +30,8 @@ var trumpRevealed = 0;
 var revealedInThis = 0;
 var trumpSuit = '';
 var currentRoundCards = [];
+var currentRoundObj = {};
+var roundsSinceLastWin = 0;
 
 fs.readdir('public/images', function(err, items) {
     deck = items;
@@ -49,30 +51,58 @@ io.on('connection', function (socket) {
  
   socket.on('card thrown', function (data) {
     // we tell the client to execute 'card thrown'
-    turn++;
-    if (turn <= 4) {
-      currentRoundObj[data] = socket.username;
-      currentRoundCards.push(data);
-      if (turn==4) {
-        totalRounds++;
-        var seniorCard = rules.getSenior(currentRoundCards , trumpRevealed, trumpSuit, revealedInThis);
-        console.log(seniorCard);
-      }
-    }
-
     socket.broadcast.emit('card thrown', {
       username: socket.username,
       message: data
     });
 
-    if(turn==4){
-      io.sockets.emit('senior player', currentRoundObj[seniorCard[0]]);
+    usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
+
+    turn++;
+    
+    if (turn <= 4) {
+      currentRoundObj[data] = socket.username;
+      currentRoundCards.push(data);
+      if (turn==4) {
+        totalRounds++;
+        var seniorArr = rules.getSenior(currentRoundCards , trumpRevealed, trumpSuit, revealedInThis);
+        var seniorCard = seniorArr[0];
+        var seniorIndex = seniorArr[1];
+        if (trumpRevealed){
+          
+          if (revealedInThis) {
+            roundsSinceLastWin = totalRounds;
+          }
+          
+          var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis);
+          
+          if (!winnerFlag) {
+            roundsSinceLastWin++;
+          } 
+        }
+        console.log(seniorCard);
+      }
+    }
+
+    if (turn==4 && !winnerFlag) {
+      io.sockets.emit('senior player', currentRoundObj[seniorCard]);
       currentRoundObj = {};
       currentRoundCards = [];
       turn=0;
       revealedInThis=0;
+    } else if (turn==4 && winnerFlag) {
+      io.sockets.emit('hands picked', {
+        winner: currentRoundObj[seniorCard],
+        handsPicked: roundsSinceLastWin
+      });
+      var x = {
+        winner: currentRoundObj[seniorCard],
+        handsPicked: roundsSinceLastWin
+      }
+      roundsSinceLastWin = 0;
+      console.log(x);
     }
-    usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
+    
   });
 
   // when the client emits 'add user', this listens and executes
