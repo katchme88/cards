@@ -123,13 +123,6 @@ $(function() {
 
   // Adds the thrown card on to the message list
   function addCard (data, options) {
-    // Don't fade the message in if there is an 'X was typing'
-    /*var $typingMessages = getTypingMessages(data);
-    options = options || {};
-    if ($typingMessages.length !== 0) {
-      options.fade = false;
-      $typingMessages.remove();
-    }*/
 
     var $usernameDiv = $('<span class="username"/>')
       .text(data.username)
@@ -315,8 +308,7 @@ $(function() {
     } else {
       throwCard($(this).attr('id'));
       $(this).remove();
-    }
-      
+    } 
   });
 
   $revealTrump.on("click", function() {
@@ -338,14 +330,16 @@ $(function() {
     $currentInput.focus();
   });
 
-
   // Focus input when clicking on the message input's border
   $inputMessage.click(function () {
     $inputMessage.focus();
   });
 
+  //#########################################################################################
   // Socket events
+  //#########################################################################################
 
+  
   // Whenever the server emits 'login', log the login message
   socket.on('login', function (data) {
     connected = true;

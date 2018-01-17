@@ -124,7 +124,6 @@ io.on('connection', function (socket) {
 
   socket.on('ask trump', function () {
    console.log(socket.username+' asked for trump');
-   //players.p1.socket.emit('reveal trump', {
    io.sockets.emit('ask trump', {
       username:socket.username, 
     });
@@ -144,11 +143,10 @@ io.on('connection', function (socket) {
   socket.on('trump card', function (data) {
     console.log(('Trump setted '+ data));
     trumpSuit = data.charAt(0);
-    //players.p1.socket.emit('reveal trump', {
-    //io.sockets.emit('ask trump', {
-    //   username:socket.username, 
-     //});
-   });
+    players.p1.socket.emit('deal', {
+      hand: usersCards[players.p1.username]
+    });
+  });
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
