@@ -7,6 +7,8 @@
 html {
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
+  min-width: 100%;
+  min-height: 100%;
 }
 
 html, input {
@@ -21,6 +23,7 @@ html, input {
 }
 
 html, body {
+  width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
@@ -90,6 +93,7 @@ ul {
 
 .chat.page {
   display: none;
+  padding-top: 20px;
 }
 
 /* Font */
@@ -100,8 +104,6 @@ ul {
 
 .message {
   width: 25%;
-  display: inline-block !important;
-  position: relative;
 }
 .inputMessage {
   font-size: 100%;
@@ -109,7 +111,7 @@ ul {
 
 .log {
   color: gray;
-  font-size: 70%;
+  font-size: 150%;
   margin: 5px;
   text-align: center;
 }
@@ -121,24 +123,16 @@ ul {
   padding-bottom: 10px;
 }
 
-.messages {
-  height: 100%;
-  margin: auto;
-  overflow-y: scroll;
-  padding: 10px 20px 10px 20px;
-  width: 70%
-}
-
 .message.typing .messageBody {
   color: gray;
 }
 
-.username {
+/*.username {
   font-weight: 700;
   overflow: hidden;
   padding-right: 15px;
   text-align: right;
-}
+}*/
 
 /* Input */
 
@@ -154,24 +148,20 @@ ul {
   width: 100%;
 }
 
-.cards img {
-  padding: 0
-  border: 10px solid #000;
-  bottom: 0; 
+.cards img { 
   left: 0;
-  outline: none;
   right: 0;
-  width: 75px;
-  height:100px;
+  width: 7.5%;
+  padding: 10px;
 }
 .cards {
-  padding: 0
-  border: 10px solid #000;
-  bottom: 0;
   height: 100px;
-  outline: none;
   margin: auto;
-  width: 70%;
+  width: 100%;
+  position: sticky;
+  position: -webkit-sticky;
+  bottom: 0;
+  padding-left: 20px;
 }
 .tablecard {
   width: 50%;

@@ -12,6 +12,7 @@ $(function() {
   var $document = $(document);
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
+  var $logs = $('.logs'); //log messages
   var $inputMessage = $('.inputMessage'); // Input message input box
   var $revealTrump = $('.revealTrump');
   var $askTrump = $('.askTrump');
@@ -93,7 +94,7 @@ $(function() {
   // Log a message
   function log (message, options) {
     var $el = $('<li>').addClass('log').text(message);
-    addMessageElement($el, options);
+    addLogElement($el, options);
   }
 
   // Adds the visual chat message to the message list
@@ -183,6 +184,33 @@ $(function() {
     }
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }
+
+  function addLogElement (el, options) {
+    var $el = $(el);
+
+    // Setup default options
+    if (!options) {
+      options = {};
+    }
+    if (typeof options.fade === 'undefined') {
+      options.fade = true;
+    }
+    if (typeof options.prepend === 'undefined') {
+      options.prepend = false;
+    }
+
+    // Apply options
+    if (options.fade) {
+      $el.hide().fadeIn(FADE_TIME);
+    }
+    if (options.prepend) {
+      $logs.prepend($el);
+    } else {
+      $logs.append($el);
+    }
+    $logs[0].scrollTop = $logs[0].scrollHeight;
+  }
+
 
   // Adds a message element to the messages and scrolls to the bottom
   // el - The element to add as a message
@@ -362,7 +390,7 @@ $(function() {
   });
 
   socket.on('senior player', function (data) {
-    alert((data +' is senior'));
+    log((data +' is senior'));
   });
   
   socket.on("ask trump", function(data) {

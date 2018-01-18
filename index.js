@@ -137,7 +137,8 @@ io.on('connection', function (socket) {
       numUsers: numUsers
     }); 
 
-    if (numUsers > 1){
+    //if (numUsers > 1){
+      if (1){
       // send cards to socket
       socket.emit('deal', {
         'hand': hand

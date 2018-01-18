@@ -4,17 +4,47 @@
   <meta charset="UTF-8">
   <title>Socket.IO Cards Game</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+      .logs {
+        width: 20%;
+        height: 80%;
+        background: rgb(49, 45, 45);
+        overflow-y: scroll;
+        float: left;
+      }
+      .messages {
+        width: 60%;
+        height: 80%;
+        background: rgb(37, 187, 130);
+        overflow-y: scroll;
+        float: left;
+      }
+      .status {
+        width: 20%;
+        height: 80%;
+        background: rgb(37, 157, 187);
+        float: left;
+      }
+      .message {
+        width: 25%;
+        height: 100%;
+        background: rgb(37, 187, 130);
+        float: left;
+      }
+      </style>
 </head>
 <body>
   <ul class="pages">
     <li class="chat page">
       <div class="chatArea">
+        <ul class="logs"></ul>
         <ul class="messages"></ul>
+        <div class="status">
+            <input type="button" class="revealTrump" value="Reveal Trump"></input>
+            <input type="button" class="askTrump" value="Ask for Trump"></input>
+        </div>
       </div>
-      <div class="cards" type="">
-      </div>
-      <input type="button" class="revealTrump" value="Reveal Trump"></input>
-      <input type="button" class="askTrump" value="Ask for Trump"></input>
+      <div class="cards"></div>      
     </li>
     <li class="login page">
       <div class="form">
