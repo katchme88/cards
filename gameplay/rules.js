@@ -2,6 +2,13 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
 
     currentRoundCards = data.slice();
     trumpExist = 0;
+    var x = {
+        data: data,
+        trumpRevealed: trumpRevealed,
+        trumpSuit: trumpSuit, 
+        revealedInThis: revealedInThis
+    }
+    console.log(x)
        
     if (!trumpRevealed) {
         // If trump is not yet revealed the first card stays the current suit

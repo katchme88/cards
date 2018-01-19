@@ -373,7 +373,7 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to MOODA";
+    var message = "Cards.IO";
     log(message, {
       prepend: true
     });
@@ -395,6 +395,11 @@ $(function() {
     $(".rounds").text(("Total Rounds: "+data.totalRounds));
   });
   
+  socket.on('hands picked', function (data){
+    $(".teamAHands").text(("Team A: "+data.teamAHands));
+    $(".teamBHands").text(("Team B: "+data.teamBHands));
+  });
+
   socket.on("request trump", function(data) {
     log((data.username + " has asked to reveal the Trump"));
   });

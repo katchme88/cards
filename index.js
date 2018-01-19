@@ -26,6 +26,8 @@ var totalRounds = 0;
 var players = {};
 var teamA = [];
 var teamB = [];
+var teamAHands = 0;
+var teamBHands = 0;
 var trumpRevealed = 0;
 var revealedInThis = 0;
 var trumpCard = '';
@@ -66,7 +68,7 @@ io.on('connection', function (socket) {
       currentRoundCards.push(data);
       if (turn==4) {
         totalRounds++;
-        var seniorArr = rules.getSenior(currentRoundCards , trumpRevealed, trumpCard.charAt[0], revealedInThis);
+        var seniorArr = rules.getSenior(currentRoundCards , trumpRevealed, trumpCard.charAt(0), revealedInThis);
         var seniorCard = seniorArr[0];
         var seniorIndex = seniorArr[1];
         if (trumpRevealed){
@@ -94,16 +96,29 @@ io.on('connection', function (socket) {
       turn=0;
       revealedInThis=0;
     } else if (turn==4 && winnerFlag) {
+      var roundWinner = currentRoundObj[seniorCard];
+      if (players.p1.username == roundWinner || players.p3.username == roundWinner) {
+        teamAHands+=roundsSinceLastWin;
+      } else {
+        teamBHands+=roundsSinceLastWin;
+      }
       io.sockets.emit('hands picked', {
-        winner: currentRoundObj[seniorCard],
         handsPicked: roundsSinceLastWin,
-        totalRounds: totalRounds
+        totalRounds: totalRounds,
+        teamAHands: teamAHands,
+        teamBHands: teamBHands
       });
       var x = {
-        winner: currentRoundObj[seniorCard],
-        handsPicked: roundsSinceLastWin
-      }
+        handsPicked: roundsSinceLastWin,
+        totalRounds: totalRounds,
+        teamAHands: teamAHands,
+        teamBHands: teamBHands
+      };
       roundsSinceLastWin = 0;
+      turn=0;
+      revealedInThis=0;
+      currentRoundObj = {};
+      currentRoundCards = [];
       console.log(x);
     }
     
@@ -185,6 +200,7 @@ io.on('connection', function (socket) {
   socket.on('trump card', function (data) {
     console.log(('Trump setted '+ data));
     trumpCard = data;
+    console.log(data);
     players.p1.socket.emit('deal', {
       hand: usersCards[players.p1.username]
     });
