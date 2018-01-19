@@ -15,12 +15,15 @@ $(function() {
   var $logs = $('.logs'); //log messages
   var $inputMessage = $('.inputMessage'); // Input message input box
   var $revealTrump = $('.revealTrump');
-  var $askTrump = $('.askTrump');
+  var $requestTrump = $('.requestTrump');
+  var $trumpCard = $('.trumpCard');
+  var $disable = $('.disable');
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
 
   var $cards = $('.cards');
   var choosingTrump = false;
+  var trumpCard = "";
 
   // Prompt for setting a username
   var username;
@@ -211,12 +214,6 @@ $(function() {
     $logs[0].scrollTop = $logs[0].scrollHeight;
   }
 
-
-  // Adds a message element to the messages and scrolls to the bottom
-  // el - The element to add as a message
-  // options.fade - If the element should fade-in (default = true)
-  // options.prepend - If the element should prepend
-  //   all other messages (default = false)
   function addCardElement (el, options) {
     var $el = $(el);
 
@@ -247,17 +244,14 @@ $(function() {
     var message = id;
     if (message && connected) {
       $inputMessage.val('');
-      //addCard({
-        //username: username,
-        //message: message
-      //});
-      // tell server to execute 'new message' and send along one parameter
       socket.emit('trump card', message);
     }
   }
 
-  function addTrumpElement () {
+  function addTrumpElement (id) {
     choosingTrump = false;
+    trumpCard = id;
+    $trumpCard.append('<img id="'+id+'" src="/images/'+id+'.svg" class="trump"></img>');
   }
   // Prevents input from having injected markup
   function cleanInput (input) {
@@ -311,7 +305,6 @@ $(function() {
   }
 
   // Keyboard events
-
   $window.keydown(function (event) {
     // Auto-focus the current input when a key is typed
     if (!(event.ctrlKey || event.metaKey || event.altKey)) {
@@ -332,19 +325,26 @@ $(function() {
   $document.on("click", "img.card" , function() {
     if (choosingTrump){
       sendTrumpCard($(this).attr('id'));
-      addTrumpElement();
+      addTrumpElement($(this).attr('id'));
+      $(this).remove();
     } else {
       throwCard($(this).attr('id'));
       $(this).remove();
     } 
   });
 
+  $document.on("click", "img.trump" , function() {
+      socket.emit('reveal trump');
+      $cards.append('<img id="'+$(this).attr('id')+'" src="/images/'+$(this).attr('id')+'.svg" class="card"></img>');
+      $(this).remove(); 
+    });
+
   $revealTrump.on("click", function() {
-    socket.emit('reveal trump'); 
+    socket.emit('reveal trump');  
   });
   
-  $askTrump.on("click", function() {
-    socket.emit('ask trump');
+  $requestTrump.on("click", function() {
+    socket.emit('request trump');
   });
   
   $inputMessage.on('input', function() {
@@ -390,15 +390,15 @@ $(function() {
   });
 
   socket.on('senior player', function (data) {
-    log((data +' is senior'));
+    log((data.username +' is senior'));
   });
   
-  socket.on("ask trump", function(data) {
+  socket.on("request trump", function(data) {
     log((data.username + " has asked to reveal the Trump"));
   });
 
   socket.on("reveal trump", function(data) {
-    log(("The trump is " + data.trumpSuit));
+    log(("The trump is " + data.trumpCard));
   });
 
   // Whenever the server emits 'user joined', log it in the chat body
@@ -449,6 +449,14 @@ $(function() {
 
   socket.on('reconnect_error', function () {
     log('attempt to reconnect has failed');
+  });
+
+  socket.on('disable', function () {
+    $document.off('click');
+  });
+
+  socket.on('enable', function () {
+    $document.on('click');
   });
 
 });

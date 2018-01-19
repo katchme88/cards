@@ -8,7 +8,7 @@
       .logs {
         width: 20%;
         height: 80%;
-        background: rgb(49, 45, 45);
+        background: rgb(139, 121, 121);
         overflow-y: scroll;
         float: left;
       }
@@ -21,15 +21,21 @@
       }
       .status {
         width: 20%;
+        padding-top: 100px;
         height: 80%;
         background: rgb(37, 157, 187);
         float: left;
       }
       .message {
         width: 25%;
+        padding-top: 100px;
         height: 100%;
         background: rgb(37, 187, 130);
         float: left;
+      }
+
+      .trumpCard img {
+        width: 25%;
       }
       </style>
 </head>
@@ -40,8 +46,8 @@
         <ul class="logs"></ul>
         <ul class="messages"></ul>
         <div class="status">
-            <input type="button" class="revealTrump" value="Reveal Trump"></input>
-            <input type="button" class="askTrump" value="Ask for Trump"></input>
+            <input type="button" class="requestTrump" value="Request Trump"></input>
+            <div class="trumpCard"></div>
         </div>
       </div>
       <div class="cards"></div>      
