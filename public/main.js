@@ -299,6 +299,7 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
+    data.hand.sort();
     for(var i=0; i < data.hand.length;i++){
       $cards.append('<img id="'+data.hand[i]+'" src="/images/'+data.hand[i]+'.svg" class="card"></img>');
     }
@@ -346,7 +347,7 @@ $(function() {
   $requestTrump.on("click", function() {
     socket.emit('request trump');
   });
-  
+
   $inputMessage.on('input', function() {
     updateTyping();
   });
@@ -391,6 +392,7 @@ $(function() {
 
   socket.on('senior player', function (data) {
     log((data.username +' is senior'));
+    $(".rounds").text(("Total Rounds: "+data.totalRounds));
   });
   
   socket.on("request trump", function(data) {

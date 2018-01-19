@@ -32,6 +32,7 @@ var trumpCard = '';
 var currentRoundCards = [];
 var currentRoundObj = {};
 var roundsSinceLastWin = 0;
+var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
 
 fs.readdir('public/images', function(err, items) {
     deck = items;
@@ -43,7 +44,7 @@ function deal() {
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
       this_hand.push(randomCard[0].split('.')[0]);
     }
-    return this_hand.sort();
+    return this_hand;
 }
 
 io.on('connection', function (socket) {
@@ -95,7 +96,8 @@ io.on('connection', function (socket) {
     } else if (turn==4 && winnerFlag) {
       io.sockets.emit('hands picked', {
         winner: currentRoundObj[seniorCard],
-        handsPicked: roundsSinceLastWin
+        handsPicked: roundsSinceLastWin,
+        totalRounds: totalRounds
       });
       var x = {
         winner: currentRoundObj[seniorCard],
@@ -169,10 +171,14 @@ io.on('connection', function (socket) {
    console.log('revealed trump');
    revealedInThis = turn;
    trumpRevealed = 1;
-   console.log(revealedInThis);
-   socket.broadcast.emit('reveal trump', {
+   var arr = trumpCard.split(/(\d+)/) ;
+   console.log(arr);
+   if (arr[1]>10){
+     arr[1]=deckJargons[1];
+   }
+   io.sockets.emit('reveal trump', {
      username: socket.username,
-     trumpCard: trumpCard
+     trumpCard: (arr[1]+' of ' +deckJargons[arr[0]])
     });
   });
 

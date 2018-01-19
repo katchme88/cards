@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Socket.IO Cards Game</title>
+  <title>Cards Game</title>
   <link rel="stylesheet" href="style.css">
   <style>
       .logs {
@@ -36,6 +36,7 @@
 
       .trumpCard img {
         width: 25%;
+        margin: auto;
       }
       </style>
 </head>
@@ -46,7 +47,8 @@
         <ul class="logs"></ul>
         <ul class="messages"></ul>
         <div class="status">
-            <input type="button" class="requestTrump" value="Request Trump"></input>
+            <input type="button" class="requestTrump" value="Request Trump"></input><br><br>
+            <span class="rounds"></span><br><br>
             <div class="trumpCard"></div>
         </div>
       </div>
