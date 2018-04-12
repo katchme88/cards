@@ -138,7 +138,7 @@ $(function() {
     var $messageDiv = $('<li class="message"/>')
       .data('username', data.username)
       .addClass(typingClass)
-      .append($usernameDiv, '<img id="'+data.message+'.svg" src="/images/'+data.message+'.svg" class="tablecard"></img>');
+      .append($usernameDiv, '<img id="'+data.message+'.svg" src="images/'+data.message+'.svg" class="tablecard"></img>');
 
     addCardElement($messageDiv, options);
   }
@@ -251,7 +251,7 @@ $(function() {
   function addTrumpElement (id) {
     choosingTrump = false;
     trumpCard = id;
-    $trumpCard.append('<img id="'+id+'" src="/images/'+id+'.svg" class="trump"></img>');
+    $trumpCard.append('<img id="'+id+'" src="images/'+id+'.svg" class="trump"></img>');
   }
   // Prevents input from having injected markup
   function cleanInput (input) {
@@ -301,7 +301,7 @@ $(function() {
   function drawCardsInHand (data) {
     data.hand.sort();
     for(var i=0; i < data.hand.length;i++){
-      $cards.append('<img id="'+data.hand[i]+'" src="/images/'+data.hand[i]+'.svg" class="card"></img>');
+      $cards.append('<img id="'+data.hand[i]+'" src="images/'+data.hand[i]+'.svg" class="card"></img>');
     }
   }
 
@@ -336,7 +336,7 @@ $(function() {
 
   $document.on("click", "img.trump" , function() {
       socket.emit('reveal trump');
-      $cards.append('<img id="'+$(this).attr('id')+'" src="/images/'+$(this).attr('id')+'.svg" class="card"></img>');
+      $cards.append('<img id="'+$(this).attr('id')+'" src="images/'+$(this).attr('id')+'.svg" class="card"></img>');
       $(this).remove(); 
     });
 
