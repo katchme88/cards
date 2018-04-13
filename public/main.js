@@ -250,7 +250,6 @@ $(function() {
     var message = id;
     if (message && connected) {
       $inputMessage.val('');
-      console.log(cardsInHand);
       socket.emit('trump card', message);
     }
   }
@@ -349,13 +348,13 @@ $(function() {
 
   $document.on("click", "img.trump" , function() {
       socket.emit('reveal trump');
+      cardsInHand.push($(this).attr('id'));
+      console.log(cardsInHand);
       $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
       $(this).remove(); 
     });
 
   $revealTrump.on("click", function() {
-    cardsInHand.push($(this).attr('id'));
-    console.log(cardsInHand);
     socket.emit('reveal trump');  
   });
   
