@@ -34,6 +34,7 @@ var trumpCard = '';
 var currentRoundCards = [];
 var currentRoundObj = {};
 var roundsSinceLastWin = 0;
+var playerSequence = [];
 var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
 
 fs.readdir('public/images', function(err, items) {
@@ -64,13 +65,18 @@ io.on('connection', function (socket) {
     turn++;
     
     if (turn <= 4) {
+
       currentRoundObj[data] = socket.username;
       currentRoundCards.push(data);
+      var nextPlayerSocket = playerSequence.indexOf(socket.username) == 3 ? players.p1.socket : players['p'+ (playerSequence.indexOf(socket.username)+2)].socket;
+
       if (turn==4) {
+
         totalRounds++;
         var seniorArr = rules.getSenior(currentRoundCards , trumpRevealed, trumpCard.charAt(0), revealedInThis);
         var seniorCard = seniorArr[0];
         var seniorIndex = seniorArr[1];
+        
         if (trumpRevealed){
           
           if (revealedInThis) {
@@ -82,7 +88,6 @@ io.on('connection', function (socket) {
           var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis);
           
         }
-        console.log(seniorCard);
       }
     }
 
@@ -91,6 +96,11 @@ io.on('connection', function (socket) {
         username: currentRoundObj[seniorCard],
         totalRounds: totalRounds
       });
+      // console.log(players);
+      // console.log(currentRoundObj);
+      // console.log(playerSequence.indexOf(currentRoundObj[seniorCard]));
+      // console.log(players['p'+ playerSequence.indexOf(currentRoundObj[seniorCard])]);
+      nextPlayerSocket = players['p'+ (playerSequence.indexOf(currentRoundObj[seniorCard])+1)].socket;
       currentRoundObj = {};
       currentRoundCards = [];
       turn=0;
@@ -108,6 +118,7 @@ io.on('connection', function (socket) {
         teamAHands: teamAHands,
         teamBHands: teamBHands
       });
+      nextPlayerSocket = players['p'+ (playerSequence.indexOf(currentRoundObj[seniorCard])+1)].socket;
       var x = {
         handsPicked: roundsSinceLastWin,
         totalRounds: totalRounds,
@@ -119,8 +130,8 @@ io.on('connection', function (socket) {
       revealedInThis=0;
       currentRoundObj = {};
       currentRoundCards = [];
-      console.log(x);
     }
+    nextPlayerSocket.emit('your turn');
     
   });
 
@@ -136,11 +147,12 @@ io.on('connection', function (socket) {
       usersCards[socket.username] = hand;
       if (numUsers <= 4) {
         players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
-        if (numUsers%2 == 1) {
-          teamA.push(players[numUsers]);
-        } else {
-          teamB.push(players[numUsers]);
-        }
+        // if (numUsers%2 == 1) {
+        //   teamA.push(players[numUsers]);
+        // } else {
+        //   teamB.push(players[numUsers]);
+        // }
+        playerSequence.push(username);
       }
     } else {
       socket.username = username;
@@ -189,7 +201,7 @@ io.on('connection', function (socket) {
    var arr = trumpCard.split(/(\d+)/) ;
    console.log(arr);
    if (arr[1]>10){
-     arr[1]=deckJargons[1];
+     arr[1]=deckJargons[arr[1]];
    }
    io.sockets.emit('reveal trump', {
      username: socket.username,
@@ -202,6 +214,9 @@ io.on('connection', function (socket) {
     trumpCard = data;
     console.log(data);
     players.p1.socket.emit('deal', {
+      hand: usersCards[players.p1.username]
+    });
+    players.p1.socket.emit('your turn', {
       hand: usersCards[players.p1.username]
     });
   });

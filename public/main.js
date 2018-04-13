@@ -31,6 +31,7 @@ $(function() {
   var typing = false;
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
+  var myTurn = 0;
 
   var socket = io();
 
@@ -328,9 +329,12 @@ $(function() {
       sendTrumpCard($(this).attr('id'));
       addTrumpElement($(this).attr('id'));
       $(this).remove();
+    } else if (myTurn == 0) {
+      alert('Not your turn')
     } else {
       throwCard($(this).attr('id'));
       $(this).remove();
+      myTurn = 0;
     } 
   });
 
@@ -417,6 +421,11 @@ $(function() {
   // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
+  });
+  
+  // Your turn
+   socket.on('your turn', function (data) {
+    myTurn = 1;
   });
 
   // draw cards and ask him to choose trump

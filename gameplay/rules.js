@@ -8,7 +8,6 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
         trumpSuit: trumpSuit, 
         revealedInThis: revealedInThis
     }
-    console.log(x)
        
     if (!trumpRevealed) {
         // If trump is not yet revealed the first card stays the current suit
@@ -44,7 +43,6 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
             data[i] = '0';
         }
     }
-    console.log(currentRoundCards);
     seniorCard = data.sort()[data.length -1];
     return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
 }
@@ -54,4 +52,9 @@ exports.getWinner = function (seniorIndex, roundsSinceLastWin, revealedInThis) {
         return (1);
     }
     return (0);
+}
+
+
+exports.getNextPlayer = function () {
+    
 }
