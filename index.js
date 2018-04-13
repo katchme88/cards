@@ -33,6 +33,7 @@ var revealedInThis = 0;
 var trumpCard = '';
 var currentRoundCards = [];
 var currentRoundObj = {};
+var currentRoundSuit;
 var roundsSinceLastWin = 0;
 var playerSequence = [];
 var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
@@ -63,6 +64,11 @@ io.on('connection', function (socket) {
     usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
 
     turn++;
+
+    if (turn==1){
+      currentRoundSuit = data.split(/(\d+)/)[0];
+      console.log(currentRoundSuit);
+    }
     
     if (turn <= 4) {
 
@@ -131,7 +137,9 @@ io.on('connection', function (socket) {
       currentRoundObj = {};
       currentRoundCards = [];
     }
-    nextPlayerSocket.emit('your turn');
+    nextPlayerSocket.emit('your turn', {
+      currentSuit: currentSuit
+    });
     
   });
 

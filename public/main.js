@@ -24,6 +24,7 @@ $(function() {
   var $cards = $('.cards');
   var choosingTrump = false;
   var trumpCard = "";
+  var currentRoundSuit;
 
   // Prompt for setting a username
   var username;
@@ -32,6 +33,8 @@ $(function() {
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
   var myTurn = 0;
+  var cardsInHand = [];
+  var suitsInHand = [];
 
   var socket = io();
 
@@ -91,6 +94,8 @@ $(function() {
         message: message
       });
       // tell server to execute 'new message' and send along one parameter
+      cardsInHand.splice(cardsInHand.indexOf(id),1);
+      console.log(cardsInHand);
       socket.emit('card thrown', message);
     }
   }
@@ -245,6 +250,7 @@ $(function() {
     var message = id;
     if (message && connected) {
       $inputMessage.val('');
+      console.log(cardsInHand);
       socket.emit('trump card', message);
     }
   }
@@ -300,10 +306,11 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
-    data.hand.sort();
     for(var i=0; i < data.hand.length;i++){
       $cards.append('<img id="'+data.hand[i]+'" src="https://gurutalha.azureedge.net/images/'+data.hand[i]+'.svg" class="card"></img>');
+      cardsInHand.push(data.hand[i]);
     }
+    console.log(cardsInHand);
   }
 
   // Keyboard events
@@ -328,6 +335,8 @@ $(function() {
     if (choosingTrump){
       sendTrumpCard($(this).attr('id'));
       addTrumpElement($(this).attr('id'));
+      cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
+      console.log(cardsInHand);
       $(this).remove();
     } else if (myTurn == 0) {
       alert('Not your turn')
@@ -345,6 +354,8 @@ $(function() {
     });
 
   $revealTrump.on("click", function() {
+    cardsInHand.push($(this).attr('id'));
+    console.log(cardsInHand);
     socket.emit('reveal trump');  
   });
   
@@ -426,6 +437,7 @@ $(function() {
   // Your turn
    socket.on('your turn', function (data) {
     myTurn = 1;
+    currentRoundSuit = data.currentRoundSuit;
   });
 
   // draw cards and ask him to choose trump
