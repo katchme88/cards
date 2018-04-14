@@ -25,6 +25,7 @@ $(function() {
   var choosingTrump = false;
   var trumpCard = "";
   var currentRoundSuit;
+  var trumpAsked = false;
 
   // Prompt for setting a username
   var username;
@@ -35,6 +36,7 @@ $(function() {
   var myTurn = 0;
   var cardsInHand = [];
   var suitsInHand = [];
+  var playerNumber;
 
   var socket = io();
 
@@ -162,7 +164,7 @@ $(function() {
 
   // Adds a message element to the messages and scrolls to the bottom
   // el - The element to add as a message
-  // options.fade - If the element should fade-in (default = true)
+  // options.fade - If the element should fadefade-in (default = true)
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
   function addMessageElement (el, options) {
@@ -382,11 +384,15 @@ $(function() {
   });
 
   $document.on("click", "img.trump" , function() {
-      socket.emit('reveal trump');
-      cardsInHand.push($(this).attr('id'));
-      updateSuitsInHand(cardsInHand);
-      $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
-      $(this).remove(); 
+      if (trumpAsked) {
+        socket.emit('reveal trump');
+        cardsInHand.push($(this).attr('id'));
+        updateSuitsInHand(cardsInHand);
+        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
+        $(this).remove();
+      } else {
+        alert('You can\'t reveal trump at this stage');
+      }
     });
 
   $revealTrump.on("click", function() {
@@ -451,6 +457,7 @@ $(function() {
 
   socket.on("request trump", function(data) {
     log((data.username + " has asked to reveal the Trump"));
+    trumpAsked = true;
   });
 
   socket.on("reveal trump", function(data) {
@@ -466,6 +473,7 @@ $(function() {
   // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
+    playerNumber = data.playerNumber;
   });
   
   // Your turn

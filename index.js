@@ -191,7 +191,8 @@ io.on('connection', function (socket) {
       });
     } else {
       socket.emit('deal', {
-        'hand': hand
+        hand: hand,
+        playerNumber: playerSequence.indexOf(socket.username) + 1
       });
     }
   });
