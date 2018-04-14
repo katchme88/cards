@@ -351,7 +351,7 @@ $(function() {
         cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
         updateSuitsInHand(cardsInHand);
         $(this).remove();
-    } else if (currentRoundSuit && myTurn){
+    } else if (currentRoundSuit && myTurn) {
       updateSuitsInHand(cardsInHand);
       var found = suitsInHand.find(function(element) {
           return element == currentRoundSuit;
@@ -371,7 +371,9 @@ $(function() {
           $(this).remove();
           myTurn = 0;
         } else {
-          alert('Please throw correct suit');
+          log('Please throw correct suit', {
+            prepend: true
+          });
         }
       
       } else if (!currentRoundSuit && myTurn) {
@@ -379,7 +381,9 @@ $(function() {
         $(this).remove();
         myTurn = 0;
       } else {
-        alert('Not your turn');
+        log('Not your turn', {
+          prepend: true
+        });
       } 
   });
 
@@ -391,7 +395,9 @@ $(function() {
         $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
         $(this).remove();
       } else {
-        alert('You can\'t reveal trump at this stage');
+        log('You can\'t reveal trump at this stage', {
+          prepend: true
+        });
       }
     });
 
@@ -400,7 +406,20 @@ $(function() {
   });
   
   $requestTrump.on("click", function() {
-    socket.emit('request trump');
+    updateSuitsInHand(cardsInHand);
+
+    var found = suitsInHand.find(function(element) {
+        return element == currentRoundSuit;
+    });
+
+    if (!found && myTurn && currentRoundSuit) {
+      socket.emit('request trump');
+      
+    } else {
+      log('you can\'t ask for trump right now', {
+        prepend: true
+      });
+    }
   });
 
   $inputMessage.on('input', function() {
