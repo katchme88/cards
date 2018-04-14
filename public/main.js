@@ -84,9 +84,6 @@ $(function() {
     // Sends a chat message
   function throwCard (id) {
     var message = id;
-    // Prevent markup from being injected into the message
-    //message = cleanInput(message);
-    // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
       addCard({
@@ -95,7 +92,7 @@ $(function() {
       });
       // tell server to execute 'new message' and send along one parameter
       cardsInHand.splice(cardsInHand.indexOf(id),1);
-      console.log(cardsInHand);
+      updateSuitsInHand(cardsInHand);
       socket.emit('card thrown', message);
     }
   }
@@ -259,6 +256,20 @@ $(function() {
     trumpCard = id;
     $trumpCard.append('<img id="'+id+'" src="https://gurutalha.azureedge.net/images/'+id+'.svg" class="trump"></img>');
   }
+
+  function updateSuitsInHand (cardsInHand) {
+    var arr = [];
+    suitsInHand = [];
+    for (var i in cardsInHand){
+      arr.push(cardsInHand[i].split(/(\d+)/)[0]);
+    }
+
+    $.each(arr, function(i, el){
+      if($.inArray(el, suitsInHand) === -1) suitsInHand.push(el);
+    });
+  }
+
+
   // Prevents input from having injected markup
   function cleanInput (input) {
     return $('<div/>').text(input).html();
@@ -305,11 +316,12 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
-    for(var i=0; i < data.hand.length;i++){
+    (data.hand).sort();
+    for(var i in data.hand){
       $cards.append('<img id="'+data.hand[i]+'" src="https://gurutalha.azureedge.net/images/'+data.hand[i]+'.svg" class="card"></img>');
       cardsInHand.push(data.hand[i]);
     }
-    console.log(cardsInHand);
+    updateSuitsInHand(cardsInHand);
   }
 
   // Keyboard events
@@ -332,24 +344,47 @@ $(function() {
 
   $document.on("click", "img.card" , function() {
     if (choosingTrump){
-      sendTrumpCard($(this).attr('id'));
-      addTrumpElement($(this).attr('id'));
-      cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
-      console.log(cardsInHand);
-      $(this).remove();
-    } else if (myTurn == 0) {
-      alert('Not your turn')
-    } else {
-      throwCard($(this).attr('id'));
-      $(this).remove();
-      myTurn = 0;
-    } 
+        sendTrumpCard($(this).attr('id'));
+        addTrumpElement($(this).attr('id'));
+        cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
+        updateSuitsInHand(cardsInHand);
+        $(this).remove();
+    } else if (currentRoundSuit && myTurn){
+      updateSuitsInHand(cardsInHand);
+      var found = suitsInHand.find(function(element) {
+          return element == currentRoundSuit;
+      });
+
+        console.log(found);
+        console.log(suitsInHand);
+        console.log(cardsInHand);
+        console.log(currentRoundSuit);
+
+        if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
+          throwCard($(this).attr('id'));
+          $(this).remove();
+          myTurn = 0;
+        } else if (!found){
+          throwCard($(this).attr('id'));
+          $(this).remove();
+          myTurn = 0;
+        } else {
+          alert('Please throw correct suit');
+        }
+      
+      } else if (!currentRoundSuit && myTurn) {
+        throwCard($(this).attr('id'));
+        $(this).remove();
+        myTurn = 0;
+      } else {
+        alert('Not your turn');
+      } 
   });
 
   $document.on("click", "img.trump" , function() {
       socket.emit('reveal trump');
       cardsInHand.push($(this).attr('id'));
-      console.log(cardsInHand);
+      updateSuitsInHand(cardsInHand);
       $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
       $(this).remove(); 
     });

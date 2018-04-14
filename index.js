@@ -82,6 +82,7 @@ io.on('connection', function (socket) {
         var seniorArr = rules.getSenior(currentRoundCards , trumpRevealed, trumpCard.charAt(0), revealedInThis);
         var seniorCard = seniorArr[0];
         var seniorIndex = seniorArr[1];
+        currentRoundSuit = '';
         
         if (trumpRevealed){
           
@@ -138,7 +139,7 @@ io.on('connection', function (socket) {
       currentRoundCards = [];
     }
     nextPlayerSocket.emit('your turn', {
-      currentSuit: currentSuit
+      currentRoundSuit: currentRoundSuit
     });
     
   });
