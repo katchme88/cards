@@ -99,6 +99,22 @@ $(function() {
     }
   }
 
+  //throw budrangi
+  function throwBudRangi (id) {
+    var message = id;
+    if (message && connected) {
+      $inputMessage.val('');
+      addCard({
+        username: username,
+        message: message
+      });
+      // tell server to execute 'new message' and send along one parameter
+      cardsInHand.splice(cardsInHand.indexOf(id),1);
+      updateSuitsInHand(cardsInHand);
+      socket.emit('budrangi thrown', message);
+    }
+  }
+
   // Log a message
   function log (message, options) {
     var $el = $('<li>').addClass('log').text(message);
@@ -356,11 +372,6 @@ $(function() {
       var found = suitsInHand.find(function(element) {
           return element == currentRoundSuit;
       });
-
-        console.log(found);
-        console.log(suitsInHand);
-        console.log(cardsInHand);
-        console.log(currentRoundSuit);
 
         if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
           throwCard($(this).attr('id'));
