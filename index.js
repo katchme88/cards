@@ -162,6 +162,7 @@ io.on('connection', function (socket) {
         //   teamB.push(players[numUsers]);
         // }
         playerSequence.push(username);
+        playerNumber = playerSequence.indexOf(socket.username) + 1
       }
     } else {
       socket.username = username;
@@ -169,7 +170,8 @@ io.on('connection', function (socket) {
     }
   
     socket.emit('login', {
-      numUsers: numUsers
+      numUsers: numUsers,
+      playerNumber: playerSequence.indexOf(socket.username) + 1
     });
     
     // echo globally (all clients) that a person has connected
@@ -181,18 +183,17 @@ io.on('connection', function (socket) {
     if (socket.username != players.p1.username){
       // send cards to socket
       socket.emit('deal', {
-        'hand': hand
+        hand: hand
       });
     } else if (socket.username == players.p1.username && trumpCard == ""){
       // send player 1 cards to select trump
       var first5 = hand.splice(0,5);
       socket.emit('choose trump', {
-        'hand': first5
+        hand: first5
       });
     } else {
       socket.emit('deal', {
-        hand: hand,
-        playerNumber: playerSequence.indexOf(socket.username) + 1
+        hand: hand
       });
     }
   });

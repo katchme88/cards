@@ -14,7 +14,7 @@ $(function() {
   var $messages = $('.messages'); // Messages area
   var $logs = $('.logs'); //log messages
   var $inputMessage = $('.inputMessage'); // Input message input box
-  var $revealTrump = $('.revealTrump');
+  //var $revealTrump = $('.revealTrump');
   var $requestTrump = $('.requestTrump');
   var $trumpCard = $('.trumpCard');
   var $disable = $('.disable');
@@ -372,7 +372,7 @@ $(function() {
           myTurn = 0;
         } else {
           log('Please throw correct suit', {
-            prepend: true
+            prepend: false
           });
         }
       
@@ -382,7 +382,7 @@ $(function() {
         myTurn = 0;
       } else {
         log('Not your turn', {
-          prepend: true
+          prepend: false
         });
       } 
   });
@@ -396,18 +396,17 @@ $(function() {
         $(this).remove();
       } else {
         log('You can\'t reveal trump at this stage', {
-          prepend: true
+          prepend: false
         });
       }
     });
 
-  $revealTrump.on("click", function() {
-    socket.emit('reveal trump');  
-  });
+  // $revealTrump.on("click", function() {
+  //   socket.emit('reveal trump');  
+  // });
   
   $requestTrump.on("click", function() {
     updateSuitsInHand(cardsInHand);
-
     var found = suitsInHand.find(function(element) {
         return element == currentRoundSuit;
     });
@@ -417,7 +416,7 @@ $(function() {
       
     } else {
       log('you can\'t ask for trump right now', {
-        prepend: true
+        prepend: false
       });
     }
   });
@@ -451,7 +450,11 @@ $(function() {
     log(message, {
       prepend: true
     });
+    playerNumber = data.playerNumber;
     addParticipantsMessage(data);
+    if (playerNumber == 1 || playerNumber == 3){
+      $requestTrump.hide();
+    }
   });
 
   // Whenever the server emits 'new message', update the chat body
@@ -492,7 +495,6 @@ $(function() {
   // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
-    playerNumber = data.playerNumber;
   });
   
   // Your turn
