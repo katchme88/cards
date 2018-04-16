@@ -157,11 +157,6 @@ io.on('connection', function (socket) {
       usersCards[socket.username] = hand;
       if (numUsers <= 4) {
         players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
-        // if (numUsers%2 == 1) {
-        //   teamA.push(players[numUsers]);
-        // } else {
-        //   teamB.push(players[numUsers]);
-        // }
         playerSequence.push(username);
         playerNumber = playerSequence.indexOf(socket.username) + 1
       }

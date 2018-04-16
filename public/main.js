@@ -34,7 +34,7 @@ $(function() {
   var typing = false;
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
-  var myTurn = 0;
+  var myTurn = false;
   var cardsInHand = [];
   var suitsInHand = [];
   var playerNumber;
@@ -364,7 +364,7 @@ $(function() {
         if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
           throwCard($(this).attr('id'));
           $(this).remove();
-          myTurn = 0;
+          myTurn = false;
         } else if (!found){
 
           var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
@@ -374,7 +374,7 @@ $(function() {
           
           throwCard($(this).attr('id'), budRungi);
           $(this).remove();
-          myTurn = 0;
+          myTurn = false;
         } else {
           log('Please throw correct suit', {
             prepend: false
@@ -384,7 +384,7 @@ $(function() {
       } else if (!currentRoundSuit && myTurn) {
         throwCard($(this).attr('id'));
         $(this).remove();
-        myTurn = 0;
+        myTurn = false;
       } else {
         log('Not your turn', {
           prepend: false
@@ -505,7 +505,7 @@ $(function() {
   
   // Your turn
    socket.on('your turn', function (data) {
-    myTurn = 1;
+    myTurn = true;
     currentRoundSuit = data.currentRoundSuit;
   });
 
