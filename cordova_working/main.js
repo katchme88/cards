@@ -14,7 +14,7 @@ $(function() {
   var $messages = $('.messages'); // Messages area
   var $logs = $('.logs'); //log messages
   var $inputMessage = $('.inputMessage'); // Input message input box
-  //var $revealTrump = $('.revealTrump');
+  var $revealTrump = $('.revealTrump');
   var $requestTrump = $('.requestTrump');
   var $trumpCard = $('.trumpCard');
   var $disable = $('.disable');
@@ -24,9 +24,6 @@ $(function() {
   var $cards = $('.cards');
   var choosingTrump = false;
   var trumpCard = "";
-  var currentRoundSuit;
-  var trumpAsked = false;
-  var trumpRevealed = false;
 
   // Prompt for setting a username
   var username;
@@ -34,12 +31,8 @@ $(function() {
   var typing = false;
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
-  var myTurn = false;
-  var cardsInHand = [];
-  var suitsInHand = [];
-  var playerNumber;
 
-  var socket = io();
+  var socket = io('http://172.16.1.71:3000');
 
   function addParticipantsMessage (data) {
     var message = '';
@@ -85,21 +78,19 @@ $(function() {
   }
 
     // Sends a chat message
-  function throwCard (id, budRungi) {
+  function throwCard (id) {
     var message = id;
+    // Prevent markup from being injected into the message
+    //message = cleanInput(message);
+    // if there is a non-empty message and a socket connection
     if (message && connected) {
-      // tell server to execute 'card thrown' and send along one parameter
-      cardsInHand.splice(cardsInHand.indexOf(message), 1);
-      updateSuitsInHand(cardsInHand);
-      
-      //throw a budrungi if budRungi is true
-      message = budRungi ? 'budRungi' : message;
-
-      socket.emit('card thrown', message);
+      $inputMessage.val('');
       addCard({
         username: username,
         message: message
       });
+      // tell server to execute 'new message' and send along one parameter
+      socket.emit('card thrown', message);
     }
   }
 
@@ -147,7 +138,7 @@ $(function() {
     var $messageDiv = $('<li class="message"/>')
       .data('username', data.username)
       .addClass(typingClass)
-      .append($usernameDiv, '<img id="'+data.message+'.svg" src="https://gurutalha.azureedge.net/images/'+data.message+'.svg" class="tablecard"></img>');
+      .append($usernameDiv, '<img id="'+data.message+'.svg" src="images/'+data.message+'.svg" class="tablecard"></img>');
 
     addCardElement($messageDiv, options);
   }
@@ -168,7 +159,7 @@ $(function() {
 
   // Adds a message element to the messages and scrolls to the bottom
   // el - The element to add as a message
-  // options.fade - If the element should fadefade-in (default = true)
+  // options.fade - If the element should fade-in (default = true)
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
   function addMessageElement (el, options) {
@@ -260,22 +251,8 @@ $(function() {
   function addTrumpElement (id) {
     choosingTrump = false;
     trumpCard = id;
-    $trumpCard.append('<img id="'+id+'" src="https://gurutalha.azureedge.net/images/'+id+'.svg" class="trump"></img>');
+    $trumpCard.append('<img id="'+id+'" src="images/'+id+'.svg" class="trump"></img>');
   }
-
-  function updateSuitsInHand (cardsInHand) {
-    var arr = [];
-    suitsInHand = [];
-    for (var i in cardsInHand){
-      arr.push(cardsInHand[i].split(/(\d+)/)[0]);
-    }
-
-    $.each(arr, function(i, el){
-      if($.inArray(el, suitsInHand) === -1) suitsInHand.push(el);
-    });
-  }
-
-
   // Prevents input from having injected markup
   function cleanInput (input) {
     return $('<div/>').text(input).html();
@@ -322,12 +299,10 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
-    (data.hand).sort();
-    for(var i in data.hand){
-      $cards.append('<img id="'+data.hand[i]+'" src="https://gurutalha.azureedge.net/images/'+data.hand[i]+'.svg" class="card"></img>');
-      cardsInHand.push(data.hand[i]);
+    data.hand.sort();
+    for(var i=0; i < data.hand.length;i++){
+      $cards.append('<img id="'+data.hand[i]+'" src="images/'+data.hand[i]+'.svg" class="card"></img>');
     }
-    updateSuitsInHand(cardsInHand);
   }
 
   // Keyboard events
@@ -350,81 +325,27 @@ $(function() {
 
   $document.on("click", "img.card" , function() {
     if (choosingTrump){
-        sendTrumpCard($(this).attr('id'));
-        addTrumpElement($(this).attr('id'));
-        cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
-        updateSuitsInHand(cardsInHand);
-        $(this).remove();
-    } else if (currentRoundSuit && myTurn) {
-      updateSuitsInHand(cardsInHand);
-      var found = suitsInHand.find(function(element) {
-          return element == currentRoundSuit;
-      });
-
-        if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
-          throwCard($(this).attr('id'));
-          $(this).remove();
-          myTurn = false;
-        } else if (!found){
-
-          var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
-          console.log (budRungi);
-          console.log (playerNumber);
-          console.log (trumpRevealed);
-          
-          throwCard($(this).attr('id'), budRungi);
-          $(this).remove();
-          myTurn = false;
-        } else {
-          log('Please throw correct suit', {
-            prepend: false
-          });
-        }
-      
-      } else if (!currentRoundSuit && myTurn) {
-        throwCard($(this).attr('id'));
-        $(this).remove();
-        myTurn = false;
-      } else {
-        log('Not your turn', {
-          prepend: false
-        });
-      } 
+      sendTrumpCard($(this).attr('id'));
+      addTrumpElement($(this).attr('id'));
+      $(this).remove();
+    } else {
+      throwCard($(this).attr('id'));
+      $(this).remove();
+    } 
   });
 
   $document.on("click", "img.trump" , function() {
-      if (trumpAsked) {
-        socket.emit('reveal trump');
-        cardsInHand.push($(this).attr('id'));
-        updateSuitsInHand(cardsInHand);
-        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
-        $(this).remove();
-        trumpRevealed = true;
-      } else {
-        log('You can\'t reveal trump at this stage', {
-          prepend: false
-        });
-      }
+      socket.emit('reveal trump');
+      $cards.append('<img id="'+$(this).attr('id')+'" src="images/'+$(this).attr('id')+'.svg" class="card"></img>');
+      $(this).remove(); 
     });
 
-  // $revealTrump.on("click", function() {
-  //   socket.emit('reveal trump');  
-  // });
+  $revealTrump.on("click", function() {
+    socket.emit('reveal trump');  
+  });
   
   $requestTrump.on("click", function() {
-    updateSuitsInHand(cardsInHand);
-    var found = suitsInHand.find(function(element) {
-        return element == currentRoundSuit;
-    });
-
-    if (!found && myTurn && currentRoundSuit) {
-      socket.emit('request trump');
-      
-    } else {
-      log('you can\'t ask for trump right now', {
-        prepend: false
-      });
-    }
+    socket.emit('request trump');
   });
 
   $inputMessage.on('input', function() {
@@ -456,11 +377,7 @@ $(function() {
     log(message, {
       prepend: true
     });
-    playerNumber = data.playerNumber;
     addParticipantsMessage(data);
-    if (playerNumber == 1 || playerNumber == 3){
-      $requestTrump.hide();
-    }
   });
 
   // Whenever the server emits 'new message', update the chat body
@@ -481,12 +398,10 @@ $(function() {
   socket.on('hands picked', function (data){
     $(".teamAHands").text(("Team A: "+data.teamAHands));
     $(".teamBHands").text(("Team B: "+data.teamBHands));
-    $(".rounds").text(("Total Rounds: "+data.totalRounds));
   });
 
   socket.on("request trump", function(data) {
     log((data.username + " has asked to reveal the Trump"));
-    trumpAsked = true;
   });
 
   socket.on("reveal trump", function(data) {
@@ -502,12 +417,6 @@ $(function() {
   // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
-  });
-  
-  // Your turn
-   socket.on('your turn', function (data) {
-    myTurn = true;
-    currentRoundSuit = data.currentRoundSuit;
   });
 
   // draw cards and ask him to choose trump
