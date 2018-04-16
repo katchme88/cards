@@ -2,6 +2,7 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
 
     currentRoundCards = data.slice();
     trumpExist = 0;
+    zerosCount = 0;
     var x = {
         data: data,
         trumpRevealed: trumpRevealed,
@@ -14,7 +15,7 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
         currentSuit = data[0].charAt(0);
     } else {
         //if trum is revealed  check for the trump suit in the current round
-        for (var i = 0; i < data.length; i++) {
+        for (var i in data) {
             if (data[i].charAt(0) == trumpSuit) {
                 trumpExist = 1;
                 break;
@@ -43,6 +44,17 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
             data[i] = '0';
         }
     }
+
+    for (var i in data) {
+        if (data[i] == '0') {
+            zerosCount++;
+        } 
+    }
+
+    if (zerosCount > 3) {
+        data = currenRoundCards;
+    }
+
     seniorCard = data.sort()[data.length -1];
     return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
 }
