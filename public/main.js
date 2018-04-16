@@ -26,6 +26,7 @@ $(function() {
   var trumpCard = "";
   var currentRoundSuit;
   var trumpAsked = false;
+  var trumpRevealed = false;
 
   // Prompt for setting a username
   var username;
@@ -84,18 +85,21 @@ $(function() {
   }
 
     // Sends a chat message
-  function throwCard (id) {
+  function throwCard (id, budRungi) {
     var message = id;
     if (message && connected) {
-      $inputMessage.val('');
+      // tell server to execute 'card thrown' and send along one parameter
+      cardsInHand.splice(cardsInHand.indexOf(message), 1);
+      updateSuitsInHand(cardsInHand);
+      
+      //throw a budrungi if budRungi is true
+      message = budRungi ? 'budRungi' : message;
+
+      socket.emit('card thrown', message);
       addCard({
         username: username,
         message: message
       });
-      // tell server to execute 'new message' and send along one parameter
-      cardsInHand.splice(cardsInHand.indexOf(id),1);
-      updateSuitsInHand(cardsInHand);
-      socket.emit('card thrown', message);
     }
   }
 
@@ -357,17 +361,18 @@ $(function() {
           return element == currentRoundSuit;
       });
 
-        console.log(found);
-        console.log(suitsInHand);
-        console.log(cardsInHand);
-        console.log(currentRoundSuit);
-
         if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
           throwCard($(this).attr('id'));
           $(this).remove();
           myTurn = 0;
         } else if (!found){
-          throwCard($(this).attr('id'));
+
+          var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
+          console.log (budRungi);
+          console.log (playerNumber);
+          console.log (trumpRevealed);
+          
+          throwCard($(this).attr('id'), budRungi);
           $(this).remove();
           myTurn = 0;
         } else {
@@ -394,6 +399,7 @@ $(function() {
         updateSuitsInHand(cardsInHand);
         $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
         $(this).remove();
+        trumpRevealed = true;
       } else {
         log('You can\'t reveal trump at this stage', {
           prepend: false
