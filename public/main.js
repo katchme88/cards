@@ -481,6 +481,7 @@ $(function() {
   socket.on('hands picked', function (data){
     $(".teamAHands").text(("Team A: "+data.teamAHands));
     $(".teamBHands").text(("Team B: "+data.teamBHands));
+    $(".rounds").text(("Total Rounds: "+data.totalRounds));
   });
 
   socket.on("request trump", function(data) {

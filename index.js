@@ -104,10 +104,6 @@ io.on('connection', function (socket) {
         username: currentRoundObj[seniorCard],
         totalRounds: totalRounds
       });
-      // console.log(players);
-      // console.log(currentRoundObj);
-      // console.log(playerSequence.indexOf(currentRoundObj[seniorCard]));
-      // console.log(players['p'+ playerSequence.indexOf(currentRoundObj[seniorCard])]);
       nextPlayerSocket = players['p'+ (playerSequence.indexOf(currentRoundObj[seniorCard])+1)].socket;
       currentRoundObj = {};
       currentRoundCards = [];
