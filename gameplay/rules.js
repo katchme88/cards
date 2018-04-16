@@ -51,9 +51,11 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
         } 
     }
 
-    if (zerosCount > 3) {
-        data = currenRoundCards;
-    }
+    // if (zerosCount > 3) {
+    //     data = currentRoundCards;
+    //     trumpRevealed = 0;
+    //     getSenior(data, trumpRevealed, trumpSuit, revealedInThis);
+    // }
 
     seniorCard = data.sort()[data.length -1];
     return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
@@ -66,7 +68,3 @@ exports.getWinner = function (seniorIndex, roundsSinceLastWin, revealedInThis) {
     return (0);
 }
 
-
-exports.getNextPlayer = function () {
-    
-}
