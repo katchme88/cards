@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
             roundsSinceLastWin++;
           }
           
-          var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis);
+          var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds);
           
         }
       }

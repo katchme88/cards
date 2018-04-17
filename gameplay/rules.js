@@ -51,19 +51,23 @@ exports.getSenior = function (data, trumpRevealed, trumpSuit, revealedInThis) {
         } 
     }
 
-    // if (zerosCount > 3) {
-    //     data = currentRoundCards;
-    //     trumpRevealed = 0;
-    //     getSenior(data, trumpRevealed, trumpSuit, revealedInThis);
-    // }
+    if (zerosCount > 3) {
+        data = currentRoundCards;
+        trumpRevealed = 0;
+        getSenior(data, trumpRevealed, trumpSuit, revealedInThis);
+    }
 
     seniorCard = data.sort()[data.length -1];
     return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
 }
 
-exports.getWinner = function (seniorIndex, roundsSinceLastWin, revealedInThis) {
-    if (seniorIndex == 1 && roundsSinceLastWin > 0 && revealedInThis < 1) {
+exports.getWinner = function (seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds) {
+    if (seniorIndex == 1 && roundsSinceLastWin > 0 && revealedInThis < 1 && (totalRounds > 3 && totalRounds < 12) || totalRounds == 13) {
         return (1);
+    } else if (totalRounds == 12) {
+        return (0);
+    } else if (totalRounds == 13) {
+        return(1);
     }
     return (0);
 }
