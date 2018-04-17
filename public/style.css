@@ -4,7 +4,6 @@
   box-sizing: border-box;
 }
 
-
 html {
   font-weight: 300;
   -webkit-font-smoothing: antialiased;
@@ -112,7 +111,7 @@ ul {
 
 .log {
   color: rgb(32, 29, 29);
-  font-size: 150%;
+  font-size: 100%;
   margin: 5px;
   text-align: center;
 }
@@ -127,12 +126,12 @@ ul {
   color: gray;
 }
 
-/*.username {
-  font-weight: 700;
+.username {
+  font-weight: 600;
   overflow: hidden;
   padding-right: 15px;
   text-align: right;
-}*/
+}
 
 /* Input */
 

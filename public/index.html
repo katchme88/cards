@@ -21,7 +21,7 @@
     }
     .status {
       width: 20%;
-      padding-top: 100px;
+      /*padding-top: 100px;*/
       height: 100%;
       background: rgb(37, 157, 187);
       float: left;
@@ -38,7 +38,28 @@
       width: 25%;
       margin: auto;
     }
-    </style>
+    .requestTrump {
+      background-color: #f44336;; /* Red */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    .trumpButton {
+      padding-left: 20px;
+      margin-top: 20px;
+    }
+    .scoreBoard {
+      background-color: #e7e7e7;
+    }
+    .score {
+      padding: 20px;
+    }
+  </style>
 </head>
 <body>
   <ul class="pages">
@@ -47,13 +68,20 @@
         <ul class="logs"></ul>
         <ul class="messages"></ul>
         <div class="status">
-            <input type="button" class="requestTrump" value="Request Trump"></input><br><br>
-            <span class="rounds">Total Rounds: 0</span><br><br>
-            <span class="teamAHands">Team A: 0</span><br><br>
-            <span class="teamBHands">Team B: 0</span><br><br>
-            <div class="trumpCard"></div>
+            <div class="trumpButton">
+              <input type="button" class="requestTrump" value="Request Trump"><br><br>
+            </div>
+            <div class="scoreBoard">
+              <div class="score">
+                <span class="rounds">Total Rounds: 1</span><br><br>
+                <span class="teamAHands">Team A: 0</span><br><br>
+                <span class="teamBHands">Team B: 0</span><br><br>
+              </div>  
+            </div>
+            <div class="trumpCard">
+            </div>
         </div>
-      </div>
+        </div>
       <div class="cards"></div>      
     </li>
     <li class="login page">
