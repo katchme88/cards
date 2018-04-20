@@ -59,14 +59,41 @@
     .score {
       padding: 20px;
     }
+    #overlay {
+      position: fixed;
+      display: none;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 2;
+      cursor: pointer;
+    }
+    #overlayText{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      color: white;
+      transform: translate(-50%,-50%);
+      -ms-transform: translate(-50%,-50%);
+    }
+    #loading{
+      position: absolute;
+      top: 50%;
+      left: 30%;
+    }
   </style>
 </head>
 <body>
   <ul class="pages">
     <li class="chat page">
       <div class="chatArea">
-        <ul class="logs"></ul>
-        <ul class="messages"></ul>
+        <div class="logs"></div>
+        <div class="messages"></div>
         <div class="status">
             <div class="trumpButton">
               <input type="button" class="requestTrump" value="Request Trump"><br><br>
@@ -80,8 +107,8 @@
             </div>
             <div class="trumpCard">
             </div>
-        </div>
-        </div>
+          </div>
+      </div>
       <div class="cards"></div>      
     </li>
     <li class="login page">
@@ -90,8 +117,13 @@
         <input class="usernameInput" type="text" maxlength="14" />
       </div>
     </li>
+    <li class="modal">
+      <div id="overlay" onclick="off()">
+          <div id="overlayText">Overlay Text</div>
+          <div id="loading"><img src="loading/loading.gif"></div>
+      </div>
+    </li>
   </ul>
-
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="socket.io/socket.io.js"></script>
   <script src="main.js"></script>

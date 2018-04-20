@@ -191,7 +191,7 @@ io.on('connection', function (socket) {
     }
 
     if (numUsers < 4) {
-      io.sockets.emit('disable ui', {
+      socket.emit('disable ui', {
         message: 'Waiting for other players to join' 
       });
     } else {

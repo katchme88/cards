@@ -20,6 +20,8 @@ $(function() {
   var $disable = $('.disable');
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
+  var $overlay = $('#overlay');
+  var $overlayText = $('#overlayText');
 
   var $cards = $('.cards');
   var choosingTrump = false;
@@ -49,6 +51,15 @@ $(function() {
       message += "there are " + data.numUsers + " participants";
     }
     log(message);
+  }
+
+  function showOverlay (bool, data) {
+    if (bool) {
+      $overlay.slideDown(500).show();
+    } else {
+      $overlay.slideUp(500);
+    }
+    $overlayText.text(data);
   }
 
   // Sets the client's username
@@ -348,21 +359,6 @@ $(function() {
     }
   });
 
-  $document.on("click", "img.trump" , function() {
-      if (trumpAsked) {
-        socket.emit('reveal trump');
-        cardsInHand.push($(this).attr('id'));
-        updateSuitsInHand(cardsInHand);
-        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
-        $(this).remove();
-        trumpRevealed = true;
-      } else {
-        log('You can\'t reveal trump at this stage', {
-          prepend: false
-        });
-      }
-    });
-
   // $revealTrump.on("click", function() {
   //   socket.emit('reveal trump');  
   // });
@@ -493,7 +489,7 @@ $(function() {
 
   socket.on('disable ui', function (data) {
     $document.off('click');
-    log(data.message);
+    showOverlay(true, data.message);
   });
 
   socket.on('enable ui', function (data) {
@@ -540,7 +536,24 @@ $(function() {
           });
         } 
     });
-    log(data.message);
+
+
+    $document.on("click", "img.trump" , function() {
+      if (trumpAsked) {
+        socket.emit('reveal trump');
+        cardsInHand.push($(this).attr('id'));
+        updateSuitsInHand(cardsInHand);
+        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
+        $(this).remove();
+        trumpRevealed = true;
+      } else {
+        log('You can\'t reveal trump at this stage', {
+          prepend: false
+        });
+      }
+    });
+
+    showOverlay(false, data.message);
   });
 
 });
