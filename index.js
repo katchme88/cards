@@ -159,6 +159,7 @@ io.on('connection', function (socket) {
     } else {
       socket.username = username;
       var hand = usersCards[username];
+      ++numUsers;
     }
   
     socket.emit('login', {
@@ -186,6 +187,16 @@ io.on('connection', function (socket) {
     } else {
       socket.emit('deal', {
         hand: hand
+      });
+    }
+
+    if (numUsers < 4) {
+      io.sockets.emit('disable ui', {
+        message: 'Waiting for other players to join' 
+      });
+    } else {
+      io.sockets.emit('enable ui', {
+        message: "Let's go!" 
       });
     }
   });
@@ -235,10 +246,11 @@ io.on('connection', function (socket) {
         numUsers: numUsers
       });
     }
+
+    io.sockets.emit('disable ui', {
+      message: 'Player disconnected' 
+    });
+
   });
 
-  socket.on('disable', function (data) {
-    console.log(('disable'));
-    socket.emit('disable');
-    });
 });

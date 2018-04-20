@@ -348,50 +348,6 @@ $(function() {
     }
   });
 
-  $document.on("click", "img.card" , function() {
-    if (choosingTrump){
-        sendTrumpCard($(this).attr('id'));
-        addTrumpElement($(this).attr('id'));
-        cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
-        updateSuitsInHand(cardsInHand);
-        $(this).remove();
-    } else if (currentRoundSuit && myTurn) {
-      updateSuitsInHand(cardsInHand);
-      var found = suitsInHand.find(function(element) {
-          return element == currentRoundSuit;
-      });
-
-        if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
-          throwCard($(this).attr('id'));
-          $(this).remove();
-          myTurn = false;
-        } else if (!found){
-
-          var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
-          console.log (budRungi);
-          console.log (playerNumber);
-          console.log (trumpRevealed);
-          
-          throwCard($(this).attr('id'), budRungi);
-          $(this).remove();
-          myTurn = false;
-        } else {
-          log('Please throw correct suit', {
-            prepend: false
-          });
-        }
-      
-      } else if (!currentRoundSuit && myTurn) {
-        throwCard($(this).attr('id'));
-        $(this).remove();
-        myTurn = false;
-      } else {
-        log('Not your turn', {
-          prepend: false
-        });
-      } 
-  });
-
   $document.on("click", "img.trump" , function() {
       if (trumpAsked) {
         socket.emit('reveal trump');
@@ -463,10 +419,6 @@ $(function() {
     }
   });
 
-  // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', function (data) {
-    addChatMessage(data);
-  });
 
   // Whenever the server emits 'card thrown', update the gameplay body
   socket.on('card thrown', function (data) {
@@ -524,16 +476,6 @@ $(function() {
     removeChatTyping(data);
   });
 
-  // Whenever the server emits 'typing', show the typing message
-  socket.on('typing', function (data) {
-    addChatTyping(data);
-  });
-
-  // Whenever the server emits 'stop typing', kill the typing message
-  socket.on('stop typing', function (data) {
-    removeChatTyping(data);
-  });
-
   socket.on('disconnect', function () {
     log('you have been disconnected');
   });
@@ -549,12 +491,56 @@ $(function() {
     log('attempt to reconnect has failed');
   });
 
-  socket.on('disable', function () {
+  socket.on('disable ui', function (data) {
     $document.off('click');
+    log(data.message);
   });
 
-  socket.on('enable', function () {
-    $document.on('click');
+  socket.on('enable ui', function (data) {
+    $document.on("click", "img.card" , function() {
+      if (choosingTrump){
+          sendTrumpCard($(this).attr('id'));
+          addTrumpElement($(this).attr('id'));
+          cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
+          updateSuitsInHand(cardsInHand);
+          $(this).remove();
+      } else if (currentRoundSuit && myTurn) {
+        updateSuitsInHand(cardsInHand);
+        var found = suitsInHand.find(function(element) {
+            return element == currentRoundSuit;
+        });
+  
+          if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
+            throwCard($(this).attr('id'));
+            $(this).remove();
+            myTurn = false;
+          } else if (!found){
+  
+            var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
+            console.log (budRungi);
+            console.log (playerNumber);
+            console.log (trumpRevealed);
+            
+            throwCard($(this).attr('id'), budRungi);
+            $(this).remove();
+            myTurn = false;
+          } else {
+            log('Please throw correct suit', {
+              prepend: false
+            });
+          }
+        
+        } else if (!currentRoundSuit && myTurn) {
+          throwCard($(this).attr('id'));
+          $(this).remove();
+          myTurn = false;
+        } else {
+          log('Not your turn', {
+            prepend: false
+          });
+        } 
+    });
+    log(data.message);
   });
 
 });
