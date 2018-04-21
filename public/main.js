@@ -40,7 +40,7 @@ $(function() {
   var cardsInHand = [];
   var suitsInHand = [];
   var playerNumber;
-  var audio = new Audio("sounds/cardSlide7.wav");
+  var audio = new Audio("sounds/cardPlace1.wav");
   var playerSequence=[];
 
   var socket = io();
