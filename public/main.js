@@ -40,6 +40,7 @@ $(function() {
   var cardsInHand = [];
   var suitsInHand = [];
   var playerNumber;
+  var audio = new Audio("sounds/cardSlide7.wav");
 
   var socket = io();
 
@@ -147,7 +148,7 @@ $(function() {
 
   // Adds the thrown card on to the message list
   function addCard (data, options) {
-
+    audio.play();
     var $usernameDiv = $('<span class="username"/>')
       .text(data.username)
       .css('color', getUsernameColor(data.username));
@@ -157,24 +158,8 @@ $(function() {
     var typingClass = data.typing ? 'typing' : '';
     var $messageDiv = $('<li class="message"/>')
       .data('username', data.username)
-      .addClass(typingClass)
       .append($usernameDiv, '<img id="'+data.message+'.svg" src="https://gurutalha.azureedge.net/images/'+data.message+'.svg" class="tablecard"></img>');
-
     addCardElement($messageDiv, options);
-  }
-
-  // Adds the visual chat typing message
-  function addChatTyping (data) {
-    data.typing = true;
-    data.message = 'is typing';
-    addChatMessage(data);
-  }
-
-  // Removes the visual chat typing message
-  function removeChatTyping (data) {
-    getTypingMessages(data).fadeOut(function () {
-      $(this).remove();
-    });
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -182,31 +167,6 @@ $(function() {
   // options.fade - If the element should fadefade-in (default = true)
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
-  function addMessageElement (el, options) {
-    var $el = $(el);
-
-    // Setup default options
-    if (!options) {
-      options = {};
-    }
-    if (typeof options.fade === 'undefined') {
-      options.fade = true;
-    }
-    if (typeof options.prepend === 'undefined') {
-      options.prepend = false;
-    }
-
-    // Apply options
-    if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
-    }
-    if (options.prepend) {
-      $messages.prepend($el);
-    } else {
-      $messages.append($el);
-    }
-    $messages[0].scrollTop = $messages[0].scrollHeight;
-  }
 
   function addLogElement (el, options) {
     var $el = $(el);
