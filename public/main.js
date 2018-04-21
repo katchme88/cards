@@ -41,6 +41,7 @@ $(function() {
   var suitsInHand = [];
   var playerNumber;
   var audio = new Audio("sounds/cardSlide7.wav");
+  var playerSequence=[];
 
   var socket = io();
 
@@ -301,6 +302,13 @@ $(function() {
     updateSuitsInHand(cardsInHand);
   }
 
+  function addPlayerElement (data) {
+    for (i in data) {
+      var element = $('.player'+(parseInt(i)+1));
+      element.text(data[i]);
+    }
+  }
+
   // Keyboard events
   $window.keydown(function (event) {
     // Auto-focus the current input when a key is typed
@@ -369,6 +377,8 @@ $(function() {
       prepend: true
     });
     playerNumber = data.playerNumber;
+    playerSequence = data.playerSequence;
+    addPlayerElement(playerSequence);
     addParticipantsMessage(data);
     if (playerNumber == 1 || playerNumber == 3){
       $requestTrump.hide();
@@ -387,8 +397,8 @@ $(function() {
   });
   
   socket.on('hands picked', function (data){
-    $(".teamAHands").text(("Team A: "+data.teamAHands));
-    $(".teamBHands").text(("Team B: "+data.teamBHands));
+    $(".teamAHands").text((data.teamAHands));
+    $(".teamBHands").text((data.teamBHands));
     $(".rounds").text(("Total Rounds: "+data.totalRounds));
   });
 
@@ -405,6 +415,8 @@ $(function() {
   socket.on('user joined', function (data) {
     log(data.username + ' joined');
     addParticipantsMessage(data);
+    playerSequence = data.playerSequence;
+    addPlayerElement(playerSequence);
   });
 
   // draw the received cards on screen

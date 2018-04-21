@@ -164,13 +164,15 @@ io.on('connection', function (socket) {
   
     socket.emit('login', {
       numUsers: numUsers,
-      playerNumber: playerSequence.indexOf(socket.username) + 1
+      playerNumber: playerSequence.indexOf(socket.username) + 1,
+      playerSequence: playerSequence
     });
     
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
       username: socket.username,
-      numUsers: numUsers
+      numUsers: numUsers,
+      playerSequence: playerSequence
     }); 
 
     if (socket.username != players.p1.username){
