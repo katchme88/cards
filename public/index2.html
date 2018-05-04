@@ -6,6 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <style>
+        body {
+            background-color: #337a71;
+            background-image:
+            repeating-linear-gradient(120deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+            repeating-linear-gradient(60deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+            linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1)),
+            linear-gradient(120deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1));
+            background-size: 70px 120px;
+        }
         table {
             width: 100%;
             height: 100%;
@@ -17,10 +26,14 @@
             right: 0;
         }
         table, td {
-            border: 1px solid black; 
+            border: 1px solid black;
             text-align: center;
         }
-        div {
+        td {
+            height:20%;
+            width: 20%;
+        }
+        .container {
             height: 100%;
             width: 100%;
             position: absolute; 
@@ -29,10 +42,17 @@
             left: 0; 
             right: 0;
         }
+        .thrown-card{
+            float: left;
+            text-align: center;
+        }
+        img {
+           width: 30%; 
+        }
     </style>
 </head>
 <body>
-    <div>
+    <div class="container">
     <table>
         <tr>
             <td>1</td>
@@ -41,15 +61,21 @@
         </tr>
         <tr>
             <td rowspan="3">4</td>
-            <td rowspan="3">5</td> 
-            <td rowspan="3">6</td>
-            <td rowspan="3">7</td>
+            <td>5</td> 
+            <td ><div class="thrown-card"><img src="images/C02.svg" alt=""></div></td>
+            <td>7</td>
             <td rowspan="3">8</td>
         </tr>
         <tr>
+            <td><div class="thrown-card"><img src="images/S14.svg" alt=""></div></td> 
+            <td>10</td>
+            <td><div class="thrown-card"><img src="images/H10.svg" alt=""></div></td>
 
         </tr>
         <tr>
+            <td>12</td> 
+            <td><div class="thrown-card"><img src="images/D12.svg" alt=""></td>
+            <td>14</td>
 
         </tr>
         <tr>
