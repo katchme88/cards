@@ -21,7 +21,7 @@
     }
     .status {
       width: 20%;
-      padding-top: 100px;
+      /*padding-top: 100px;*/
       height: 100%;
       background: rgb(37, 157, 187);
       float: left;
@@ -38,21 +38,95 @@
       width: 25%;
       margin: auto;
     }
-    </style>
+    .requestTrump {
+      background-color: #f44336;; /* Red */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    .trumpButton {
+      padding-left: 20px;
+      margin-top: 20px;
+    }
+    .scoreBoard {
+      background-color: #e7e7e7;
+    }
+    .score {
+      padding: 20px;
+    }
+    #overlay {
+      position: fixed;
+      display: none;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      align-content: center;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 2;
+      cursor: pointer;
+    }
+    #overlayText{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 30px;
+      text-align: center;
+      align-content: center;
+      color: white;
+      transform: translate(-50%,-50%);
+      -ms-transform: translate(-50%,-50%);
+    }
+    #loading{
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .teamAHands, .teamBHands, .player1, .player2, .player3, .player4 {
+      font-size: 150%;
+    }
+    .teamAHands, .teamBHands, .rounds {
+      font-weight: bold;
+      display: inline;
+      position: relative;
+      
+    }
+    .teamA, .teamB { 
+      display: inline;
+      position: relative;
+    }
+  </style>
 </head>
 <body>
   <ul class="pages">
     <li class="chat page">
       <div class="chatArea">
-        <ul class="logs"></ul>
-        <ul class="messages"></ul>
+        <div class="logs"></div>
+        <div class="messages"></div>
         <div class="status">
-            <input type="button" class="requestTrump" value="Request Trump"></input><br><br>
-            <span class="rounds">Total Rounds: 0</span><br><br>
-            <span class="teamAHands">Team A: 0</span><br><br>
-            <span class="teamBHands">Team B: 0</span><br><br>
-            <div class="trumpCard"></div>
-        </div>
+            <div class="scoreBoard">
+              <div class="score">
+                <span class="rounds">Total Rounds: 0</span><br><br>
+                <div class="teamA"><div class="player1">Waiting to Join...</div><div class="player3">Waiting to Join...</div></div><div class="teamAHands"><span>0</span></div><br><br>
+                <div class="teamB"><div class="player2">Waiting to Join...</div><div class="player4">Waiting to Join..</div></div><div class="teamBHands"><span>0</span></div><br><br>
+              </div>  
+            </div>
+            <div class="trumpButton">
+              <input type="button" class="requestTrump" value="Request Trump"><br><br>
+            </div>
+            <div class="trumpCard">
+            </div>
+          </div>
       </div>
       <div class="cards"></div>      
     </li>
@@ -62,8 +136,13 @@
         <input class="usernameInput" type="text" maxlength="14" />
       </div>
     </li>
+    <li class="modal">
+      <div id="overlay" onclick="off()">
+          <div id="overlayText">Overlay Text</div>
+          <div id="loading"><img src="loading/loading.gif"></div>
+      </div>
+    </li>
   </ul>
-
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="socket.io/socket.io.js"></script>
   <script src="main.js"></script>

@@ -20,6 +20,8 @@ $(function() {
   var $disable = $('.disable');
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
+  var $overlay = $('#overlay');
+  var $overlayText = $('#overlayText');
 
   var $cards = $('.cards');
   var choosingTrump = false;
@@ -38,6 +40,8 @@ $(function() {
   var cardsInHand = [];
   var suitsInHand = [];
   var playerNumber;
+  var audio = new Audio("sounds/cardPlace1.wav");
+  var playerSequence=[];
 
   var socket = io();
 
@@ -49,6 +53,15 @@ $(function() {
       message += "there are " + data.numUsers + " participants";
     }
     log(message);
+  }
+
+  function showOverlay (bool, data) {
+    if (bool) {
+      $overlay.slideDown(500).show();
+    } else {
+      $overlay.slideUp(500);
+    }
+    $overlayText.text(data);
   }
 
   // Sets the client's username
@@ -136,7 +149,7 @@ $(function() {
 
   // Adds the thrown card on to the message list
   function addCard (data, options) {
-
+    audio.play();
     var $usernameDiv = $('<span class="username"/>')
       .text(data.username)
       .css('color', getUsernameColor(data.username));
@@ -146,24 +159,8 @@ $(function() {
     var typingClass = data.typing ? 'typing' : '';
     var $messageDiv = $('<li class="message"/>')
       .data('username', data.username)
-      .addClass(typingClass)
       .append($usernameDiv, '<img id="'+data.message+'.svg" src="https://gurutalha.azureedge.net/images/'+data.message+'.svg" class="tablecard"></img>');
-
     addCardElement($messageDiv, options);
-  }
-
-  // Adds the visual chat typing message
-  function addChatTyping (data) {
-    data.typing = true;
-    data.message = 'is typing';
-    addChatMessage(data);
-  }
-
-  // Removes the visual chat typing message
-  function removeChatTyping (data) {
-    getTypingMessages(data).fadeOut(function () {
-      $(this).remove();
-    });
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -171,31 +168,6 @@ $(function() {
   // options.fade - If the element should fadefade-in (default = true)
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
-  function addMessageElement (el, options) {
-    var $el = $(el);
-
-    // Setup default options
-    if (!options) {
-      options = {};
-    }
-    if (typeof options.fade === 'undefined') {
-      options.fade = true;
-    }
-    if (typeof options.prepend === 'undefined') {
-      options.prepend = false;
-    }
-
-    // Apply options
-    if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
-    }
-    if (options.prepend) {
-      $messages.prepend($el);
-    } else {
-      $messages.append($el);
-    }
-    $messages[0].scrollTop = $messages[0].scrollHeight;
-  }
 
   function addLogElement (el, options) {
     var $el = $(el);
@@ -330,6 +302,13 @@ $(function() {
     updateSuitsInHand(cardsInHand);
   }
 
+  function addPlayerElement (data) {
+    for (i in data) {
+      var element = $('.player'+(parseInt(i)+1));
+      element.text(data[i]);
+    }
+  }
+
   // Keyboard events
   $window.keydown(function (event) {
     // Auto-focus the current input when a key is typed
@@ -347,65 +326,6 @@ $(function() {
       }
     }
   });
-
-  $document.on("click", "img.card" , function() {
-    if (choosingTrump){
-        sendTrumpCard($(this).attr('id'));
-        addTrumpElement($(this).attr('id'));
-        cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
-        updateSuitsInHand(cardsInHand);
-        $(this).remove();
-    } else if (currentRoundSuit && myTurn) {
-      updateSuitsInHand(cardsInHand);
-      var found = suitsInHand.find(function(element) {
-          return element == currentRoundSuit;
-      });
-
-        if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
-          throwCard($(this).attr('id'));
-          $(this).remove();
-          myTurn = false;
-        } else if (!found){
-
-          var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
-          console.log (budRungi);
-          console.log (playerNumber);
-          console.log (trumpRevealed);
-          
-          throwCard($(this).attr('id'), budRungi);
-          $(this).remove();
-          myTurn = false;
-        } else {
-          log('Please throw correct suit', {
-            prepend: false
-          });
-        }
-      
-      } else if (!currentRoundSuit && myTurn) {
-        throwCard($(this).attr('id'));
-        $(this).remove();
-        myTurn = false;
-      } else {
-        log('Not your turn', {
-          prepend: false
-        });
-      } 
-  });
-
-  $document.on("click", "img.trump" , function() {
-      if (trumpAsked) {
-        socket.emit('reveal trump');
-        cardsInHand.push($(this).attr('id'));
-        updateSuitsInHand(cardsInHand);
-        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
-        $(this).remove();
-        trumpRevealed = true;
-      } else {
-        log('You can\'t reveal trump at this stage', {
-          prepend: false
-        });
-      }
-    });
 
   // $revealTrump.on("click", function() {
   //   socket.emit('reveal trump');  
@@ -457,16 +377,14 @@ $(function() {
       prepend: true
     });
     playerNumber = data.playerNumber;
+    playerSequence = data.playerSequence;
+    addPlayerElement(playerSequence);
     addParticipantsMessage(data);
     if (playerNumber == 1 || playerNumber == 3){
       $requestTrump.hide();
     }
   });
 
-  // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', function (data) {
-    addChatMessage(data);
-  });
 
   // Whenever the server emits 'card thrown', update the gameplay body
   socket.on('card thrown', function (data) {
@@ -479,8 +397,8 @@ $(function() {
   });
   
   socket.on('hands picked', function (data){
-    $(".teamAHands").text(("Team A: "+data.teamAHands));
-    $(".teamBHands").text(("Team B: "+data.teamBHands));
+    $(".teamAHands").text((data.teamAHands));
+    $(".teamBHands").text((data.teamBHands));
     $(".rounds").text(("Total Rounds: "+data.totalRounds));
   });
 
@@ -497,6 +415,8 @@ $(function() {
   socket.on('user joined', function (data) {
     log(data.username + ' joined');
     addParticipantsMessage(data);
+    playerSequence = data.playerSequence;
+    addPlayerElement(playerSequence);
   });
 
   // draw the received cards on screen
@@ -524,16 +444,6 @@ $(function() {
     removeChatTyping(data);
   });
 
-  // Whenever the server emits 'typing', show the typing message
-  socket.on('typing', function (data) {
-    addChatTyping(data);
-  });
-
-  // Whenever the server emits 'stop typing', kill the typing message
-  socket.on('stop typing', function (data) {
-    removeChatTyping(data);
-  });
-
   socket.on('disconnect', function () {
     log('you have been disconnected');
   });
@@ -549,12 +459,73 @@ $(function() {
     log('attempt to reconnect has failed');
   });
 
-  socket.on('disable', function () {
+  socket.on('disable ui', function (data) {
     $document.off('click');
+    showOverlay(true, data.message);
   });
 
-  socket.on('enable', function () {
-    $document.on('click');
+  socket.on('enable ui', function (data) {
+    $document.on("click", "img.card" , function() {
+      if (choosingTrump){
+          sendTrumpCard($(this).attr('id'));
+          addTrumpElement($(this).attr('id'));
+          cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
+          updateSuitsInHand(cardsInHand);
+          $(this).remove();
+      } else if (currentRoundSuit && myTurn) {
+        updateSuitsInHand(cardsInHand);
+        var found = suitsInHand.find(function(element) {
+            return element == currentRoundSuit;
+        });
+  
+          if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
+            throwCard($(this).attr('id'));
+            $(this).remove();
+            myTurn = false;
+          } else if (!found){
+  
+            var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
+            console.log (budRungi);
+            console.log (playerNumber);
+            console.log (trumpRevealed);
+            
+            throwCard($(this).attr('id'), budRungi);
+            $(this).remove();
+            myTurn = false;
+          } else {
+            log('Please throw correct suit', {
+              prepend: false
+            });
+          }
+        
+        } else if (!currentRoundSuit && myTurn) {
+          throwCard($(this).attr('id'));
+          $(this).remove();
+          myTurn = false;
+        } else {
+          log('Not your turn', {
+            prepend: false
+          });
+        } 
+    });
+
+
+    $document.on("click", "img.trump" , function() {
+      if (trumpAsked) {
+        socket.emit('reveal trump');
+        cardsInHand.push($(this).attr('id'));
+        updateSuitsInHand(cardsInHand);
+        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
+        $(this).remove();
+        trumpRevealed = true;
+      } else {
+        log('You can\'t reveal trump at this stage', {
+          prepend: false
+        });
+      }
+    });
+
+    showOverlay(false, data.message);
   });
 
 });

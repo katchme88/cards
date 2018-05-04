@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
             roundsSinceLastWin++;
           }
           
-          var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis);
+          var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds);
           
         }
       }
@@ -159,17 +159,20 @@ io.on('connection', function (socket) {
     } else {
       socket.username = username;
       var hand = usersCards[username];
+      ++numUsers;
     }
   
     socket.emit('login', {
       numUsers: numUsers,
-      playerNumber: playerSequence.indexOf(socket.username) + 1
+      playerNumber: playerSequence.indexOf(socket.username) + 1,
+      playerSequence: playerSequence
     });
     
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
       username: socket.username,
-      numUsers: numUsers
+      numUsers: numUsers,
+      playerSequence: playerSequence
     }); 
 
     if (socket.username != players.p1.username){
@@ -186,6 +189,16 @@ io.on('connection', function (socket) {
     } else {
       socket.emit('deal', {
         hand: hand
+      });
+    }
+
+    if (numUsers < 4) {
+      socket.emit('disable ui', {
+        message: 'Waiting for other players to join' 
+      });
+    } else {
+      io.sockets.emit('enable ui', {
+        message: "Let's go!" 
       });
     }
   });
@@ -235,10 +248,11 @@ io.on('connection', function (socket) {
         numUsers: numUsers
       });
     }
+
+    io.sockets.emit('disable ui', {
+      message: 'Player disconnected' 
+    });
+
   });
 
-  socket.on('disable', function (data) {
-    console.log(('disable'));
-    socket.emit('disable');
-    });
 });
