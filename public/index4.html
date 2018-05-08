@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: #337a71;
+            background-image:
+            repeating-linear-gradient(120deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+            repeating-linear-gradient(60deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+            linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1)),
+            linear-gradient(120deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1));
+            background-size: 70px 120px;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+        }
+        table, td {
+            border: 1px solid black;
+            text-align: center;
+        }
+        td {
+            height:20%;
+            width: 20%;
+        }
+        .container {
+            height: 100%;
+            width: 100%;
+            position: absolute; 
+            top: 0; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+        }
+        div.top, div.bottom {
+            height: 25%;
+            width: 100%;
+            position: relative; 
+            float: left;
+        }
+        div.center {
+            height: 50%;
+            width: 100%;
+            position: relative; 
+            float: left;
+        }
+        .left, .right {
+            position: relative;
+            float: left;
+            height: 100%;
+            width: 20%
+        }
+        .middle {
+            position: relative;
+            float: left;
+            height: 100%;
+            width: 60%;
+        }
+        .middle-left, .middle-right {
+            position: relative;
+            float: left;
+            height: 100%;
+            width: 35%;
+        }
+        .middle-center {
+            position: relative;
+            float: left;
+            height: 100%;
+            width: 30%;
+        }
+        #card-1, #card-2, #card-3, #card-4 {
+            max-height: 40%;
+            position: absolute;
+        }
+        #card-3 {
+            right: 44%;
+            bottom: 55%;
+            z-index: 2;
+        }
+        #card-1 {
+            right: 44%;
+            top: 55%;
+            z-index: 0;
+        }
+        #card-4 {
+            transform: rotate(90deg);
+            right: 56%;
+            top: 30%;
+            z-index: 3;
+        }
+        #card-2 {
+            transform: rotate(90deg);
+            right: 32%;
+            top: 30%;
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top">
+            <div class="left"></div>
+            <div class="middle"></div>
+            <div class="right"></div>
+        </div>
+        <div class="center">
+            <div class="left"></div>
+            <div class="middle">
+                <img id="card-1" src="images/H13.svg" />
+                <img id="card-2" src="images/C12.svg" />
+                <img id="card-3" src="images/D14.svg" />
+                <img id="card-4" src="images/S11.svg" />
+            </div>
+            <div class="right"></div>
+        </div>
+        <div class="bottom">
+            <div class="left"></div>
+            <div class="middle"></div>
+            <div class="right"></div>
+        </div>
+    </div> 
+</body>
+</html>
