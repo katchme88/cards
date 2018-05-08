@@ -64,6 +64,7 @@
             float: left;
             height: 100%;
             width: 60%;
+            overflow:hidden; 
         }
         .middle-left, .middle-right {
             position: relative;
@@ -103,6 +104,17 @@
             top: 30%;
             z-index: 1;
         }
+        .cards-in-hand {
+            position: absolute;
+            top: 40%;
+            height: 100%;
+        }
+        .card-in-hand {
+            max-height: 100%;
+            /* position: relative; */
+            float: left;
+            margin-right: -10%;
+        }
 
     </style>
 </head>
@@ -125,7 +137,24 @@
         </div>
         <div class="bottom">
             <div class="left"></div>
-            <div class="middle"></div>
+            <div class="middle">
+                <div class = "cards-in-hand">
+                    <img class="card-in-hand cih-1" src="images/S14.svg" />
+                    <img class="card-in-hand cih-2" src="images/S02.svg" />
+                    <img class="card-in-hand cih-3" src="images/S03.svg" />
+                    <img class="card-in-hand cih-4" src="images/S04.svg" />
+                    <img class="card-in-hand cih-5" src="images/S05.svg" />
+                    <img class="card-in-hand cih-6" src="images/S06.svg" />
+                    <img class="card-in-hand cih-7" src="images/S07.svg" />
+                    <img class="card-in-hand cih-8" src="images/S08.svg" />
+                    <img class="card-in-hand cih-9" src="images/S09.svg" />
+                    <img class="card-in-hand cih-10" src="images/S10.svg" />
+                    <img class="card-in-hand cih-11" src="images/S11.svg" />
+                    <img class="card-in-hand cih-12" src="images/S12.svg" />
+                    <img class="card-in-hand cih-13" src="images/S13.svg" />
+            
+                </div>
+            </div>
             <div class="right"></div>
         </div>
     </div> 
