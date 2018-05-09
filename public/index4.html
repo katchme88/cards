@@ -81,6 +81,7 @@
         #card-1, #card-2, #card-3, #card-4 {
             max-height: 40%;
             position: absolute;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
         #card-3 {
             right: 44%;
@@ -106,17 +107,33 @@
         }
         .cards-in-hand {
             position: absolute;
-            top: 40%;
             height: 100%;
+            width: 100%;
+            overflow: hidden;
         }
         .card-in-hand {
-            max-height: 100%;
-            /* position: relative; */
+            position: relative;
             float: left;
+            height: 100%;
             margin-right: -10%;
+            top: 40%;
         }
-
+        .card-in-hand > img {
+            max-height: 100%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        .card-in-hand.co {
+            top: 0;
+        }
     </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.card-in-hand').click(function(){
+            $(this).toggleClass('co');
+        });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -139,20 +156,19 @@
             <div class="left"></div>
             <div class="middle">
                 <div class = "cards-in-hand">
-                    <img class="card-in-hand cih-1" src="images/S14.svg" />
-                    <img class="card-in-hand cih-2" src="images/S02.svg" />
-                    <img class="card-in-hand cih-3" src="images/S03.svg" />
-                    <img class="card-in-hand cih-4" src="images/S04.svg" />
-                    <img class="card-in-hand cih-5" src="images/S05.svg" />
-                    <img class="card-in-hand cih-6" src="images/S06.svg" />
-                    <img class="card-in-hand cih-7" src="images/S07.svg" />
-                    <img class="card-in-hand cih-8" src="images/S08.svg" />
-                    <img class="card-in-hand cih-9" src="images/S09.svg" />
-                    <img class="card-in-hand cih-10" src="images/S10.svg" />
-                    <img class="card-in-hand cih-11" src="images/S11.svg" />
-                    <img class="card-in-hand cih-12" src="images/S12.svg" />
-                    <img class="card-in-hand cih-13" src="images/S13.svg" />
-            
+                    <div class="card-in-hand"><img src="images/S14.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S02.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S03.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S04.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S05.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S06.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S07.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S08.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S09.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S10.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S11.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S12.svg" /></div>
+                    <div class="card-in-hand"><img src="images/S13.svg" /></div>           
                 </div>
             </div>
             <div class="right"></div>
