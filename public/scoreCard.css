@@ -1,8 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Days+One);
-body {
-  background: url('http://blogdogersonnogueira.files.wordpress.com/2011/09/brasilxargentina-mario_quadros_13.jpg');
-  background-size: cover;
-}
 .score-board {
   font-family: 'Days One', sans-serif;
   list-style: none;
