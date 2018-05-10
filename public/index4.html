@@ -128,10 +128,17 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $('.card-in-hand').click(function(){
-            $(this).toggleClass('co');
-        });
+        $(function() {
+            $('.card-in-hand').click(function() {
+                if ($(this).hasClass('co')){
+                    // $(this).remove();
+                    alert('has co');
+                } else {
+                    $(this).addClass('co');
+                    $(this).siblings().removeClass('co');
+                }
+                
+            });
         });
     </script>
 </head>
