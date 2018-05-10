@@ -126,6 +126,27 @@
         .card-in-hand.co {
             top: 0;
         }
+        .avatar {
+            vertical-align: middle;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        .avatar.across {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+        }
+        .avatar.right {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+        }
+        .avatar.left {
+            position: absolute;
+            top: 30%;
+            right: 50%;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
@@ -152,18 +173,24 @@
                     <li class="team-visitor"><img src="http://flagpedia.net/data/flags/normal/ar.png" alt="Argentina" />MS<br>AB</li>
                   </ul>
             </div>
-            <div class="middle"></div>
+            <div class="middle">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="avatar across">
+            </div>
             <div class="right"></div>
         </div>
         <div class="center">
-            <div class="left"></div>
+            <div class="left">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="avatar left">
+            </div>
             <div class="middle">
                 <img id="card-1" src="images/H13.svg" />
                 <img id="card-2" src="images/C12.svg" />
                 <img id="card-3" src="images/D14.svg" />
                 <img id="card-4" src="images/S11.svg" />
             </div>
-            <div class="right"></div>
+            <div class="right">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="avatar right">
+            </div>
         </div>
         <div class="bottom">
             <div class="left"></div>
