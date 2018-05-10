@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="scoreCard.css">
     <style>
         body {
-            background-color:#48ccc1;
+            background-color:#4677b8;
             background-image:
             /* repeating-linear-gradient(120deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px), */
             /* repeating-linear-gradient(60deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px), */
@@ -80,7 +80,7 @@
             width: 30%;
         }
         #card-1, #card-2, #card-3, #card-4 {
-            max-height: 42%;
+            max-height: 40%;
             position: absolute;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
@@ -131,7 +131,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            border-width: 5px;
+            border-style: solid;
             border-color: antiquewhite;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
@@ -149,6 +149,10 @@
             position: absolute;
             top: 30%;
             right: 50%;
+        }
+        .middle.table {
+            background-image: url('https://www.firestock.ru/wp-content/uploads/2014/10/shutterstock_26210362-1-700x700.jpg');
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -185,7 +189,7 @@
             <div class="left">
                 <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="avatar left">
             </div>
-            <div class="middle">
+            <div class="middle table">
                 <img id="card-1" src="images/H13.svg" />
                 <img id="card-2" src="images/C12.svg" />
                 <img id="card-3" src="images/D14.svg" />
