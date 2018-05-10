@@ -1,0 +1,147 @@
+body {
+        background-color:#4677b8;
+        background-image:
+        /* repeating-linear-gradient(120deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px), */
+        /* repeating-linear-gradient(60deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px), */
+        linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1));
+        /* linear-gradient(120deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1)); */
+        background-size: 10px 20px;
+    }
+    .container {
+        width: 100%;
+        height: 100%;
+        position: absolute; 
+        top: 0; 
+        bottom: 0; 
+        left: 0; 
+        right: 0;
+    }
+    table, td {
+        border: 1px solid black;
+        text-align: center;
+    }
+    td {
+        height:20%;
+        width: 20%;
+    }
+    .container {
+        height: 100%;
+        width: 100%;
+        position: absolute; 
+        top: 0; 
+        bottom: 0; 
+        left: 0; 
+        right: 0;
+    }
+    div.top, div.bottom {
+        height: 25%;
+        width: 100%;
+        position: relative; 
+        float: left;
+    }
+    div.center {
+        height: 50%;
+        width: 100%;
+        position: relative; 
+        float: left;
+    }
+    .left, .right {
+        position: relative;
+        float: left;
+        height: 100%;
+        width: 20%
+    }
+    .middle {
+        position: relative;
+        float: left;
+        height: 100%;
+        width: 60%;
+        overflow:hidden; 
+    }
+    .middle-left, .middle-right {
+        position: relative;
+        float: left;
+        height: 100%;
+        width: 35%;
+    }
+    .middle-center {
+        position: relative;
+        float: left;
+        height: 100%;
+        width: 30%;
+    }
+    #card-1, #card-2, #card-3, #card-4 {
+        max-height: 40%;
+        position: absolute;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    #card-3 {
+        right: 44%;
+        bottom: 55%;
+        z-index: 2;
+    }
+    #card-1 {
+        right: 44%;
+        top: 55%;
+        z-index: 0;
+    }
+    #card-4 {
+        transform: rotate(90deg);
+        right: 56%;
+        top: 30%;
+        z-index: 3;
+    }
+    #card-2 {
+        transform: rotate(90deg);
+        right: 32%;
+        top: 30%;
+        z-index: 1;
+    }
+    .cards-in-hand {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+    }
+    .card-in-hand {
+        position: relative;
+        float: left;
+        height: 100%;
+        margin-right: -10%;
+        top: 40%;
+    }
+    .card-in-hand > img {
+        max-height: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .card-in-hand.co {
+        top: 0;
+    }
+    .avatar {
+        vertical-align: middle;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border-style: solid;
+        border-color: antiquewhite;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .avatar.across {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+    }
+    .avatar.right {
+        position: absolute;
+        top: 30%;
+        left: 50%;
+    }
+    .avatar.left {
+        position: absolute;
+        top: 30%;
+        right: 50%;
+    }
+    .middle.table {
+        background-image: url('https://www.firestock.ru/wp-content/uploads/2014/10/shutterstock_26210362-1-700x700.jpg');
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
