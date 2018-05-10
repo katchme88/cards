@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link rel="stylesheet" href="scoreCard.css">
     <style>
         body {
             background-color: #337a71;
@@ -131,8 +132,7 @@
         $(function() {
             $('.card-in-hand').click(function() {
                 if ($(this).hasClass('co')){
-                    // $(this).remove();
-                    alert('has co');
+                    $(this).remove();
                 } else {
                     $(this).addClass('co');
                     $(this).siblings().removeClass('co');
@@ -145,7 +145,13 @@
 <body>
     <div class="container">
         <div class="top">
-            <div class="left"></div>
+            <div class="left">
+                <ul class="score-board">
+                    <li class="team-home"><img src="http://flagpedia.net/data/flags/normal/br.png" alt="Brasil" />TK<br>AK</li>
+                    <li class="score">0 - 0</li>
+                    <li class="team-visitor"><img src="http://flagpedia.net/data/flags/normal/ar.png" alt="Argentina" />MS<br>AB</li>
+                  </ul>
+            </div>
             <div class="middle"></div>
             <div class="right"></div>
         </div>
