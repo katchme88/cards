@@ -1,150 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Cards Game</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .logs {
-      width: 20%;
-      height: 100%;
-      background: rgb(139, 121, 121);
-      overflow-y: scroll;
-      float: left;
-    }
-    .messages {
-      width: 60%;
-      height: 100%;
-      background: rgb(37, 187, 130);
-      overflow-y: scroll;
-      float: left;
-    }
-    .status {
-      width: 20%;
-      /*padding-top: 100px;*/
-      height: 100%;
-      background: rgb(37, 157, 187);
-      float: left;
-    }
-    .message {
-      width: 25%;
-      padding-top: 100px;
-      height: 100%;
-      background: rgb(37, 187, 130);
-      float: left;
-    }
-
-    .trumpCard img {
-      width: 25%;
-      margin: auto;
-    }
-    .requestTrump {
-      background-color: #f44336;; /* Red */
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      margin: 4px 2px;
-      cursor: pointer;
-    }
-    .trumpButton {
-      padding-left: 20px;
-      margin-top: 20px;
-    }
-    .scoreBoard {
-      background-color: #e7e7e7;
-    }
-    .score {
-      padding: 20px;
-    }
-    #overlay {
-      position: fixed;
-      display: none;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      align-content: center;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 2;
-      cursor: pointer;
-    }
-    #overlayText{
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      font-size: 30px;
-      text-align: center;
-      align-content: center;
-      color: white;
-      transform: translate(-50%,-50%);
-      -ms-transform: translate(-50%,-50%);
-    }
-    #loading{
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-    .teamAHands, .teamBHands, .player1, .player2, .player3, .player4 {
-      font-size: 150%;
-    }
-    .teamAHands, .teamBHands, .rounds {
-      font-weight: bold;
-      display: inline;
-      position: relative;
-      
-    }
-    .teamA, .teamB { 
-      display: inline;
-      position: relative;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="scoreCard.css">
+    <link rel="stylesheet" href="ui.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(function() {
+            var posLeft = 165;
+            $('.card-in-hand').click(function() {
+                if ($(this).hasClass('co')){
+                    var id = $(this).attr('id');
+                    var new_left = posLeft - $(this).position().left;
+                    $(this).animate({top:'-100%', left:new_left}, function() {
+                        $(this).hide(400);
+                        $('.middle.table').append('<img id="card-1" src="images/cards/'+id+'.svg" />');
+                    });
+                } else {
+                    $(this).addClass('co').animate({top:0});
+                    $(this).siblings().removeClass('co').animate({top: "40%"});
+                }        
+            });
+        });
+    </script>
 </head>
 <body>
-  <ul class="pages">
-    <li class="chat page">
-      <div class="chatArea">
-        <div class="logs"></div>
-        <div class="messages"></div>
-        <div class="status">
-            <div class="scoreBoard">
-              <div class="score">
-                <span class="rounds">Total Rounds: 0</span><br><br>
-                <div class="teamA"><div class="player1">Waiting to Join...</div><div class="player3">Waiting to Join...</div></div><div class="teamAHands"><span>0</span></div><br><br>
-                <div class="teamB"><div class="player2">Waiting to Join...</div><div class="player4">Waiting to Join..</div></div><div class="teamBHands"><span>0</span></div><br><br>
-              </div>  
+    <div class="bkg"></div>
+    <div class="container">
+        <div class="top">
+            <div class="left">
+                <div class="score-board">
+                    <div class="playerName"><div class="teamA">Player 1</div><div class="teamA">Player 3</div></div>
+                    <div class="score">0 - 0</div>
+                    <div class="playerName"><div class="teamB">Player 2</div><div class="teamB">Player 4</div></div>
+                </div>
             </div>
-            <div class="trumpButton">
-              <input type="button" class="requestTrump" value="Request Trump"><br><br>
+            <div class="middle">
+                <img src="https://www.w3schools.com/w3images/avatar2.png" alt="Avatar" class="avatar across">
             </div>
-            <div class="trumpCard">
+            <div class="right"></div>
+        </div>
+        <div class="center">
+            <div class="left">
+                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="avatar left">
             </div>
-          </div>
-      </div>
-      <div class="cards"></div>      
-    </li>
-    <li class="login page">
-      <div class="form">
-        <h3 class="title">What's your nickname?</h3>
-        <input class="usernameInput" type="text" maxlength="14" />
-      </div>
-    </li>
-    <li class="modal">
-      <div id="overlay" onclick="off()">
-          <div id="overlayText">Overlay Text</div>
-          <div id="loading"><img src="loading/loading.gif"></div>
-      </div>
-    </li>
-  </ul>
-  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-  <script src="socket.io/socket.io.js"></script>
-  <script src="main.js"></script>
+            <div class="middle table">
+                <!-- <img id="card-1" src="images/cards/H13.svg" /> -->
+                <img id="card-2" src="images/cards/C12.svg" />
+                <img id="card-3" src="images/cards/D14.svg" />
+                <img id="card-4" src="images/cards/S11.svg" />
+            </div>
+            <div class="right">
+                <img src="https://www.w3schools.com/w3images/avatar5.png" alt="Avatar" class="avatar right">
+            </div>
+        </div>
+        <div class="bottom">
+            <div class="left"></div>
+            <div class="middle">
+                <div class = "cards-in-hand">
+                    <div class="card-in-hand" id="S14"><img src="images/cards/S14.svg" /></div>
+                    <div class="card-in-hand" id="S02"><img src="images/cards/S02.svg" /></div>
+                    <div class="card-in-hand" id="S03"><img src="images/cards/S03.svg" /></div>
+                    <div class="card-in-hand" id="S04"><img src="images/cards/S04.svg" /></div>
+                    <div class="card-in-hand" id="S05"><img src="images/cards/S05.svg" /></div>
+                    <div class="card-in-hand" id="S06"><img src="images/cards/S06.svg" /></div>
+                    <div class="card-in-hand" id="S07"><img src="images/cards/S07.svg" /></div>
+                    <div class="card-in-hand" id="S08"><img src="images/cards/S08.svg" /></div>
+                    <div class="card-in-hand" id="S09"><img src="images/cards/S09.svg" /></div>
+                    <div class="card-in-hand" id="S10"><img src="images/cards/S10.svg" /></div>
+                    <div class="card-in-hand" id="S11"><img src="images/cards/S11.svg" /></div>
+                    <div class="card-in-hand" id="S12"><img src="images/cards/S12.svg" /></div>
+                    <div class="card-in-hand" id="S13"><img src="images/cards/S13.svg" /></div>           
+                </div>
+            </div>
+            <div class="right"></div>
+        </div>
+    </div> 
 </body>
 </html>
