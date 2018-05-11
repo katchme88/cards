@@ -129,6 +129,7 @@ div.center {
     position: absolute;
     top: 30%;
     right: 30%;
+    border-color: #b9d638;
 }
 .avatar.left {
     position: absolute;
