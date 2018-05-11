@@ -117,8 +117,8 @@ div.center {
 }
 .avatar {
     vertical-align: middle;
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     border-style: solid;
     border-color: antiquewhite;
@@ -132,12 +132,12 @@ div.center {
 .avatar.right {
     position: absolute;
     top: 30%;
-    left: 50%;
+    right: 30%;
 }
 .avatar.left {
     position: absolute;
     top: 30%;
-    right: 50%;
+    left: 30%;
 }
 .middle.table {
     background-image: url('https://www.firestock.ru/wp-content/uploads/2014/10/shutterstock_26210362-1-700x700.jpg');
