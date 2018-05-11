@@ -1,8 +1,9 @@
 body {
     background-color:#4677b8;
-    background-image:
-    linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1));
-    background-size: 10px 20px;
+    background-image: url('https://i.ytimg.com/vi/BrV11xUF1vQ/maxresdefault.jpg');
+    background-size: cover;
+    /* linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1)); */
+    /* background-size: 10px 20px; */
 }
 .container {
     width: 100%;
@@ -137,7 +138,7 @@ div.center {
     left: 30%;
 }
 .middle.table {
-    background-image: url('https://cdn.pixabay.com/photo/2017/03/10/14/05/background-2132913_960_720.jpg');
+    background-image: url('images/table2.jpg');
     background-size: cover;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 20px;
