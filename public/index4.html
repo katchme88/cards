@@ -12,12 +12,12 @@
         $(function() {
             $('.card-in-hand').click(function() {
                 if ($(this).hasClass('co')){
-                    $(this).remove();
+                    $(this).animate({top:'-100%'}, function(){$(this).hide("400");});
                 } else {
-                    $(this).addClass('co');
-                    $(this).siblings().removeClass('co');
-                }
-                
+                    $(this).addClass('co').animate({top:0});
+                    $(this).siblings().removeClass('co').animate({top: "40%"});
+
+                }        
             });
         });
     </script>
