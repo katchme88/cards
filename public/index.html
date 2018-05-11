@@ -10,12 +10,12 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         $(function() {
-            var posLeft = 165;
+            var posLeft = 164.5;
             $('.card-in-hand').click(function() {
                 if ($(this).hasClass('co')){
                     var id = $(this).attr('id');
                     var new_left = posLeft - $(this).position().left;
-                    $(this).animate({top:'-100%', left:new_left}, function() {
+                    $(this).animate({top:'-86%', left:new_left, height:"80%"}, function() {
                         $(this).hide(400);
                         $('.middle.table').append('<img id="card-1" src="images/cards/'+id+'.svg" />');
                     });
