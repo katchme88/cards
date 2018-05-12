@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link rel="stylesheet" href="scoreCard.css">
-    <link rel="stylesheet" href="ui.css">
+    <link rel="stylesheet" href="css/scoreCard.css">
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/login.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="js/main.js"></script>
     <script>
         $(function() {
-            var posLeft = 164.5;
+            var posLeft = 168;
             $('.card-in-hand').click(function() {
                 if ($(this).hasClass('co')){
                     var id = $(this).attr('id');
                     var new_left = posLeft - $(this).position().left;
                     $(this).animate({top:'-86%', left:new_left, height:"80%"}, function() {
-                        $(this).hide(400);
+                        $(this).remove();
                         $('.middle.table').append('<img id="card-1" src="images/cards/'+id+'.svg" />');
                     });
+    
                 } else {
                     $(this).addClass('co').animate({top:0});
                     $(this).siblings().removeClass('co').animate({top: "40%"});
@@ -100,5 +104,11 @@
             </div>
         </div>
     </div> 
+    <div class="login page">
+        <div class="form">
+            <h3 class="title">What's your nickname?</h3>
+            <input class="usernameInput" type="text" maxlength="14" />
+        </div>
+    </div>
 </body>
 </html>

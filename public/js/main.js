@@ -159,7 +159,7 @@ $(function() {
     var typingClass = data.typing ? 'typing' : '';
     var $messageDiv = $('<li class="message"/>')
       .data('username', data.username)
-      .append($usernameDiv, '<img id="'+data.message+'.svg" src="https://gurutalha.azureedge.net/images/'+data.message+'.svg" class="tablecard"></img>');
+      .append($usernameDiv, '<img id="'+data.message+'.svg" src="images/cards/'+data.message+'.svg" class="tablecard"></img>');
     addCardElement($messageDiv, options);
   }
 
@@ -232,7 +232,7 @@ $(function() {
   function addTrumpElement (id) {
     choosingTrump = false;
     trumpCard = id;
-    $trumpCard.append('<img id="'+id+'" src="https://gurutalha.azureedge.net/images/'+id+'.svg" class="trump"></img>');
+    $trumpCard.append('<img id="'+id+'" src="images/cards/'+id+'.svg" class="trump"></img>');
   }
 
   function updateSuitsInHand (cardsInHand) {
@@ -296,7 +296,7 @@ $(function() {
   function drawCardsInHand (data) {
     (data.hand).sort();
     for(var i in data.hand){
-      $cards.append('<img id="'+data.hand[i]+'" src="https://gurutalha.azureedge.net/images/'+data.hand[i]+'.svg" class="card"></img>');
+      $cards.append('<img id="'+data.hand[i]+'" src="images/cards/'+data.hand[i]+'.svg" class="card"></img>');
       cardsInHand.push(data.hand[i]);
     }
     updateSuitsInHand(cardsInHand);
@@ -515,7 +515,7 @@ $(function() {
         socket.emit('reveal trump');
         cardsInHand.push($(this).attr('id'));
         updateSuitsInHand(cardsInHand);
-        $cards.append('<img id="'+$(this).attr('id')+'" src="https://gurutalha.azureedge.net/images/'+$(this).attr('id')+'.svg" class="card"></img>');
+        $cards.append('<img id="'+$(this).attr('id')+'" src="images/cards/'+$(this).attr('id')+'.svg" class="card"></img>');
         $(this).remove();
         trumpRevealed = true;
       } else {

@@ -1,0 +1,147 @@
+.bkg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../images/background.jpg');
+    background-size: cover;
+    background-size: 100%;
+    opacity: 1;
+}
+.container {
+    width: 100%;
+    height: 100%;
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    left: 0; 
+    right: 0;
+    overflow:hidden;
+}
+table, td {
+    border: 1px solid black;
+    text-align: center;
+}
+td {
+    height:20%;
+    width: 20%;
+}
+.container {
+    height: 100%;
+    width: 100%;
+    position: absolute; 
+    top: 0; 
+    bottom: 0; 
+    left: 0; 
+    right: 0;
+}
+div.top, div.bottom {
+    height: 25%;
+    width: 100%;
+    position: relative; 
+    float: left;
+}
+div.center {
+    height: 50%;
+    width: 100%;
+    position: relative; 
+    float: left;
+}
+.left, .right {
+    position: relative;
+    float: left;
+    height: 100%;
+    width: 19.5%
+}
+.middle {
+    position: relative;
+    float: left;
+    height: 100%;
+    width: 60%;
+    /* overflow:hidden;  */
+}
+.middle-left, .middle-right {
+    position: relative;
+    float: left;
+    height: 100%;
+    width: 35%;
+}
+.middle-center {
+    position: relative;
+    float: left;
+    height: 100%;
+    width: 30%;
+}
+#card-1, #card-2, #card-3, #card-4 {
+    max-height: 40%;
+    position: absolute;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+#card-3 {
+    right: 44%;
+    bottom: 100%;
+}
+#card-1 {
+    right: 44%;
+    top: 55%;
+}
+#card-4 {
+    transform: rotate(90deg);
+    right: 100%;
+    top: 30%;
+}
+#card-2 {
+    transform: rotate(90deg);
+    right: 0;
+    top: 30%;
+}
+.cards-in-hand {
+    position: absolute;
+    height: 100%;
+    width: 96%;
+    left: 2%;
+    /* overflow: hidden; */
+}
+.card-in-hand {
+    position: relative;
+    float: left;
+    height: 90%;
+    margin-right: -8%;
+    top: 40%;
+}
+.card-in-hand > img {
+    max-height: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.avatar {
+    vertical-align: middle;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 5px solid rgb(243, 239, 239);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.avatar.across {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+}
+.avatar.right {
+    position: absolute;
+    top: 30%;
+    right: 30%;
+    border-color: #18b19c;
+}
+.avatar.left {
+    position: absolute;
+    top: 30%;
+    left: 30%;
+}
+.middle.table {
+    background-image: url('../images/table2.jpg');
+    background-size: cover;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 20px;
+    border: 3px solid rgb(243, 239, 239);
+}

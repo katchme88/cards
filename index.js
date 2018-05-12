@@ -38,7 +38,7 @@ var roundsSinceLastWin = 0;
 var playerSequence = [];
 var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
 
-fs.readdir('public/images', function(err, items) {
+fs.readdir('public/images/cards', function(err, items) {
     deck = items;
     deck.splice(deck.indexOf('budRungi.svg'), 1);
 });
