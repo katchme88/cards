@@ -24,6 +24,21 @@
                     $(this).siblings().removeClass('co').animate({top: "40%"});
                 }        
             });
+
+            $('#player2_btn').click(function() {
+                $('.middle.table').append('<img id="card-2" src="images/cards/C12.svg" />');
+                $('#card-2').animate({right:'32%'});
+            });
+
+            $('#player3_btn').click(function() {
+                $('.middle.table').append('<img id="card-3" src="images/cards/D14.svg" />');
+                $('#card-3').animate({bottom:'55%'});
+            });
+
+            $('#player4_btn').click(function() {
+                $('.middle.table').append('<img id="card-4" src="images/cards/H10.svg" />');
+                $('#card-4').animate({right:'56%'});
+            });
         });
     </script>
 </head>
@@ -41,24 +56,28 @@
             <div class="middle">
                 <img src="https://www.w3schools.com/w3images/avatar2.png" alt="Avatar" class="avatar across">
             </div>
-            <div class="right"></div>
+            <div class="right">
+                <button id="player3_btn">player 3 card</button>
+            </div>
         </div>
         <div class="center">
             <div class="left">
                 <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" class="avatar left">
             </div>
             <div class="middle table">
-                <!-- <img id="card-1" src="images/cards/H13.svg" /> -->
+                <!-- <img id="card-1" src="images/cards/H13.svg" />
                 <img id="card-2" src="images/cards/C12.svg" />
                 <img id="card-3" src="images/cards/D14.svg" />
-                <img id="card-4" src="images/cards/S11.svg" />
+                <img id="card-4" src="images/cards/S11.svg" /> -->
             </div>
             <div class="right">
                 <img src="https://www.w3schools.com/w3images/avatar5.png" alt="Avatar" class="avatar right">
             </div>
         </div>
         <div class="bottom">
-            <div class="left"></div>
+            <div class="left">
+                <button id="player4_btn">player 4 card</button>
+            </div>
             <div class="middle">
                 <div class = "cards-in-hand">
                     <div class="card-in-hand" id="S14"><img src="images/cards/S14.svg" /></div>
@@ -76,7 +95,9 @@
                     <div class="card-in-hand" id="S13"><img src="images/cards/S13.svg" /></div>           
                 </div>
             </div>
-            <div class="right"></div>
+            <div class="right">
+                <button id="player2_btn">player 2 card</button>
+            </div>
         </div>
     </div> 
 </body>
