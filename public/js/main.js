@@ -23,7 +23,7 @@ $(function() {
   var $overlay = $('#overlay');
   var $overlayText = $('#overlayText');
 
-  var $cards = $('.cards');
+  var $cards_in_hand = $('.cards-in-hand');
   var choosingTrump = false;
   var trumpCard = "";
   var currentRoundSuit;
@@ -81,21 +81,21 @@ $(function() {
   }
 
   // Sends a chat message
-  function sendMessage () {
-    var message = $inputMessage.val();
-    // Prevent markup from being injected into the message
-    message = cleanInput(message);
-    // if there is a non-empty message and a socket connection
-    if (message && connected) {
-      $inputMessage.val('');
-      addChatMessage({
-        username: username,
-        message: message
-      });
-      // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
-    }
-  }
+  // function sendMessage () {
+  //   var message = $inputMessage.val();
+  //   // Prevent markup from being injected into the message
+  //   message = cleanInput(message);
+  //   // if there is a non-empty message and a socket connection
+  //   if (message && connected) {
+  //     $inputMessage.val('');
+  //     addChatMessage({
+  //       username: username,
+  //       message: message
+  //     });
+  //     // tell server to execute 'new message' and send along one parameter
+  //     socket.emit('new message', message);
+  //   }
+  // }
 
     // Sends a chat message
   function throwCard (id, budRungi) {
@@ -123,29 +123,29 @@ $(function() {
   }
 
   // Adds the visual chat message to the message list
-  function addChatMessage (data, options) {
-    // Don't fade the message in if there is an 'X was typing'
-    var $typingMessages = getTypingMessages(data);
-    options = options || {};
-    if ($typingMessages.length !== 0) {
-      options.fade = false;
-      $typingMessages.remove();
-    }
+  // function addChatMessage (data, options) {
+  //   // Don't fade the message in if there is an 'X was typing'
+  //   var $typingMessages = getTypingMessages(data);
+  //   options = options || {};
+  //   if ($typingMessages.length !== 0) {
+  //     options.fade = false;
+  //     $typingMessages.remove();
+  //   }
 
-    var $usernameDiv = $('<span class="username"/>')
-      .text(data.username)
-      .css('color', getUsernameColor(data.username));
-    var $messageBodyDiv = $('<span class="messageBody">')
-      .text(data.message);
+  //   var $usernameDiv = $('<span class="username"/>')
+  //     .text(data.username)
+  //     .css('color', getUsernameColor(data.username));
+  //   var $messageBodyDiv = $('<span class="messageBody">')
+  //     .text(data.message);
 
-    var typingClass = data.typing ? 'typing' : '';
-    var $messageDiv = $('<li class="message"/>')
-      .data('username', data.username)
-      .addClass(typingClass)
-      .append($usernameDiv, $messageBodyDiv);
+  //   var typingClass = data.typing ? 'typing' : '';
+  //   var $messageDiv = $('<li class="message"/>')
+  //     .data('username', data.username)
+  //     .addClass(typingClass)
+  //     .append($usernameDiv, $messageBodyDiv);
 
-    addMessageElement($messageDiv, options);
-  }
+  //   addMessageElement($messageDiv, options);
+  // }
 
   // Adds the thrown card on to the message list
   function addCard (data, options) {
@@ -296,7 +296,7 @@ $(function() {
   function drawCardsInHand (data) {
     (data.hand).sort();
     for(var i in data.hand){
-      $cards.append('<img id="'+data.hand[i]+'" src="images/cards/'+data.hand[i]+'.svg" class="card"></img>');
+      $cards_in_hand.append($cards_in_hand.append("<div class='card-in-hand' id='"+data.hand[i]+"'><img src='images/cards/"+data.hand[i]+".svg' \/></div>"));
       cardsInHand.push(data.hand[i]);
     }
     updateSuitsInHand(cardsInHand);
@@ -465,6 +465,7 @@ $(function() {
   });
 
   socket.on('enable ui', function (data) {
+    console.log('enable ui');
     $document.on("click", "img.card" , function() {
       if (choosingTrump){
           sendTrumpCard($(this).attr('id'));
@@ -515,7 +516,8 @@ $(function() {
         socket.emit('reveal trump');
         cardsInHand.push($(this).attr('id'));
         updateSuitsInHand(cardsInHand);
-        $cards.append('<img id="'+$(this).attr('id')+'" src="images/cards/'+$(this).attr('id')+'.svg" class="card"></img>');
+        $cards_in_hand.append("<div class='card-in-hand' id='"+$(this).attr('id')+"'><img src='images/cards/"+$(this).attr('id')+".svg' /></div>");
+        
         $(this).remove();
         trumpRevealed = true;
       } else {
