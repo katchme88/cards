@@ -109,11 +109,19 @@ $(function() {
       message = budRungi ? 'budRungi' : message;
 
       socket.emit('card thrown', message);
-      addCard({
-        username: username,
-        message: message
-      });
+      animateThrowCard (id);
     }
+  }
+
+  function animateThrowCard (id) {
+    var posLeft = 168;
+    //var id = $(`${id}`).attr('id');
+    var $el = $('#'+id);
+    var new_left = posLeft - $el.position().left;
+    $el.animate({top:'-86%', left:new_left, height:"80%"}, function() {
+        $el.remove();
+        $('.middle.table').append('<img id="card-1" src="images/cards/'+id+'.svg" />');
+    });
   }
 
   // Log a message
@@ -441,7 +449,7 @@ $(function() {
   socket.on('user left', function (data) {
     log(data.username + ' left');
     addParticipantsMessage(data);
-    removeChatTyping(data);
+    // removeChatTyping(data);
   });
 
   socket.on('disconnect', function () {
@@ -465,49 +473,50 @@ $(function() {
   });
 
   socket.on('enable ui', function (data) {
-    console.log('enable ui');
-    $document.on("click", "img.card" , function() {
-      if (choosingTrump){
-          sendTrumpCard($(this).attr('id'));
-          addTrumpElement($(this).attr('id'));
-          cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
+    $document.on("click", ".card-in-hand" , function() {
+      
+      if ($(this).hasClass('co')){
+        if (choosingTrump){
+            sendTrumpCard($(this).attr('id'));
+            addTrumpElement($(this).attr('id'));
+            cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
+            updateSuitsInHand(cardsInHand);
+            $(this).remove();
+        } else if (currentRoundSuit && myTurn) {
           updateSuitsInHand(cardsInHand);
-          $(this).remove();
-      } else if (currentRoundSuit && myTurn) {
-        updateSuitsInHand(cardsInHand);
-        var found = suitsInHand.find(function(element) {
-            return element == currentRoundSuit;
-        });
-  
-          if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
+          var found = suitsInHand.find(function(element) {
+              return element == currentRoundSuit;
+          });
+    
+            if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
+              throwCard($(this).attr('id'));
+              $(this).remove();
+              myTurn = false;
+            } else if (!found){
+    
+              var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
+
+              throwCard($(this).attr('id'), budRungi);
+              $(this).remove();
+              myTurn = false;
+            } else {
+              log('Please throw correct suit', {
+                prepend: false
+              });
+            }
+          
+          } else if (!currentRoundSuit && myTurn) {
             throwCard($(this).attr('id'));
-            $(this).remove();
-            myTurn = false;
-          } else if (!found){
-  
-            var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
-            console.log (budRungi);
-            console.log (playerNumber);
-            console.log (trumpRevealed);
-            
-            throwCard($(this).attr('id'), budRungi);
-            $(this).remove();
             myTurn = false;
           } else {
-            log('Please throw correct suit', {
+            log('Not your turn', {
               prepend: false
             });
-          }
-        
-        } else if (!currentRoundSuit && myTurn) {
-          throwCard($(this).attr('id'));
-          $(this).remove();
-          myTurn = false;
-        } else {
-          log('Not your turn', {
-            prepend: false
-          });
-        } 
+        }
+      } else {
+        $(this).addClass('co').animate({top:0});
+        $(this).siblings().removeClass('co').animate({top: "40%"});
+      }
     });
 
 
@@ -528,6 +537,6 @@ $(function() {
     });
 
     showOverlay(false, data.message);
-  });
+   });
 
 });
