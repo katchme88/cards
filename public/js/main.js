@@ -42,6 +42,7 @@ $(function() {
   var playerNumber;
   var audio = new Audio("sounds/cardPlace1.wav");
   var playerSequence=[];
+  var playerPerspective = [];
 
   var socket = io();
 
@@ -158,17 +159,23 @@ $(function() {
   // Adds the thrown card on to the message list
   function addCard (data, options) {
     audio.play();
-    var $usernameDiv = $('<span class="username"/>')
-      .text(data.username)
-      .css('color', getUsernameColor(data.username));
-    var $messageBodyDiv = $('<span class="messageBody">')
-      .text(data.message);
-
-    var typingClass = data.typing ? 'typing' : '';
-    var $messageDiv = $('<li class="message"/>')
-      .data('username', data.username)
-      .append($usernameDiv, '<img id="'+data.message+'.svg" src="images/cards/'+data.message+'.svg" class="tablecard"></img>');
-    addCardElement($messageDiv, options);
+    var perspective = playerPerspective.indexOf(data.username) + 1;
+    var animateObj = {};
+    switch(perspective) {
+      case 2:
+        animateObj = {right:'32%'};
+        break;
+      case 3:
+        animateObj = {bottom:'55%'};
+        break;
+      case 4:
+        animateObj = {right:'56%'};
+        break;
+      default:
+        animateObj = {};
+  }
+    $('.middle.table').append('<img id="card-'+perspective+'" src="images/cards/'+data.message+'.svg" />');
+    $('#card-'+perspective).animate(animateObj);
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -203,31 +210,21 @@ $(function() {
     $logs[0].scrollTop = $logs[0].scrollHeight;
   }
 
-  function addCardElement (el, options) {
-    var $el = $(el);
+  // function addCardElement () {
+    
+  //   }
 
-    // Setup default options
-    if (!options) {
-      options = {};
-    }
-    if (typeof options.fade === 'undefined') {
-      options.fade = true;
-    }
-    if (typeof options.prepend === 'undefined') {
-      options.prepend = false;
-    }
-
-    // Apply options
-    if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
-    }
-    if (options.prepend) {
-      $messages.prepend($el);
-    } else {
-      $messages.append($el);
-    }
-    $messages[0].scrollTop = $messages[0].scrollHeight;
-  }
+  //   // Apply options
+  //   if (options.fade) {
+  //     $el.hide().fadeIn(FADE_TIME);
+  //   }
+  //   if (options.prepend) {
+  //     $messages.prepend($el);
+  //   } else {
+  //     $messages.append($el);
+  //   }
+  //   $messages[0].scrollTop = $messages[0].scrollHeight;
+  // }
 
   function sendTrumpCard (id) {
     var message = id;
@@ -317,6 +314,16 @@ $(function() {
     }
   }
 
+  function getPlayerPerspective (data) {
+    var perspective = data;
+    var mySeq = perspective.indexOf(username);
+    for (var i=0; i < mySeq; i++) {
+        perspective.push(perspective.shift());
+    }
+    return perspective;
+  }
+
+
   // Keyboard events
   $window.keydown(function (event) {
     // Auto-focus the current input when a key is typed
@@ -386,8 +393,10 @@ $(function() {
     });
     playerNumber = data.playerNumber;
     playerSequence = data.playerSequence;
-    addPlayerElement(playerSequence);
+    //addPlayerElement(playerSequence);
+    playerPerspective = getPlayerPerspective(playerSequence);
     addParticipantsMessage(data);
+    console.log(playerPerspective);
     if (playerNumber == 1 || playerNumber == 3){
       $requestTrump.hide();
     }
@@ -424,6 +433,8 @@ $(function() {
     log(data.username + ' joined');
     addParticipantsMessage(data);
     playerSequence = data.playerSequence;
+    playerPerspective = getPlayerPerspective(playerSequence);
+    console.log(playerPerspective);
     addPlayerElement(playerSequence);
   });
 
@@ -475,22 +486,22 @@ $(function() {
   socket.on('enable ui', function (data) {
     $document.on("click", ".card-in-hand" , function() {
       
-      if ($(this).hasClass('co')){
-        if (choosingTrump){
+      if ($(this).hasClass('co')) {
+        if (0) {
             sendTrumpCard($(this).attr('id'));
             addTrumpElement($(this).attr('id'));
             cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
             updateSuitsInHand(cardsInHand);
             $(this).remove();
-        } else if (currentRoundSuit && myTurn) {
+        } else if (currentRoundSuit && 1) {
           updateSuitsInHand(cardsInHand);
           var found = suitsInHand.find(function(element) {
               return element == currentRoundSuit;
           });
     
-            if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit){
+            if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit) {
               throwCard($(this).attr('id'));
-              $(this).remove();
+              //$(this).remove();
               myTurn = false;
             } else if (!found){
     
@@ -505,7 +516,7 @@ $(function() {
               });
             }
           
-          } else if (!currentRoundSuit && myTurn) {
+          } else if (!currentRoundSuit && 1) {
             throwCard($(this).attr('id'));
             myTurn = false;
           } else {
