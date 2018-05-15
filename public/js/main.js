@@ -174,7 +174,7 @@ $(function() {
       default:
         animateObj = {};
   }
-    $('.middle.table').append('<img id="card-'+perspective+'" src="images/cards/'+data.message+'.svg" />');
+    $('.middle.table').append('<img id="card-'+perspective+'" class="tableCard" src="images/cards/'+data.message+'.svg" />');
     $('#card-'+perspective).animate(animateObj);
   }
 
