@@ -119,21 +119,20 @@ div.center {
     width: 55px;
     height: 55px;
     border-radius: 50%;
-    border: 5px solid rgb(243, 239, 239);
+    border: 5px solid white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-.avatar.across {
+.avatar-3 {
     position: absolute;
     top: 10%;
     left: 50%;
 }
-.avatar.right {
+.avatar-2 {
     position: absolute;
     top: 30%;
     right: 30%;
-    border-color: #18b19c;
 }
-.avatar.left {
+.avatar-4 {
     position: absolute;
     top: 30%;
     left: 30%;
@@ -144,4 +143,18 @@ div.center {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 20px;
     border: 3px solid rgb(243, 239, 239);
+}
+.trumpCard {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+.trumpCard > img {
+    position: absolute;
+    right:20%;
+    top: 20%;
+    max-height: 100%;
+    max-width: 100%;
+    border: solid 3px rgb(110, 159, 179);
+    border-radius: 5px;
 }

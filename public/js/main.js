@@ -12,7 +12,7 @@ $(function() {
   var $document = $(document);
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
-  var $logs = $('.logs'); //log messages
+  // var $logs = $('.logs'); //log messages
   var $inputMessage = $('.inputMessage'); // Input message input box
   //var $revealTrump = $('.revealTrump');
   var $requestTrump = $('.requestTrump');
@@ -53,7 +53,7 @@ $(function() {
     } else {
       message += "there are " + data.numUsers + " participants";
     }
-    log(message);
+    // log(message);
   }
 
   function showOverlay (bool, data) {
@@ -103,7 +103,14 @@ $(function() {
         $el.remove();
         id = budRungi ? 'budRungi' : id;
         $('.middle.table').append('<img id="card-1" class="tableCard" src="images/cards/'+id+'.svg" />');
+        updateNextAvatar(1);
     });
+  }
+
+  function updateNextAvatar(num) {
+    next = (num+1).toString();
+    $(".avatar").css({'border-color':'white'});
+    $(".avatar-"+next).css({'border-color':'gold'});
   }
 
   // Log a message
@@ -118,6 +125,7 @@ $(function() {
     audio.play();
     var perspective = playerPerspective.indexOf(data.username) + 1;
     var animateObj = {};
+    var avatarNum = 0;
     switch(perspective) {
       case 2:
         animateObj = {right:'32%'};
@@ -133,38 +141,38 @@ $(function() {
   }
     $('.middle.table').append('<img id="card-'+perspective+'" class="tableCard" src="images/cards/'+data.message+'.svg" />');
     $('#card-'+perspective).animate(animateObj);
+    updateNextAvatar(perspective);
   }
 
-  function addLogElement (el, options) {
-    var $el = $(el);
+  // function addLogElement (el, options) {
+  //   var $el = $(el);
 
-    // Setup default options
-    if (!options) {
-      options = {};
-    }
-    if (typeof options.fade === 'undefined') {
-      options.fade = true;
-    }
-    if (typeof options.prepend === 'undefined') {
-      options.prepend = false;
-    }
+  //   // Setup default options
+  //   if (!options) {
+  //     options = {};
+  //   }
+  //   if (typeof options.fade === 'undefined') {
+  //     options.fade = true;
+  //   }
+  //   if (typeof options.prepend === 'undefined') {
+  //     options.prepend = false;
+  //   }
 
-    // Apply options
-    if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
-    }
-    if (options.prepend) {
-      $logs.prepend($el);
-    } else {
-      $logs.append($el);
-    }
-    $logs[0].scrollTop = $logs[0].scrollHeight;
-  }
+  //   // Apply options
+  //   if (options.fade) {
+  //     $el.hide().fadeIn(FADE_TIME);
+  //   }
+  //   if (options.prepend) {
+  //     $logs.prepend($el);
+  //   } else {
+  //     $logs.append($el);
+  //   }
+  //   $logs[0].scrollTop = $logs[0].scrollHeight;
+  // }
 
   function sendTrumpCard (id) {
     var message = id;
     if (message && connected) {
-      $inputMessage.val('');
       socket.emit('trump card', message);
     }
   }
@@ -251,9 +259,9 @@ $(function() {
       socket.emit('request trump');
       
     } else {
-      log('you can\'t ask for trump right now', {
-        prepend: false
-      });
+      // log('you can\'t ask for trump right now', {
+      //   prepend: false
+      // });
     }
   });
 
@@ -282,10 +290,10 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    var message = "Cards.IO";
-    log(message, {
-      prepend: true
-    });
+    // var message = "Cards.IO";
+    // log(message, {
+    //   prepend: true
+    // });
     playerNumber = data.playerNumber;
     playerSequence = data.playerSequence;
     //addPlayerElement(playerSequence);
@@ -304,10 +312,10 @@ $(function() {
   });
 
   socket.on('senior player', function (data) {
-    log((data.username +' is senior'));
+    // log((data.username +' is senior'));
     //$(".rounds").text(("Total Rounds: "+data.totalRounds));
     setTimeout(function() {$(".tableCard").remove();},2000);
-
+    updateNextAvatar(playerPerspective.indexOf(data.username)-1);
   });
   
   socket.on('hands picked', function (data){
@@ -317,17 +325,17 @@ $(function() {
   });
 
   socket.on("request trump", function(data) {
-    log((data.username + " has asked to reveal the Trump"));
+    // log((data.username + " has asked to reveal the Trump"));
     trumpAsked = true;
   });
 
   socket.on("reveal trump", function(data) {
-    log(("The trump is " + data.trumpCard));
+    // log(("The trump is " + data.trumpCard));
   });
 
   // Whenever the server emits 'user joined', log it in the chat body
   socket.on('user joined', function (data) {
-    log(data.username + ' joined');
+    // log(data.username + ' joined');
     addParticipantsMessage(data);
     playerSequence = data.playerSequence;
     playerPerspective = getPlayerPerspective(playerSequence);
@@ -349,30 +357,30 @@ $(function() {
   // draw cards and ask him to choose trump
   socket.on('choose trump', function (data) {
     drawCardsInHand(data);
-    log('Choose the Trump');
+    // log('Choose the Trump');
     choosingTrump = true; 
   });
 
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
-    log(data.username + ' left');
+    // log(data.username + ' left');
     addParticipantsMessage(data);
     // removeChatTyping(data);
   });
 
   socket.on('disconnect', function () {
-    log('you have been disconnected');
+    // log('you have been disconnected');
   });
 
   socket.on('reconnect', function () {
-    log('you have been reconnected');
+    // log('you have been reconnected');
     if (username) {
       socket.emit('add user', username);
     }
   });
 
   socket.on('reconnect_error', function () {
-    log('attempt to reconnect has failed');
+    // log('attempt to reconnect has failed');
   });
 
   socket.on('disable ui', function (data) {
@@ -384,13 +392,13 @@ $(function() {
     $document.on("click", ".card-in-hand" , function() {
       
       if ($(this).hasClass('co')) {
-        if (0) {
+        if (choosingTrump) {
             sendTrumpCard($(this).attr('id'));
             addTrumpElement($(this).attr('id'));
             cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
             updateSuitsInHand(cardsInHand);
             $(this).remove();
-        } else if (currentRoundSuit && 1) {
+        } else if (currentRoundSuit && myTurn) {
           updateSuitsInHand(cardsInHand);
           var found = suitsInHand.find(function(element) {
               return element == currentRoundSuit;
@@ -408,18 +416,18 @@ $(function() {
               $(this).remove();
               myTurn = false;
             } else {
-              log('Please throw correct suit', {
-                prepend: false
-              });
+              // log('Please throw correct suit', {
+              //   prepend: false
+              // });
             }
           
-          } else if (!currentRoundSuit && 1) {
+          } else if (!currentRoundSuit && myTurn) {
             throwCard($(this).attr('id'));
             myTurn = false;
           } else {
-            log('Not your turn', {
-              prepend: false
-            });
+            // log('Not your turn', {
+            //   prepend: false
+            // });
         }
       } else {
         $(this).addClass('co').animate({top:0});
@@ -438,9 +446,9 @@ $(function() {
         $(this).remove();
         trumpRevealed = true;
       } else {
-        log('You can\'t reveal trump at this stage', {
-          prepend: false
-        });
+        // log('You can\'t reveal trump at this stage', {
+        //   prepend: false
+        // });
       }
     });
 
