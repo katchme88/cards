@@ -81,24 +81,6 @@ $(function() {
     }
   }
 
-  // Sends a chat message
-  // function sendMessage () {
-  //   var message = $inputMessage.val();
-  //   // Prevent markup from being injected into the message
-  //   message = cleanInput(message);
-  //   // if there is a non-empty message and a socket connection
-  //   if (message && connected) {
-  //     $inputMessage.val('');
-  //     addChatMessage({
-  //       username: username,
-  //       message: message
-  //     });
-  //     // tell server to execute 'new message' and send along one parameter
-  //     socket.emit('new message', message);
-  //   }
-  // }
-
-    // Sends a chat message
   function throwCard (id, budRungi) {
     var message = id;
     if (message && connected) {
@@ -108,20 +90,19 @@ $(function() {
       
       //throw a budrungi if budRungi is true
       message = budRungi ? 'budRungi' : message;
-
+      animateThrowCard (id, budRungi);
       socket.emit('card thrown', message);
-      animateThrowCard (id);
     }
   }
 
-  function animateThrowCard (id) {
+  function animateThrowCard (id, budRungi) {
     var posLeft = 168;
-    //var id = $(`${id}`).attr('id');
     var $el = $('#'+id);
     var new_left = posLeft - $el.position().left;
     $el.animate({top:'-86%', left:new_left, height:"80%"}, function() {
         $el.remove();
-        $('.middle.table').append('<img id="card-1" src="images/cards/'+id+'.svg" />');
+        id = budRungi ? 'budRungi' : id;
+        $('.middle.table').append('<img id="card-1" class="tableCard" src="images/cards/'+id+'.svg" />');
     });
   }
 
@@ -131,31 +112,7 @@ $(function() {
     addLogElement($el, options);
   }
 
-  // Adds the visual chat message to the message list
-  // function addChatMessage (data, options) {
-  //   // Don't fade the message in if there is an 'X was typing'
-  //   var $typingMessages = getTypingMessages(data);
-  //   options = options || {};
-  //   if ($typingMessages.length !== 0) {
-  //     options.fade = false;
-  //     $typingMessages.remove();
-  //   }
-
-  //   var $usernameDiv = $('<span class="username"/>')
-  //     .text(data.username)
-  //     .css('color', getUsernameColor(data.username));
-  //   var $messageBodyDiv = $('<span class="messageBody">')
-  //     .text(data.message);
-
-  //   var typingClass = data.typing ? 'typing' : '';
-  //   var $messageDiv = $('<li class="message"/>')
-  //     .data('username', data.username)
-  //     .addClass(typingClass)
-  //     .append($usernameDiv, $messageBodyDiv);
-
-  //   addMessageElement($messageDiv, options);
-  // }
-
+  
   // Adds the thrown card on to the message list
   function addCard (data, options) {
     audio.play();
@@ -177,12 +134,6 @@ $(function() {
     $('.middle.table').append('<img id="card-'+perspective+'" class="tableCard" src="images/cards/'+data.message+'.svg" />');
     $('#card-'+perspective).animate(animateObj);
   }
-
-  // Adds a message element to the messages and scrolls to the bottom
-  // el - The element to add as a message
-  // options.fade - If the element should fadefade-in (default = true)
-  // options.prepend - If the element should prepend
-  //   all other messages (default = false)
 
   function addLogElement (el, options) {
     var $el = $(el);
@@ -210,22 +161,6 @@ $(function() {
     $logs[0].scrollTop = $logs[0].scrollHeight;
   }
 
-  // function addCardElement () {
-    
-  //   }
-
-  //   // Apply options
-  //   if (options.fade) {
-  //     $el.hide().fadeIn(FADE_TIME);
-  //   }
-  //   if (options.prepend) {
-  //     $messages.prepend($el);
-  //   } else {
-  //     $messages.append($el);
-  //   }
-  //   $messages[0].scrollTop = $messages[0].scrollHeight;
-  // }
-
   function sendTrumpCard (id) {
     var message = id;
     if (message && connected) {
@@ -252,49 +187,9 @@ $(function() {
     });
   }
 
-
   // Prevents input from having injected markup
   function cleanInput (input) {
     return $('<div/>').text(input).html();
-  }
-
-  // Updates the typing event
-  function updateTyping () {
-    if (connected) {
-      if (!typing) {
-        typing = true;
-        socket.emit('typing');
-      }
-      lastTypingTime = (new Date()).getTime();
-
-      setTimeout(function () {
-        var typingTimer = (new Date()).getTime();
-        var timeDiff = typingTimer - lastTypingTime;
-        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
-          socket.emit('stop typing');
-          typing = false;
-        }
-      }, TYPING_TIMER_LENGTH);
-    }
-  }
-
-  // Gets the 'X is typing' messages of a user
-  function getTypingMessages (data) {
-    return $('.typing.message').filter(function (i) {
-      return $(this).data('username') === data.username;
-    });
-  }
-
-  // Gets the color of a username through our hash function
-  function getUsernameColor (username) {
-    // Compute hash code
-    var hash = 7;
-    for (var i = 0; i < username.length; i++) {
-       hash = username.charCodeAt(i) + (hash << 5) - hash;
-    }
-    // Calculate color
-    var index = Math.abs(hash % COLORS.length);
-    return COLORS[index];
   }
 
   // draw cards on screen
@@ -363,7 +258,7 @@ $(function() {
   });
 
   $inputMessage.on('input', function() {
-    updateTyping();
+
   });
 
   // Click events
@@ -410,7 +305,9 @@ $(function() {
 
   socket.on('senior player', function (data) {
     log((data.username +' is senior'));
-    $(".rounds").text(("Total Rounds: "+data.totalRounds));
+    //$(".rounds").text(("Total Rounds: "+data.totalRounds));
+    setTimeout(function() {$(".tableCard").remove();},2000);
+
   });
   
   socket.on('hands picked', function (data){
