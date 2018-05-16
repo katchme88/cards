@@ -114,7 +114,7 @@ div.center {
     max-height: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-.avatar {
+/* .avatar {
     vertical-align: middle;
     width: 55px;
     height: 55px;
@@ -140,7 +140,7 @@ div.center {
     position: absolute;
     top: 20%;
     left: 50%;
-}
+} */
 .middle.table {
     background-image: url('../images/table2.jpg');
     background-size: cover;
@@ -161,4 +161,19 @@ div.center {
     max-width: 100%;
     border: solid 3px rgb(110, 159, 179);
     border-radius: 5px;
+}
+.avatar {
+    transition: 0.3s;
+    width: 60%
+}
+
+.playerNameDisplay {
+    /* padding: 2px 16px; */
+    color: white;
+}
+.avatar > img {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
+	border-radius: 55%;
+    max-width: 80%;
+    padding: 10%;
 }
