@@ -57,14 +57,16 @@ io.on('connection', function (socket) {
  
   socket.on('card thrown', function (data) {
     // we tell the client to execute 'card thrown'
+    
+    turn++;
+
     socket.broadcast.emit('card thrown', {
       username: socket.username,
-      message: data
+      message: data,
+      turn: turn
     });
 
     usersCards[socket.username].splice(usersCards[socket.username].indexOf(data),1);
-
-    turn++;
 
     if (turn==1){
       currentRoundSuit = data.split(/(\d+)/)[0];
@@ -161,7 +163,7 @@ io.on('connection', function (socket) {
       var hand = usersCards[username];
       ++numUsers;
     }
-    console.log(playerSequence);
+
     socket.emit('login', {
       numUsers: numUsers,
       playerNumber: playerSequence.indexOf(socket.username) + 1,

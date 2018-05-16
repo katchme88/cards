@@ -43,6 +43,7 @@ $(function() {
   var audio = new Audio("sounds/cardPlace1.wav");
   var playerSequence=[];
   var playerPerspective = [];
+  var turn = 0;
 
   var socket = io();
 
@@ -92,6 +93,7 @@ $(function() {
       message = budRungi ? 'budRungi' : message;
       animateThrowCard (id, budRungi);
       socket.emit('card thrown', message);
+      turn++;
     }
   }
 
@@ -311,14 +313,19 @@ $(function() {
   // Whenever the server emits 'card thrown', update the gameplay body
   socket.on('card thrown', function (data) {
     addCard(data);
+    turn = data.turn;
   });
 
   socket.on('senior player', function (data) {
     // log((data.username +' is senior'));
     //$(".rounds").text(("Total Rounds: "+data.totalRounds));
-    setTimeout(function() {$(".tableCard").remove();},2000);
-    console.log("senior player from my perspective: " + playerPerspective.indexOf(data.username));
-    updateNextAvatar(playerPerspective.indexOf(data.username));
+    setTimeout(function () 
+      {
+        $(".tableCard").remove();
+        updateNextAvatar(playerPerspective.indexOf(data.username));
+      },
+      2000);
+    //console.log("senior player from my perspective: " + playerPerspective.indexOf(data.username));
   });
   
   socket.on('hands picked', function (data){
