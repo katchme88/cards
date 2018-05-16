@@ -109,8 +109,8 @@ $(function() {
 
   function updateNextAvatar(num) {
     next = (num+1).toString();
-    $(".avatar").css({'border-color':'white'});
-    $(".avatar-"+next).css({'border-color':'gold'});
+    $(".avatar").css({'border': '2px solid white'});
+    $(".avatar-"+next).css({'border': '5px solid gold'});
   }
 
   // Log a message
@@ -218,7 +218,7 @@ $(function() {
   }
 
   function getPlayerPerspective (data) {
-    var perspective = data;
+    var perspective = data.slice();
     var mySeq = perspective.indexOf(username);
     for (var i=0; i < mySeq; i++) {
         perspective.push(perspective.shift());
@@ -298,8 +298,10 @@ $(function() {
     playerSequence = data.playerSequence;
     //addPlayerElement(playerSequence);
     playerPerspective = getPlayerPerspective(playerSequence);
+    if (playerSequence.length == 4) {
+      updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
+    }
     addParticipantsMessage(data);
-    console.log(playerPerspective);
     if (playerNumber == 1 || playerNumber == 3){
       $requestTrump.hide();
     }
@@ -315,7 +317,8 @@ $(function() {
     // log((data.username +' is senior'));
     //$(".rounds").text(("Total Rounds: "+data.totalRounds));
     setTimeout(function() {$(".tableCard").remove();},2000);
-    updateNextAvatar(playerPerspective.indexOf(data.username)-1);
+    console.log("senior player from my perspective: " + playerPerspective.indexOf(data.username));
+    updateNextAvatar(playerPerspective.indexOf(data.username));
   });
   
   socket.on('hands picked', function (data){
@@ -339,7 +342,9 @@ $(function() {
     addParticipantsMessage(data);
     playerSequence = data.playerSequence;
     playerPerspective = getPlayerPerspective(playerSequence);
-    console.log(playerPerspective);
+    if (playerSequence.length == 4) {
+      updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
+    }
     addPlayerElement(playerSequence);
   });
 

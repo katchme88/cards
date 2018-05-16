@@ -161,7 +161,7 @@ io.on('connection', function (socket) {
       var hand = usersCards[username];
       ++numUsers;
     }
-  
+    console.log(playerSequence);
     socket.emit('login', {
       numUsers: numUsers,
       playerNumber: playerSequence.indexOf(socket.username) + 1,
