@@ -357,6 +357,7 @@ $(function() {
    socket.on('your turn', function (data) {
     myTurn = true;
     currentRoundSuit = data.currentRoundSuit;
+    updateNextAvatar(0);
   });
 
   // draw cards and ask him to choose trump
