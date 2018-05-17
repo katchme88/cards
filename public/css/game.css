@@ -1,3 +1,4 @@
+@import url(https://fonts.googleapis.com/css?family=Days+One);
 .bkg {
     position: fixed;
     top: 0;
@@ -170,17 +171,33 @@ div.center {
 
 .playerNameDisplay {
     /* padding: 2px 16px; */
+    font-family: 'Days One', sans-serif;
+    font-size: 14px;
     color: white;
 }
 .avatar > img {
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
+    /* box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8); */
 	border-radius: 55%;
     max-width: 80%;
-    padding: 10%;
 }
 .avatar-3 {
     width: 16.5%;
+    padding-top: 3%;
 }
 .avatar-2, .avatar-4 {
     padding-top: 40%;
+}
+.requestTrump {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+.requestTrump > img {
+    position: absolute;
+    right:20%;
+    top: 20%;
+    max-height: 100%;
+    max-width: 100%;
+    border: solid 3px rgb(110, 159, 179);
+    border-radius: 5px;
 }

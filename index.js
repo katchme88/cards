@@ -119,6 +119,7 @@ io.on('connection', function (socket) {
         teamBHands+=roundsSinceLastWin;
       }
       io.sockets.emit('hands picked', {
+        username: roundWinner,
         handsPicked: roundsSinceLastWin,
         totalRounds: totalRounds,
         teamAHands: teamAHands,
@@ -223,7 +224,7 @@ io.on('connection', function (socket) {
    }
    io.sockets.emit('reveal trump', {
      username: socket.username,
-     trumpCard: (arr[1]+' of ' +deckJargons[arr[0]])
+     trumpCard: trumpCard
     });
   });
 
@@ -231,6 +232,9 @@ io.on('connection', function (socket) {
     console.log(('Trump setted '+ data));
     trumpCard = data;
     console.log(data);
+    socket.broadcast.emit('trump setted', {
+      data: 'budRangi'
+    });
     players.p1.socket.emit('deal', {
       hand: usersCards[players.p1.username]
     });
