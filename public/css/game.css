@@ -191,13 +191,14 @@ div.center {
     /* box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8); */
 	border-radius: 55%;
     max-width: 80%;
+    padding: 2px;
 }
 .avatar-3 {
     width: 16.5%;
-    padding-top: 3%;
+    margin-top: 3%;
 }
 .avatar-2, .avatar-4 {
-    padding-top: 40%;
+    margin-top: 40%;
 }
 .requestTrump {
     position: relative;

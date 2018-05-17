@@ -41,7 +41,9 @@ $(function() {
   var cardsInHand = [];
   var suitsInHand = [];
   var playerNumber;
-  var audio = new Audio("sounds/cardPlace1.wav");
+  var audio_throw = new Audio("sounds/cardPlace1.wav");
+  var audio_ding = new Audio("sounds/ding.wav");
+  
   var playerSequence=[];
   var playerPerspective = [];
   var turn = 0;
@@ -111,9 +113,14 @@ $(function() {
   }
 
   function updateNextAvatar(num) {
-    next = (num+1).toString();
+    var next = (num+1).toString();
     $(".avatar > img").css({'border': '0px solid white'});
     $(".avatar-"+next+" > img").css({'border': '5px solid gold'});
+  }
+
+  function indicateTrumpCaller(num){
+    var next = (num+1).toString();
+    $(".avatar-"+next).css({'background-color': 'red'});
   }
 
   function updatePlayerName(perspective) {
@@ -131,7 +138,7 @@ $(function() {
   
   // Adds the thrown card on to the message list
   function addCard (data, options) {
-    audio.play();
+    audio_throw.play();
     var perspective = playerPerspective.indexOf(data.username) + 1;
     var animateObj = {};
     var avatarNum = 0;
@@ -282,6 +289,7 @@ $(function() {
     updatePlayerName(playerPerspective);
     if (playerSequence.length == 4) {
       updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
+      indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     }
     addParticipantsMessage(data);
     // if (playerNumber == 1 || playerNumber == 3){
@@ -319,12 +327,14 @@ $(function() {
 
   // Whenever the server emits 'user joined', log it in the chat body
   socket.on('user joined', function (data) {
+    audio_ding.play();
     addParticipantsMessage(data);
     playerSequence = data.playerSequence;
     playerPerspective = getPlayerPerspective(playerSequence);
     updatePlayerName(playerPerspective);
     if (playerSequence.length == 4) {
       updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
+      indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     }
     addPlayerElement(playerSequence);
   });
