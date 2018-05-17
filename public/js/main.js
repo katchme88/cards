@@ -190,10 +190,13 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
-    (data.hand).sort();
-    for(var i in data.hand){
-      $cards_in_hand.append($cards_in_hand.append("<div class='card-in-hand' id='"+data.hand[i]+"'><img src='images/cards/"+data.hand[i]+".svg' \/></div>"));
-      cardsInHand.push(data.hand[i]);
+    //(data.hand).sort();
+    cardsInHand = cardsInHand.concat(data.hand);
+    cardsInHand.sort();
+    $('.card-in-hand').remove();
+    for(var i in cardsInHand){
+      $cards_in_hand.append("<div class='card-in-hand' id='"+cardsInHand[i]+"'><img src='images/cards/"+cardsInHand[i]+".svg' \/></div>");
+      
     }
     updateSuitsInHand(cardsInHand);
   }

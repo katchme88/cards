@@ -105,12 +105,24 @@ div.center {
     /* overflow: hidden; */
 }
 .card-in-hand {
+    animation: animateElement linear 0.5s;
+    animation-iteration-count: 1;
     position: relative;
     float: left;
     height: 90%;
     margin-right: -8%;
     top: 40%;
 }
+@keyframes animateElement{
+    0% {
+      opacity:0;
+      transform:  translate(20%,0px);
+    }
+    100% {
+      opacity:1;
+      transform:  translate(0px,0px);
+    }
+  }
 .card-in-hand > img {
     max-height: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
