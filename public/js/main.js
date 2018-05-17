@@ -111,8 +111,14 @@ $(function() {
 
   function updateNextAvatar(num) {
     next = (num+1).toString();
-    $(".avatar").css({'border': '2px solid white'});
-    $(".avatar-"+next).css({'border': '5px solid gold'});
+    $(".avatar > img").css({'border': '0px solid white'});
+    $(".avatar-"+next+" > img").css({'border': '5px solid gold'});
+  }
+
+  function updatePlayerName(perspective) {
+    for (var i = 0; i < perspective.length; i++) {
+      $(".name-"+(i+1)).html("<center><b>"+perspective[i]+"</b></center>");
+    }
   }
 
   // Log a message
@@ -300,6 +306,7 @@ $(function() {
     playerSequence = data.playerSequence;
     //addPlayerElement(playerSequence);
     playerPerspective = getPlayerPerspective(playerSequence);
+    updatePlayerName(playerPerspective);
     if (playerSequence.length == 4) {
       updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
     }
@@ -349,6 +356,7 @@ $(function() {
     addParticipantsMessage(data);
     playerSequence = data.playerSequence;
     playerPerspective = getPlayerPerspective(playerSequence);
+    updatePlayerName(playerPerspective);
     if (playerSequence.length == 4) {
       updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
     }

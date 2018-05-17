@@ -163,8 +163,9 @@ div.center {
     border-radius: 5px;
 }
 .avatar {
-    transition: 0.3s;
-    width: 60%
+    position: relative;
+    width: 50%;
+    height: 50%;
 }
 
 .playerNameDisplay {
@@ -176,4 +177,10 @@ div.center {
 	border-radius: 55%;
     max-width: 80%;
     padding: 10%;
+}
+.avatar-3 {
+    width: 16.5%;
+}
+.avatar-2, .avatar-4 {
+    padding-top: 40%;
 }
