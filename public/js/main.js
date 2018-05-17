@@ -305,6 +305,7 @@ $(function() {
 
   socket.on("request trump", function(data) {
     trumpAsked = true;
+    $('.trumpCard > img').trigger("click");
   });
 
   socket.on("reveal trump", function(data) {
@@ -429,11 +430,9 @@ $(function() {
         cardsInHand.push($(this).attr('id'));
         updateSuitsInHand(cardsInHand);
         $cards_in_hand.append("<div class='card-in-hand' id='"+$(this).attr('id')+"'><img src='images/cards/"+$(this).attr('id')+".svg' /></div>");
-        
         $(this).remove();
         trumpRevealed = true;
       } else {
-        alert('you cant');
       }
     });
 
@@ -442,12 +441,10 @@ $(function() {
       var found = suitsInHand.find(function(element) {
           return element == currentRoundSuit;
       });
-      alert(found + " " +myTurn+ " "+currentRoundSuit);
       if (!found && myTurn && currentRoundSuit && playerNumber != 3 ) {
         socket.emit('request trump');
         
       } else {
-        alert('you cant');
       }
     });
     showOverlay(false, data.message);
