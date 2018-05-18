@@ -60,13 +60,11 @@ $(function() {
     // log(message);
   }
 
-  function showOverlay (bool, data) {
-    if (bool) {
-      $overlay.slideDown(500).show();
-    } else {
-      $overlay.slideUp(500);
-    }
-    $overlayText.text(data);
+  function showOverlay (data) {
+    $('.overlay').html('<p>'+data+'</p>').fadeIn(1000);
+    setTimeout(function(){
+      $('.overlay').fadeOut(500);
+    },3000);
   }
 
   // Sets the client's username
@@ -310,6 +308,14 @@ $(function() {
   
   socket.on('hands picked', function (data){
     $(".score").text((data.teamAHands + " - " + data.teamBHands));
+    var winner = playerSequence.indexOf(data.username)+1;
+    var msg = '';
+    if (playerNumber === winner || playerNumber === winner+2 || playerNumber === winner-2) {
+      msg = 'Your team picked '+data.handsPicked+' hands';
+    } else {
+      msg = 'Your opponents picked '+data.handsPicked+' hands';
+    }
+    showOverlay(msg);
     clearTable(data.username);
     
   });
@@ -317,6 +323,7 @@ $(function() {
   socket.on("request trump", function(data) {
     trumpAsked = true;
     $('.trumpCard > img').trigger("click");
+    showOverlay(data.username+ ' opened the trump');
   });
 
   socket.on("reveal trump", function(data) {
@@ -354,7 +361,7 @@ $(function() {
   // draw cards and ask him to choose trump
   socket.on('choose trump', function (data) {
     drawCardsInHand(data);
-    // log('Choose the Trump');
+    showOverlay('You can click to choose the trump when all players have joined');
     choosingTrump = true; 
   });
 
@@ -382,10 +389,11 @@ $(function() {
 
   socket.on('disable ui', function (data) {
     $document.off('click');
-    showOverlay(true, data.message);
+    //showOverlay(data.message);
   });
 
   socket.on('trump setted', function(data){
+    showOverlay(playerSequence[0]+' has chosen the trump');
     addRequestTrumpElement('budRungi');
   });
 
@@ -460,7 +468,7 @@ $(function() {
       } else {
       }
     });
-    showOverlay(false, data.message);
+    // showOverlay(data.message);
    });
 
 });

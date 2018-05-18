@@ -1,0 +1,17 @@
+.overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+  position: fixed;
+  border-radius: 20px 0;
+  width: auto;
+  top: 50%;
+  left:50%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
+  color: aliceblue;
+  font-family: 'Comic Sans MS';
+  text-align: center;
+  display: none;
+  transform: translate(-50%,-50%);
+}
+.overlay > p {
+  padding: 5px;
+}

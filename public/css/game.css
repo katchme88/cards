@@ -127,33 +127,6 @@ div.center {
     max-height: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-/* .avatar {
-    vertical-align: middle;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-.avatar-3 {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-}
-.avatar-2 {
-    position: absolute;
-    top: 30%;
-    right: 30%;
-}
-.avatar-4 {
-    position: absolute;
-    top: 30%;
-    left: 30%;
-}
-.avatar-1 {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-} */
 .middle.table {
     background-image: url('../images/table2.jpg');
     background-size: cover;
