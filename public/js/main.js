@@ -235,6 +235,10 @@ $(function() {
         updateNextAvatar(playerPerspective.indexOf(username));
       }, 2000);
   }
+
+  function vibrateCard(el) {
+    el.effect("shake",{"distance":5});
+  }
   // Keyboard events
   $window.keydown(function (event) {
     // Auto-focus the current input when a key is typed
@@ -252,10 +256,6 @@ $(function() {
       }
     }
   });
-
-  // $revealTrump.on("click", function() {
-  //   socket.emit('reveal trump');  
-  // });
 
   $inputMessage.on('input', function() {
 
@@ -405,7 +405,23 @@ $(function() {
 
   socket.on('enable ui', function (data) {
     $document.on("click", ".card-in-hand" , function() {
-      
+      updateSuitsInHand(cardsInHand);
+      var found = suitsInHand.find(function(element) {
+          return element == currentRoundSuit;
+      });
+
+      if (myTurn && found && $(this).attr('id')[0] != currentRoundSuit) {
+        vibrateCard($(this));
+        showOverlay('Throw correct suit');
+        return;
+      }
+
+      if (!choosingTrump && !myTurn) {
+        vibrateCard($(this));
+        showOverlay('Wait for your turn');
+        return;
+      }
+
       if ($(this).hasClass('co')) {
         if (choosingTrump) {
             sendTrumpCard($(this).attr('id'));
@@ -418,31 +434,22 @@ $(function() {
           var found = suitsInHand.find(function(element) {
               return element == currentRoundSuit;
           });
-    
-            if ( found && $(this).attr('id').split(/(\d+)/)[0] == currentRoundSuit) {
+            if ( found && $(this).attr('id')[0] == currentRoundSuit) {
               throwCard($(this).attr('id'));
-              //$(this).remove();
               myTurn = false;
             } else if (!found){
-    
               var budRungi = playerNumber == 1 && trumpRevealed == false ? true : false;
-
               throwCard($(this).attr('id'), budRungi);
-              $(this).remove();
+              //$(this).remove();
               myTurn = false;
             } else {
-              // log('Please throw correct suit', {
-              //   prepend: false
-              // });
             }
           
           } else if (!currentRoundSuit && myTurn) {
             throwCard($(this).attr('id'));
             myTurn = false;
           } else {
-            // log('Not your turn', {
-            //   prepend: false
-            // });
+            showOverlay('Wait for your turn');
         }
       } else {
           $(this).addClass('co').animate({top:0});
@@ -464,6 +471,8 @@ $(function() {
         $(this).remove();
         trumpRevealed = true;
       } else {
+        vibrateCard($(this));
+        showOverlay('you can\'t open trump card at this stage');
       }
     });
 
@@ -474,8 +483,12 @@ $(function() {
       });
       if (!found && myTurn && currentRoundSuit && playerNumber != 3 ) {
         socket.emit('request trump');
-        
+      } else if (playerNumber===3) {
+        vibrateCard($(this));
+        showOverlay('your partner is the trump caller');
       } else {
+        vibrateCard($(this));
+        showOverlay('you can\'t request for trump card at this stage');
       }
     });
     // showOverlay(data.message);
