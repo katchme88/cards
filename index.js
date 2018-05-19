@@ -7,6 +7,7 @@ var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 var fs = require('fs');
 var rules = require('./gameplay/rules.js');
+var shuffle = require('crypto-secure-shuffle');
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -40,7 +41,9 @@ var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Dia
 
 fs.readdir('public/images/cards', function(err, items) {
     deck = items;
-    deck.splice(deck.indexOf('budRungi.svg'), 1);
+    deck.splice(deck.indexOf('budRungi.png'), 1);
+    shuffle(deck);
+
 });
 
 function deal() {
@@ -48,6 +51,8 @@ function deal() {
     for (var i=0; i<=12; i++) {
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
       this_hand.push(randomCard[0].split('.')[0]);
+      // var randomCard = deck.shift();
+      // this_hand.push(randomCard.split('.')[0]);
     }
     return this_hand;
 }

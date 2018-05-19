@@ -105,7 +105,7 @@ $(function() {
     $el.animate({top:'-86%', left:new_left, height:"80%"}, function() {
         $el.remove();
         id = budRungi ? 'budRungi' : id;
-        $('.middle.table').append('<img id="card-1" class="tableCard" src="images/cards/'+id+'.svg" />');
+        $('.middle.table').append('<img id="card-1" class="tableCard" src="images/cards/'+id+'.png" />');
         updateNextAvatar(1);
     });
   }
@@ -153,7 +153,7 @@ $(function() {
       default:
         animateObj = {};
   }
-    $('.middle.table').append('<img id="card-'+perspective+'" class="tableCard" src="images/cards/'+data.message+'.svg" />');
+    $('.middle.table').append('<img id="card-'+perspective+'" class="tableCard" src="images/cards/'+data.message+'.png" />');
     $('#card-'+perspective).animate(animateObj);
     updateNextAvatar(perspective);
   }
@@ -168,12 +168,12 @@ $(function() {
   function addTrumpElement (id) {
     choosingTrump = false;
     $requestTrump.hide();
-    $trumpCard.html('<img id="'+id+'" src="images/cards/'+id+'.svg"></img>');
+    $trumpCard.html('<img id="'+id+'" src="images/cards/'+id+'.png"></img>');
   }
 
   function addRequestTrumpElement (id) {
     $trumpCard.hide();
-    $requestTrump.html('<img id="'+id+'" src="images/cards/'+id+'.svg"></img>');
+    $requestTrump.html('<img id="'+id+'" src="images/cards/'+id+'.png"></img>');
   }
 
   function updateSuitsInHand (cardsInHand) {
@@ -200,7 +200,7 @@ $(function() {
     cardsInHand.sort();
     $('.card-in-hand').remove();
     for(var i in cardsInHand){
-      $cards_in_hand.append("<div class='card-in-hand' id='"+cardsInHand[i]+"'><img src='images/cards/"+cardsInHand[i]+".svg' \/></div>");
+      $cards_in_hand.append("<div class='card-in-hand' id='"+cardsInHand[i]+"'><img src='images/cards/"+cardsInHand[i]+".png' \/></div>");
       
     }
     updateSuitsInHand(cardsInHand);
@@ -328,7 +328,7 @@ $(function() {
 
   socket.on("reveal trump", function(data) {
     // log(("The trump is " + data.trumpCard));
-    $requestTrump.html('<img src="images/cards/'+data.trumpCard+'.svg"></img>');
+    $requestTrump.html('<img src="images/cards/'+data.trumpCard+'.png"></img>');
 
   });
 
@@ -450,7 +450,7 @@ $(function() {
         socket.emit('reveal trump');
         cardsInHand.push($(this).attr('id'));
         updateSuitsInHand(cardsInHand);
-        $cards_in_hand.append("<div class='card-in-hand' id='"+$(this).attr('id')+"'><img src='images/cards/"+$(this).attr('id')+".svg' /></div>");
+        $cards_in_hand.append("<div class='card-in-hand' id='"+$(this).attr('id')+"'><img src='images/cards/"+$(this).attr('id')+".png' /></div>");
         $(this).remove();
         trumpRevealed = true;
       } else {

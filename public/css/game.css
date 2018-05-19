@@ -100,8 +100,7 @@ div.center {
 .cards-in-hand {
     position: absolute;
     height: 100%;
-    width: 96%;
-    left: 2%;
+    width: 100%;
     /* overflow: hidden; */
 }
 .card-in-hand {
@@ -110,7 +109,7 @@ div.center {
     position: relative;
     float: left;
     height: 90%;
-    margin-right: -8%;
+    margin-right: -8.5%;
     top: 40%;
 }
 @keyframes animateElement{
