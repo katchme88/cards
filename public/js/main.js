@@ -18,7 +18,6 @@ $(function() {
   var $document = $(document);
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
-  // var $logs = $('.logs'); //log messages
   var $inputMessage = $('.inputMessage'); // Input message input box
   //var $revealTrump = $('.revealTrump');
   var $requestTrump = $('.requestTrump');
@@ -63,14 +62,13 @@ $(function() {
     } else {
       message += "there are " + data.numUsers + " participants";
     }
-    // log(message);
   }
 
   function showOverlay (data) {
     $('.overlay').html('<p>'+data+'</p>').fadeIn(1000);
     setTimeout(function(){
       $('.overlay').fadeOut(500);
-    },3000);
+    },4000);
   }
 
   // Sets the client's username
@@ -105,7 +103,7 @@ $(function() {
   }
 
   function animateThrowCard (id, budRungi) {
-    var posLeft = 168;
+    var posLeft = ($('.middle').css('width').split('px')[0]-$('.card-in-hand').css('width').split('px')[0])/2;
     var $el = $('#'+id);
     var new_left = posLeft - $el.position().left;
     $el.animate({top:'-86%', left:new_left, height:"80%"}, function() {
