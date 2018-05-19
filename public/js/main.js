@@ -6,6 +6,12 @@ $(function() {
     '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
     '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
   ];
+  var CIH_TOPS = {
+    'cih-0':'58%','cih-1':'53%','cih-2':'49%',
+    'cih-3':'46%','cih-4':'43%','cih-5':'42%',
+    'cih-6':'42%','cih-7':'43%','cih-8':'46%',
+    'cih-9':'48%','cih-10':'52%','cih-11':'56%',
+    'cih-12':'62.5%'};
 
   // Initialize variables
   var $window = $(window);
@@ -200,7 +206,7 @@ $(function() {
     cardsInHand.sort();
     $('.card-in-hand').remove();
     for(var i in cardsInHand){
-      $cards_in_hand.append("<div class='card-in-hand' id='"+cardsInHand[i]+"'><img src='images/cards/"+cardsInHand[i]+".png' \/></div>");
+      $cards_in_hand.append("<div class='card-in-hand cih-"+i+"' id='"+cardsInHand[i]+"'><img src='images/cards/"+cardsInHand[i]+".png' \/></div>");
       
     }
     updateSuitsInHand(cardsInHand);
@@ -439,8 +445,12 @@ $(function() {
             // });
         }
       } else {
-        $(this).addClass('co').animate({top:0});
-        $(this).siblings().removeClass('co').animate({top: "40%"});
+          $(this).addClass('co').animate({top:0});
+          var str = $(this).siblings('.co').attr('class');
+        if (str) {
+          $(this).siblings('.co').animate({top:CIH_TOPS[str.split(' ')[1]]});
+          $(this).siblings('.co').removeClass('co');
+        }
       }
     });
 

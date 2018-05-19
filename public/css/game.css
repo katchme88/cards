@@ -60,7 +60,6 @@ div.center {
     float: left;
     height: 100%;
     width: 60%;
-    /* overflow:hidden;  */
 }
 .middle-left, .middle-right {
     position: relative;
@@ -101,7 +100,6 @@ div.center {
     position: absolute;
     height: 100%;
     width: 100%;
-    /* overflow: hidden; */
 }
 .card-in-hand {
     animation: animateElement linear 0.5s;
@@ -110,7 +108,6 @@ div.center {
     float: left;
     height: 90%;
     margin-right: -8.5%;
-    top: 40%;
 }
 @keyframes animateElement{
     0% {
@@ -121,7 +118,7 @@ div.center {
       opacity:1;
       transform:  translate(0px,0px);
     }
-  }
+}
 .card-in-hand > img {
     max-height: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -144,8 +141,6 @@ div.center {
     top: 20%;
     max-height: 100%;
     max-width: 100%;
-    border: solid 3px rgb(110, 159, 179);
-    border-radius: 5px;
 }
 .avatar {
     position: relative;
@@ -154,13 +149,11 @@ div.center {
 }
 
 .playerNameDisplay {
-    /* padding: 2px 16px; */
     font-family: 'Days One', sans-serif;
     font-size: 14px;
     color: white;
 }
 .avatar > img {
-    /* box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8); */
 	border-radius: 55%;
     max-width: 80%;
     padding: 2px;
@@ -183,6 +176,4 @@ div.center {
     top: 20%;
     max-height: 100%;
     max-width: 100%;
-    border: solid 3px rgb(110, 159, 179);
-    border-radius: 5px;
 }
