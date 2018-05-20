@@ -143,10 +143,18 @@ io.on('connection', function (socket) {
       currentRoundObj = {};
       currentRoundCards = [];
     }
-    nextPlayerSocket.emit('your turn', {
-      currentRoundSuit: currentRoundSuit
-    });
-    
+
+    if (turn === 0){
+      setTimeout(function() {
+        nextPlayerSocket.emit('your turn', {
+          currentRoundSuit: currentRoundSuit
+        });
+      },4000)
+    } else {
+      nextPlayerSocket.emit('your turn', {
+        currentRoundSuit: currentRoundSuit
+      });
+    }    
   });
 
   // when the client emits 'add user', this listens and executes
