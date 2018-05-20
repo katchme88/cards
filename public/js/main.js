@@ -52,6 +52,7 @@ $(function() {
   var playerSequence=[];
   var playerPerspective = [];
   var turn = 0;
+  var youRequestedTrump = false;
 
   var socket = io();
 
@@ -434,6 +435,19 @@ $(function() {
         return;
       }
 
+      if (trumpRevealed && youRequestedTrump) {
+        updateSuitsInHand(cardsInHand);
+        var found = suitsInHand.find(function(element) {
+          return element == trumpCard[0];
+        });
+        if (found && $(this).attr('id')[0] != trumpCard[0]){
+          vibrateCard($(this));
+          showOverlay('You have to throw trump');
+          return;
+        }
+        youRequestedTrump = false;
+      }
+
       if (!choosingTrump && !myTurn) {
         vibrateCard($(this));
         showOverlay('Wait for your turn');
@@ -501,6 +515,7 @@ $(function() {
       });
       if (!found && myTurn && currentRoundSuit && playerNumber != 3 ) {
         socket.emit('request trump');
+        youRequestedTrump = true;
       } else if (playerNumber===3) {
         vibrateCard($(this));
         showOverlay('your partner is the trump caller');
