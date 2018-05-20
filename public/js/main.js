@@ -99,6 +99,7 @@ $(function() {
       animateThrowCard (id, budRungi);
       socket.emit('card thrown', message);
       turn++;
+      bounceAvatar(0);
     }
   }
 
@@ -118,6 +119,18 @@ $(function() {
     var next = (num+1).toString();
     $(".avatar > img").css({'border': '0px solid white'});
     $(".avatar-"+next+" > img").css({'border': '5px solid gold'});
+    if (num===0) {
+      bounceAvatar(1);
+    }
+  }
+
+  function bounceAvatar(bool) {
+    var $el = $(".avatar-1");
+    if (!bool) {
+      $el.finish();
+      return;
+    }
+    $el.effect( "shake", {times:100, direction:'up'}, 100000 );
   }
 
   function indicateTrumpCaller(num){
