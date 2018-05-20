@@ -346,7 +346,8 @@ $(function() {
   socket.on("reveal trump", function(data) {
     // log(("The trump is " + data.trumpCard));
     $requestTrump.html('<img src="images/cards/'+data.trumpCard+'.png"></img>');
-
+    trumpCard = data.trumpCard;
+    trumpRevealed = true;
   });
 
   // Whenever the server emits 'user joined', log it in the chat body
@@ -424,6 +425,12 @@ $(function() {
       if (myTurn && found && $(this).attr('id')[0] != currentRoundSuit) {
         vibrateCard($(this));
         showOverlay('Throw correct suit');
+        return;
+      }
+
+      if (myTurn && currentRoundSuit && !found && $(this).attr('id')[0] != currentRoundSuit && (playerNumber == 2 || playerNumber == 4) && !trumpRevealed) {
+        vibrateCard($(this));
+        showOverlay('Click on the trump card to open it');
         return;
       }
 
