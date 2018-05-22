@@ -11,7 +11,7 @@
         $(function(){
             var socket = io();
             $('#btn').on('click', function () {
-                socket.emit('next');
+                socket.emit('command', {command: $("#command").val()});
             });
         });
     </script>

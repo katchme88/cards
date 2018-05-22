@@ -66,7 +66,7 @@ io.on('connection', function (socket) {
 
     if (turn==1){
       currentRoundSuit = data.split(/(\d+)/)[0];
-      console.log(currentRoundSuit);
+      // console.log(currentRoundSuit);
     }
     
     if (turn <= 4) {
@@ -222,7 +222,7 @@ io.on('connection', function (socket) {
    revealedInThis = turn;
    trumpRevealed = 1;
    var arr = trumpCard.split(/(\d+)/) ;
-   console.log(arr);
+  //  console.log(arr);
    if (arr[1]>10){
      arr[1]=deckJargons[arr[1]];
    }
@@ -235,7 +235,7 @@ io.on('connection', function (socket) {
   socket.on('trump card', function (data) {
     console.log(('Trump setted '+ data));
     trumpCard = data;
-    console.log(data);
+    // console.log(data);
     socket.broadcast.emit('trump setted', {
       data: 'budRangi'
     });
@@ -265,19 +265,25 @@ io.on('connection', function (socket) {
 
   });
 
-  socket.on('next', function () {
-    p1 = players.p4;
-    p2 = players.p1;
-    p3 = players.p2;
-    p4 = players.p3;
-    players = {}
-    players['p1'] = p1;
-    players['p2'] = p2;
-    players['p3'] = p3;
-    players['p4'] = p4;
-    playerSequence.push(playerSequence.shift());
-    console.log('next');
-    redeal();
+  socket.on('command', function (data) {
+    if (data.command==='next'){
+      var p1 = players.p2;
+      var p2 = players.p3;
+      var p3 = players.p4;
+      var p4 = players.p1;
+      players = {}
+      players['p1'] = p1;
+      players['p2'] = p2;
+      players['p3'] = p3;
+      players['p4'] = p4;
+      playerSequence.push(playerSequence.shift());
+      console.log(playerSequence);
+      redeal();
+    }
+    
+    if (data.command==='redeal'){
+      redeal();
+    }
   });
 
   function redeal () {

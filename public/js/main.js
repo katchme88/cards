@@ -544,13 +544,15 @@ $(function() {
     trumpRevealed = false;
     myTurn = false;
     suitsInHand = [];
+    cardsInHand = [];
     turn = 0;
     youRequestedTrump = false;
     playerSequence = data.playerSequence;
     playerNumber = data.playerNumber;
-    getPlayerPerspective(playerSequence);
+    playerPerspective = getPlayerPerspective(playerSequence);
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
     clearTable(playerSequence[0]);
+    $(".score").text("0 - 0");
    })
 });
