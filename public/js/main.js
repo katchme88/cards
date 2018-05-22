@@ -213,7 +213,9 @@ $(function() {
 
   // draw cards on screen
   function drawCardsInHand (data) {
-    //(data.hand).sort();
+    if (data.redeal) {
+      cardsInHand = [];
+    }
     cardsInHand = cardsInHand.concat(data.hand);
     cardsInHand.sort();
     $('.card-in-hand').remove();
@@ -379,6 +381,10 @@ $(function() {
 
   // draw cards and ask him to choose trump
   socket.on('choose trump', function (data) {
+    if (data.redeal) {
+      indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
+      clearTable(playerSequence[0]);
+    }
     drawCardsInHand(data);
     showOverlay('You can click to choose the trump when all players have joined');
     choosingTrump = true; 
@@ -527,4 +533,20 @@ $(function() {
     // showOverlay(data.message);
    });
 
+   socket.on('redeal', function(data){
+    choosingTrump = false;
+    trumpCard = "";
+    currentRoundSuit;
+    trumpAsked = false;
+    trumpRevealed = false;
+    myTurn = false;
+    suitsInHand = [];
+    turn = 0;
+    youRequestedTrump = false;
+    playerSequence = data.playerSequence;
+    getPlayerPerspective(playerSequence);
+    indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
+    bounceAvatar(0);
+    clearTable(playerSequence[0]);
+   })
 });

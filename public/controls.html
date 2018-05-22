@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        $(function(){
+            var socket = io();
+            $('#btn').on('click', function () {
+                socket.emit('redeal')
+            });
+        });
+    </script>
+    <title>Control</title>
+</head>
+<body>
+    <input type="text" name="command" id="command">
+    <input type="button" value="Message" id="btn">
+</body>
+</html>

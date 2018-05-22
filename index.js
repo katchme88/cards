@@ -7,7 +7,8 @@ var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 var fs = require('fs');
 var rules = require('./gameplay/rules.js');
-var shuffle = require('crypto-secure-shuffle');
+var deck = require('./gameplay/deck.js').cards();
+var shuffle = require('fisher-yates-shuffle');
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -19,7 +20,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Chatroom
 
 var numUsers = 0;
-var deck = [];
 var usersCards = {};
 var turn = 0;
 var totalRounds = 0;
@@ -39,20 +39,11 @@ var roundsSinceLastWin = 0;
 var playerSequence = [];
 var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
 
-fs.readdir('public/images/cards', function(err, items) {
-    deck = items;
-    deck.splice(deck.indexOf('budRungi.png'), 1);
-    shuffle(deck);
-
-});
-
 function deal() {
     var this_hand = [];
     for (var i=0; i<=12; i++) {
       var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
-      this_hand.push(randomCard[0].split('.')[0]);
-      // var randomCard = deck.shift();
-      // this_hand.push(randomCard.split('.')[0]);
+      this_hand.push(randomCard[0]);
     }
     return this_hand;
 }
@@ -165,7 +156,7 @@ io.on('connection', function (socket) {
       socket.username = username;
       ++numUsers;
       addedUser = true;
-      var hand = deal();
+      var hand = deal(deck);
       usersCards[socket.username] = hand;
       if (numUsers <= 4) {
         players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
@@ -272,6 +263,50 @@ io.on('connection', function (socket) {
       message: 'Player disconnected' 
     });
 
+  });
+
+  socket.on('redeal', function () {
+    usersCards = {};
+    turn = 0;
+    totalRounds = 0;
+    teamA = [];
+    teamB = [];
+    teamAHands = 0;
+    teamBHands = 0;
+    trumpRevealed = 0;
+    revealedInThis = 0;
+    trumpCard = '';
+    currentRoundCards = [];
+    currentRoundObj = {};
+    currentRoundSuit;
+    roundsSinceLastWin = 0;
+    deck = require('./gameplay/deck.js').cards();
+
+    for (var player in players) {
+      var hand = deal();
+      var soc = players[player].socket;
+      usersCards[players[player].username] = hand;
+
+      soc.emit('redeal', {
+        playerSequence: playerSequence
+      });
+      
+      if (player === 'p1') {
+        first5 = hand.splice(0,5);
+
+        soc.emit('choose trump', {
+          hand: first5,
+          redeal: true
+        });
+
+        continue;
+      }
+
+      soc.emit('deal', {
+        hand: hand,
+        redeal: true
+      });
+    }
   });
 
 });
