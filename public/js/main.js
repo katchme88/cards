@@ -135,8 +135,11 @@ $(function() {
   }
 
   function indicateTrumpCaller(num){
+    for (var i=1; i <=4 ; i++) {
+      $(".avatar-"+i).removeClass('trumpCaller');
+    }
     var next = (num+1).toString();
-    $(".avatar-"+next).css({'background-color': 'red'});
+    $(".avatar-"+next).addClass('trumpCaller');
   }
 
   function updatePlayerName(perspective) {
@@ -544,6 +547,7 @@ $(function() {
     turn = 0;
     youRequestedTrump = false;
     playerSequence = data.playerSequence;
+    playerNumber = data.playerNumber;
     getPlayerPerspective(playerSequence);
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);

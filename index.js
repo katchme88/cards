@@ -265,7 +265,22 @@ io.on('connection', function (socket) {
 
   });
 
-  socket.on('redeal', function () {
+  socket.on('next', function () {
+    p1 = players.p4;
+    p2 = players.p1;
+    p3 = players.p2;
+    p4 = players.p3;
+    players = {}
+    players['p1'] = p1;
+    players['p2'] = p2;
+    players['p3'] = p3;
+    players['p4'] = p4;
+    playerSequence.push(playerSequence.shift());
+    console.log('next');
+    redeal();
+  });
+
+  function redeal () {
     usersCards = {};
     turn = 0;
     totalRounds = 0;
@@ -288,7 +303,8 @@ io.on('connection', function (socket) {
       usersCards[players[player].username] = hand;
 
       soc.emit('redeal', {
-        playerSequence: playerSequence
+        playerSequence: playerSequence,
+        playerNumber: playerSequence.indexOf(players[player].username)+1
       });
       
       if (player === 'p1') {
@@ -307,6 +323,6 @@ io.on('connection', function (socket) {
         redeal: true
       });
     }
-  });
+  }
 
 });

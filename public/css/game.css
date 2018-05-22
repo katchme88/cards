@@ -165,6 +165,9 @@ div.center {
 .avatar-2, .avatar-4 {
     margin-top: 40%;
 }
+.trumpCaller {
+    background-color: red;
+}
 .requestTrump {
     position: relative;
     height: 100%;
