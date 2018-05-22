@@ -277,7 +277,6 @@ io.on('connection', function (socket) {
       players['p3'] = p3;
       players['p4'] = p4;
       playerSequence.push(playerSequence.shift());
-      console.log(playerSequence);
       redeal();
     }
     

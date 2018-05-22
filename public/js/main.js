@@ -190,11 +190,13 @@ $(function() {
     choosingTrump = false;
     $requestTrump.hide();
     $trumpCard.html('<img id="'+id+'" src="images/cards/'+id+'.png"></img>');
+    $trumpCard.show();
   }
 
   function addRequestTrumpElement (id) {
     $trumpCard.hide();
     $requestTrump.html('<img id="'+id+'" src="images/cards/'+id+'.png"></img>');
+    $requestTrump.show();
   }
 
   function updateSuitsInHand (cardsInHand) {
@@ -554,5 +556,7 @@ $(function() {
     bounceAvatar(0);
     clearTable(playerSequence[0]);
     $(".score").text("0 - 0");
+    $(".trumpCard").hide();
+    $(".requestTrump").hide();
    })
 });
