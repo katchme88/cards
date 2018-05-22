@@ -13,12 +13,24 @@
             $('#btn').on('click', function () {
                 socket.emit('command', {command: $("#command").val()});
             });
+            $('#btn_next').on('click', function () {
+                socket.emit('command', {command: 'next'});
+            });
+            $('#btn_redeal').on('click', function () {
+                socket.emit('command', {command: 'redeal'});
+            });
+            $('#btn_reset').on('click', function () {
+                socket.emit('command', {command: 'reset'});
+            });
         });
     </script>
-    <title>Control</title>
+    <title>Controls</title>
 </head>
 <body>
-    <input type="text" name="command" id="command">
-    <input type="button" value="Message" id="btn">
+    <input type="button" value="NEXT CALLER" id="btn_next"/><br><br>
+    <input type="button" value="REDEAL" id="btn_redeal"/><br><br>
+    <input type="button" value="RESET" id="btn_reset"/><br><br>
+    <input type="text" name="command" id="command"/>
+    <input type="button" value="Message" id="btn"/><br>
 </body>
 </html>
