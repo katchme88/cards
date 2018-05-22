@@ -535,8 +535,7 @@ $(function() {
         showOverlay('you can\'t request for trump card at this stage');
       }
     });
-    // showOverlay(data.message);
-   });
+  });
 
    socket.on('redeal', function(data){
     choosingTrump = false;
@@ -558,5 +557,9 @@ $(function() {
     $(".score").text("0 - 0");
     $(".trumpCard").hide();
     $(".requestTrump").hide();
-   })
+   });
+
+   socket.on('reset', function () {
+    location.reload(true);
+   });
 });

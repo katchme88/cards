@@ -257,11 +257,10 @@ io.on('connection', function (socket) {
         username: socket.username,
         numUsers: numUsers
       });
+      socket.broadcast.emit('disable ui', {
+        message: 'Player disconnected' 
+      });
     }
-
-    io.sockets.emit('disable ui', {
-      message: 'Player disconnected' 
-    });
 
   });
 
@@ -283,6 +282,29 @@ io.on('connection', function (socket) {
     if (data.command==='redeal'){
       redeal();
     }
+
+    if (data.command==='reset'){
+      io.emit('reset');
+      usersCards = {};
+      turn = 0;
+      totalRounds = 0;
+      teamA = [];
+      teamB = [];
+      teamAHands = 0;
+      teamBHands = 0;
+      trumpRevealed = 0;
+      revealedInThis = 0;
+      trumpCard = '';
+      currentRoundCards = [];
+      currentRoundObj = {};
+      currentRoundSuit;
+      roundsSinceLastWin = 0;
+      playerSequence = [];
+      players = {};
+      deck = require('./gameplay/deck.js').cards();
+    }
+
+
   });
 
   function redeal () {
@@ -300,6 +322,7 @@ io.on('connection', function (socket) {
     currentRoundObj = {};
     currentRoundSuit;
     roundsSinceLastWin = 0;
+    numUsers = 0;
     deck = require('./gameplay/deck.js').cards();
 
     for (var player in players) {
