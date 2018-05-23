@@ -50,7 +50,89 @@ function deal() {
 
 io.on('connection', function (socket) {
   var addedUser = false;
- 
+
+  // when the client emits 'add user', this listens and executes
+  socket.on('add user', function (username) {
+    if (addedUser) return;
+    
+    //Let additional users know that a game is in progress
+    if (numUsers === 4) {socket.emit('room full'); return;}
+
+    // we store the username in the socket session for this client
+
+    if (!(username in usersCards)) {
+      socket.username = username;
+      ++numUsers;
+      addedUser = true;
+      var hand = deal();
+      usersCards[socket.username] = hand;
+      if (numUsers <= 4) {
+        players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
+        playerSequence.push(username);
+        playerNumber = playerSequence.indexOf(socket.username) + 1
+      }
+    } else {
+      socket.username = username;
+      var hand = usersCards[username];
+      ++numUsers;
+    }
+
+    socket.emit('login', {
+      numUsers: numUsers,
+      playerNumber: playerSequence.indexOf(socket.username) + 1,  
+      playerSequence: playerSequence
+    });
+    
+    // echo globally (all clients) that a person has connected
+    socket.broadcast.emit('user joined', {
+      username: socket.username,
+      numUsers: numUsers,
+      playerSequence: playerSequence
+    }); 
+    console.log(players);
+    if (socket.username != players.p1.username){
+      // send cards to socket
+      socket.emit('deal', {
+        hand: hand
+      });
+    } else if (socket.username == players.p1.username && trumpCard == ""){
+      // send player 1 cards to select trump
+      var first5 = hand.splice(0,5);
+      socket.emit('choose trump', {
+        hand: first5
+      });
+    } else {
+      socket.emit('deal', {
+        hand: hand
+      });
+    }
+
+    if (numUsers < 4) {
+      socket.emit('disable ui', {
+        message: 'Waiting for other players to join' 
+      });
+    } else {
+      io.sockets.emit('enable ui', {
+        message: "Let's go!" 
+      });
+    }
+  });
+
+  socket.on('trump card', function (data) {
+    console.log(('Trump setted '+ data));
+    trumpCard = data;
+    // console.log(data);
+    socket.broadcast.emit('trump setted', {
+      data: 'budRangi'
+    });
+    players.p1.socket.emit('deal', {
+      hand: usersCards[players.p1.username]
+    });
+    players.p1.socket.emit('your turn', {
+      hand: usersCards[players.p1.username]
+    });
+  });
+
   socket.on('card thrown', function (data) {
     // we tell the client to execute 'card thrown'
     
@@ -148,68 +230,6 @@ io.on('connection', function (socket) {
     }    
   });
 
-  // when the client emits 'add user', this listens and executes
-  socket.on('add user', function (username) {
-    if (addedUser) return;
-    // we store the username in the socket session for this client
-    if (!(username in usersCards)) {
-      socket.username = username;
-      ++numUsers;
-      addedUser = true;
-      var hand = deal(deck);
-      usersCards[socket.username] = hand;
-      if (numUsers <= 4) {
-        players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
-        playerSequence.push(username);
-        playerNumber = playerSequence.indexOf(socket.username) + 1
-      }
-    } else {
-      socket.username = username;
-      var hand = usersCards[username];
-      ++numUsers;
-    }
-
-    socket.emit('login', {
-      numUsers: numUsers,
-      playerNumber: playerSequence.indexOf(socket.username) + 1,
-      playerSequence: playerSequence
-    });
-    
-    // echo globally (all clients) that a person has connected
-    socket.broadcast.emit('user joined', {
-      username: socket.username,
-      numUsers: numUsers,
-      playerSequence: playerSequence
-    }); 
-
-    if (socket.username != players.p1.username){
-      // send cards to socket
-      socket.emit('deal', {
-        hand: hand
-      });
-    } else if (socket.username == players.p1.username && trumpCard == ""){
-      // send player 1 cards to select trump
-      var first5 = hand.splice(0,5);
-      socket.emit('choose trump', {
-        hand: first5
-      });
-    } else {
-      socket.emit('deal', {
-        hand: hand
-      });
-    }
-
-    if (numUsers < 4) {
-      socket.emit('disable ui', {
-        message: 'Waiting for other players to join' 
-      });
-    } else {
-      io.sockets.emit('enable ui', {
-        message: "Let's go!" 
-      });
-    }
-  });
-
   socket.on('request trump', function () {
    console.log(socket.username+' asked for trump');
    io.sockets.emit('request trump', {
@@ -229,21 +249,6 @@ io.on('connection', function (socket) {
    io.sockets.emit('reveal trump', {
      username: socket.username,
      trumpCard: trumpCard
-    });
-  });
-
-  socket.on('trump card', function (data) {
-    console.log(('Trump setted '+ data));
-    trumpCard = data;
-    // console.log(data);
-    socket.broadcast.emit('trump setted', {
-      data: 'budRangi'
-    });
-    players.p1.socket.emit('deal', {
-      hand: usersCards[players.p1.username]
-    });
-    players.p1.socket.emit('your turn', {
-      hand: usersCards[players.p1.username]
     });
   });
 
@@ -302,6 +307,7 @@ io.on('connection', function (socket) {
       playerSequence = [];
       players = {};
       deck = require('./gameplay/deck.js').cards();
+      // numUsers = 0;
     }
 
 
@@ -322,7 +328,6 @@ io.on('connection', function (socket) {
     currentRoundObj = {};
     currentRoundSuit;
     roundsSinceLastWin = 0;
-    numUsers = 0;
     deck = require('./gameplay/deck.js').cards();
 
     for (var player in players) {

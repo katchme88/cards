@@ -403,13 +403,14 @@ $(function() {
   });
 
   socket.on('disconnect', function () {
-    // log('you have been disconnected');
+      showOverlay('You have been disconnected');
+      setTimeout(function() { location.reload(true); }, 3000);
   });
 
   socket.on('reconnect', function () {
     // log('you have been reconnected');
     if (username) {
-      socket.emit('add user', username);
+      location.reload(true);
     }
   });
 
@@ -420,6 +421,11 @@ $(function() {
   socket.on('disable ui', function (data) {
     $document.off('click');
     //showOverlay(data.message);
+  });
+
+  socket.on('room full', function () {
+    showOverlay('Room full. A game is in progress');
+    setTimeout(function() { location.reload(true); }, 5000);
   });
 
   socket.on('trump setted', function(data){
@@ -560,6 +566,7 @@ $(function() {
    });
 
    socket.on('reset', function () {
+     socket.emit('disconnect');
     location.reload(true);
    });
 });
