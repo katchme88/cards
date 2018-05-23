@@ -89,7 +89,7 @@ io.on('connection', function (socket) {
       numUsers: numUsers,
       playerSequence: playerSequence
     }); 
-    console.log(players);
+    // console.log(players);
     if (socket.username != players.p1.username){
       // send cards to socket
       socket.emit('deal', {
@@ -255,7 +255,7 @@ io.on('connection', function (socket) {
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
     if (addedUser) {
-      --numUsers;
+      // --numUsers;
 
       // echo globally that this client has left
       socket.broadcast.emit('user left', {
@@ -265,23 +265,14 @@ io.on('connection', function (socket) {
       socket.broadcast.emit('disable ui', {
         message: 'Player disconnected' 
       });
+      reset();
     }
 
   });
 
   socket.on('command', function (data) {
     if (data.command==='next'){
-      var p1 = players.p2;
-      var p2 = players.p3;
-      var p3 = players.p4;
-      var p4 = players.p1;
-      players = {}
-      players['p1'] = p1;
-      players['p2'] = p2;
-      players['p3'] = p3;
-      players['p4'] = p4;
-      playerSequence.push(playerSequence.shift());
-      redeal();
+      next();
     }
     
     if (data.command==='redeal'){
@@ -289,31 +280,49 @@ io.on('connection', function (socket) {
     }
 
     if (data.command==='reset'){
-      io.emit('reset');
-      usersCards = {};
-      turn = 0;
-      totalRounds = 0;
-      teamA = [];
-      teamB = [];
-      teamAHands = 0;
-      teamBHands = 0;
-      trumpRevealed = 0;
-      revealedInThis = 0;
-      trumpCard = '';
-      currentRoundCards = [];
-      currentRoundObj = {};
-      currentRoundSuit;
-      roundsSinceLastWin = 0;
-      playerSequence = [];
-      players = {};
-      deck = require('./gameplay/deck.js').cards();
-      // numUsers = 0;
+      reset();
     }
-
 
   });
 
+  function next() {
+    if (numUsers < 4) return;
+    var p1 = players.p2;
+    var p2 = players.p3;
+    var p3 = players.p4;
+    var p4 = players.p1;
+    players = {}
+    players['p1'] = p1;
+    players['p2'] = p2;
+    players['p3'] = p3;
+    players['p4'] = p4;
+    playerSequence.push(playerSequence.shift());
+    redeal();
+  }
+  function reset () { 
+    io.emit('reset');
+    usersCards = {};
+    turn = 0;
+    totalRounds = 0;
+    teamA = [];
+    teamB = [];
+    teamAHands = 0;
+    teamBHands = 0;
+    trumpRevealed = 0;
+    revealedInThis = 0;
+    trumpCard = '';
+    currentRoundCards = [];
+    currentRoundObj = {};
+    currentRoundSuit;
+    roundsSinceLastWin = 0;
+    playerSequence = [];
+    players = {};
+    deck = require('./gameplay/deck.js').cards();
+    numUsers = 0;
+  }
+
   function redeal () {
+    if (numUsers < 4) return;
     usersCards = {};
     turn = 0;
     totalRounds = 0;

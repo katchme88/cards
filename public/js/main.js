@@ -397,9 +397,9 @@ $(function() {
 
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
-    // log(data.username + ' left');
-    addParticipantsMessage(data);
-    // removeChatTyping(data);
+    showOverlay(data.username + " left the room. Game will restart in 3 seconds.");
+    setTimeout(function() { socket.emit('disconnect');}, 3000);
+
   });
 
   socket.on('disconnect', function () {
@@ -426,6 +426,7 @@ $(function() {
   socket.on('room full', function () {
     showOverlay('Room full. A game is in progress');
     setTimeout(function() { location.reload(true); }, 5000);
+    return;
   });
 
   socket.on('trump setted', function(data){
@@ -566,7 +567,7 @@ $(function() {
    });
 
    socket.on('reset', function () {
-     socket.emit('disconnect');
-    location.reload(true);
+    //  socket.emit('disconnect');
+     setTimeout(function() {showOverlay('game will reset');location.reload(true);}, 3000); 
    });
 });
