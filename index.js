@@ -8,7 +8,7 @@ var port = process.env.PORT || 3000;
 var fs = require('fs');
 var rules = require('./gameplay/rules.js');
 var deck = require('./gameplay/deck.js').cards();
-var shuffle = require('fisher-yates-shuffle');
+// var shuffle = require('fisher-yates-shuffle');
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -42,7 +42,7 @@ var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Dia
 function deal() {
     var this_hand = [];
     for (var i=0; i<=12; i++) {
-      var randomCard = deck.splice((Math.floor(Math.random() * deck.length)),1);
+      var randomCard = deck.splice(0,1);
       this_hand.push(randomCard[0]);
     }
     return this_hand;
@@ -334,6 +334,7 @@ io.on('connection', function (socket) {
     playerSequence = [];
     players = {};
     deck = require('./gameplay/deck.js').cards();
+    // new_deal();
     numUsers = 0;
   }
 
@@ -354,6 +355,7 @@ io.on('connection', function (socket) {
     currentRoundSuit;
     roundsSinceLastWin = 0;
     deck = require('./gameplay/deck.js').cards();
+    // new_deal();
 
     for (var player in players) {
       var hand = deal();
