@@ -302,6 +302,7 @@ $(function() {
       username: username,
       message: msg,
     });
+    $("#chat-msg").val('');
     $(".chatBox").fadeOut();  
   
   });
@@ -414,7 +415,7 @@ $(function() {
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
     showOverlay(data.username + " left the room. Game will restart in 3 seconds.");
-    setTimeout(function() { socket.emit('disconnect');}, 3000);
+    // setTimeout(function() { socket.emit('disconnect');}, 3000);
 
   });
 
