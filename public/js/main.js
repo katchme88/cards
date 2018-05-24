@@ -267,9 +267,7 @@ $(function() {
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (username) {
-        // sendMessage();
-        // socket.emit('stop typing');
-        // typing = false;
+        sendMessage();
       } else {
         setUsername();
       }
@@ -294,9 +292,12 @@ $(function() {
 
   $("#send-msg").click(function(){
     $(".chatBox").show();
+    $("#chat-msg").focus();
   });
 
-  $("#send-btn").click(function(){
+  $("#send-btn").click(sendMessage());
+
+  function sendMessage(){
     var msg=$("#chat-msg").val();
     socket.emit('message' , {
       username: username,
@@ -305,7 +306,7 @@ $(function() {
     $("#chat-msg").val('');
     $(".chatBox").fadeOut();  
   
-  });
+  }
   //#########################################################################################
   // Socket events
   //#########################################################################################
@@ -591,7 +592,7 @@ $(function() {
 
    socket.on('message', function(data){
     var num = playerPerspective.indexOf(data.username)+1;
-    $(".chatBubble-"+num).text(data.message);
+    $(".chatBubble-"+num).html('<p>'+data.message+'</>');
     $(".chatBubble-"+num).show();
     setTimeout(function(){
       $(".chatBubble-"+num).fadeOut();
