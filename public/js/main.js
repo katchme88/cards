@@ -267,9 +267,9 @@ $(function() {
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (username) {
-        sendMessage();
-        socket.emit('stop typing');
-        typing = false;
+        // sendMessage();
+        // socket.emit('stop typing');
+        // typing = false;
       } else {
         setUsername();
       }
@@ -292,6 +292,19 @@ $(function() {
     $inputMessage.focus();
   });
 
+  $("#send-msg").click(function(){
+    $(".chatBox").show();
+  });
+
+  $("#send-btn").click(function(){
+    var msg=$("#chat-msg").val();
+    socket.emit('message' , {
+      username: username,
+      message: msg,
+    });
+    $(".chatBox").fadeOut();  
+  
+  });
   //#########################################################################################
   // Socket events
   //#########################################################################################
@@ -573,5 +586,14 @@ $(function() {
    socket.on('reset', function () {
     //  socket.emit('disconnect');
      setTimeout(function() {showOverlay('game will reset');location.reload(true);}, 3000); 
+   });
+
+   socket.on('message', function(data){
+    var num = playerPerspective.indexOf(data.username)+1;
+    $(".chatBubble-"+num).text(data.message);
+    $(".chatBubble-"+num).show();
+    setTimeout(function(){
+      $(".chatBubble-"+num).fadeOut();
+    },5000);
    });
 });

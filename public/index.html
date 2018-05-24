@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="css/scoreCard.css">
@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/overlay.css">
     <link rel="stylesheet" href="css/cards-fan.css">
+    <link rel="stylesheet" href="css/chatBubble.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
@@ -35,6 +36,7 @@
                         <div class="playerNameDisplay name-3"></div>
                     </div>
                 </center>
+                <div class="chatBubble chatBubble-3">Jaldi karlo salay</div>
             </div>
             <div class="right">
                 <div class="trumpCard"></div>
@@ -49,6 +51,7 @@
                         <div class="playerNameDisplay name-4"></div>
                     </div>
                 </center>
+                <div class="chatBubble chatBubble-4">Hello</div>
             </div>
             <div class="middle table"></div>
             <div class="right">
@@ -58,6 +61,7 @@
                         <div class="playerNameDisplay name-2"></div>
                     </div>
                 </center>
+                <div class="chatBubble chatBubble-2">Hello</div>
             </div>
         </div>
         <div class="bottom">
@@ -72,7 +76,9 @@
             <div class="middle">
                 <div class="cards-in-hand"></div>
             </div>
-            <div class="right"></div>
+            <div class="right">
+                <img src="images/chat-bubble-icon.png" id="send-msg" alt="">
+            </div>
         </div>
     </div> 
     <div class="login page">
@@ -82,5 +88,9 @@
         </div>
     </div>
     <div class="overlay"></div>
+    <div class="chatBox">
+        <input type="text" id="chat-msg"/>
+        <input type="button" id="send-btn" value="SEND"/>
+    </div>
 </body>
 </html>
