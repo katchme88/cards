@@ -342,7 +342,10 @@ $(function() {
     }
     showOverlay(msg);
     clearTable(data.username);
-    
+  });
+
+  socket.on('winner announcement', function(data){
+    showOverlay('Winner');
   });
 
   socket.on("request trump", function(data) {
@@ -561,6 +564,7 @@ $(function() {
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
     clearTable(playerSequence[0]);
+    addPlayerElement(playerSequence);
     $(".score").text("0 - 0");
     $(".trumpCard").hide();
     $(".requestTrump").hide();

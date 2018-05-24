@@ -215,6 +215,22 @@ io.on('connection', function (socket) {
       revealedInThis=0;
       currentRoundObj = {};
       currentRoundCards = [];
+
+      if (teamAHands >= 7 || teamBHands >=7) {
+        var team = teamAHands >= 7 ? 'teamA':'teamB';
+        io.emit('winner announcement', {
+          winner: team
+        });  
+
+        setTimeout(function () { 
+          if (teamAHands >= 7) {
+            redeal();
+          } else {
+            next();
+          }
+        }, 5000);
+
+      }
     }
 
     if (turn === 0){
@@ -222,7 +238,7 @@ io.on('connection', function (socket) {
         nextPlayerSocket.emit('your turn', {
           currentRoundSuit: currentRoundSuit
         });
-      },4000)
+      },3000)
     } else {
       nextPlayerSocket.emit('your turn', {
         currentRoundSuit: currentRoundSuit
