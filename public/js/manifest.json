@@ -1,8 +1,8 @@
 {
-    "name": "BudRungi",
-    "short_name": "BudRungi",
+    "name": "DubRung",
+    "short_name": "DubRung",
     "icons": [{
-          "src": "images/icons/icon.png",
+          "src": "http://talha.guru:3000/images/icons/icon.png",
           "sizes": "256x256",
           "type": "image/png"
         }],
