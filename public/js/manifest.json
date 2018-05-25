@@ -1,0 +1,13 @@
+{
+    "name": "BudRungi",
+    "short_name": "BudRungi",
+    "icons": [{
+          "src": "images/icons/icon.png",
+          "sizes": "64x64",
+          "type": "image/webp"
+        }],
+    "scope": "",
+    "start_url": "http://talha.guru:3000",
+    "display": "fullscreen",
+    "orientation": "landscape"
+  }
