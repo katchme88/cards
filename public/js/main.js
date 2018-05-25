@@ -82,7 +82,7 @@ $(function() {
       $chatPage.show();
       $loginPage.off('click');
       $currentInput = $inputMessage.focus();
-
+      $usernameInput.blur();
       // Tell the server your username
       socket.emit('add user', username);
     }
@@ -304,6 +304,7 @@ $(function() {
       message: msg,
     });
     $("#chat-msg").val('');
+    $("#chat-msg").blur();
     $(".chatBox").fadeOut();  
   
   }
