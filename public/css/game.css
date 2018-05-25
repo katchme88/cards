@@ -140,6 +140,7 @@ div.center {
 	border-radius: 55%;
     max-width: 80%;
     padding: 2px;
+    background-color: aliceblue; 
 }
 .avatar-3 {
     width: 16.5%;
