@@ -13,29 +13,10 @@
 .container {
     width: 100%;
     height: 100%;
-    position: absolute; 
+    position: fixed; 
     top: 0; 
-    bottom: 0; 
-    left: 0; 
-    right: 0;
+    left: 0;
     overflow:hidden;
-}
-table, td {
-    border: 1px solid black;
-    text-align: center;
-}
-td {
-    height:20%;
-    width: 20%;
-}
-.container {
-    height: 100%;
-    width: 100%;
-    position: absolute; 
-    top: 0; 
-    bottom: 0; 
-    left: 0; 
-    right: 0;
 }
 div.top, div.bottom {
     height: 25%;
