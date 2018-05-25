@@ -299,6 +299,15 @@ $(function() {
 
   function sendMessage(){
     var msg=$("#chat-msg").val();
+    
+    if (msg.toLowerCase()==='c:') {
+      $("#chat-msg").val('');
+      $("#chat-msg").blur();
+      $(".chatBox").fadeOut();
+      $('.controller').show();
+      return;
+    }
+
     socket.emit('message' , {
       username: username,
       message: msg,
@@ -308,6 +317,19 @@ $(function() {
     $(".chatBox").fadeOut();  
   
   }
+
+  $('#btn_close').on('click', function () {
+    $('.controller').hide();
+  });
+  $('#btn_next').on('click', function () {
+      socket.emit('command', {command: 'next'});
+  });
+  $('#btn_redeal').on('click', function () {
+      socket.emit('command', {command: 'redeal'});
+  });
+  $('#btn_reset').on('click', function () {
+      socket.emit('command', {command: 'reset'});
+  });
   //#########################################################################################
   // Socket events
   //#########################################################################################
