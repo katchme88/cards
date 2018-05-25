@@ -299,7 +299,32 @@ io.on('connection', function (socket) {
       reset();
     }
 
+    if (data.command==='team'){
+      changeTeam();
+    }
+
   });
+
+  function changeTeam() {
+    if (numUsers < 4) return;
+    var p1 = players.p1;
+    var p2 = players.p3;
+    var p3 = players.p2;
+    var p4 = players.p4;
+    
+    var a = playerSequence[1];
+    var b = playerSequence[2];
+    playerSequence[1] = b;
+    playerSequence[2] = a;
+
+    players = {}
+    players['p1'] = p1;
+    players['p2'] = p2;
+    players['p3'] = p3;
+    players['p4'] = p4;
+    
+    redeal();
+  }
 
   function next() {
     if (numUsers < 4) return;
@@ -315,6 +340,7 @@ io.on('connection', function (socket) {
     playerSequence.push(playerSequence.shift());
     redeal();
   }
+
   function reset () { 
     io.emit('reset');
     usersCards = {};
@@ -334,7 +360,6 @@ io.on('connection', function (socket) {
     playerSequence = [];
     players = {};
     deck = require('./gameplay/deck.js').cards();
-    // new_deal();
     numUsers = 0;
   }
 
@@ -355,7 +380,6 @@ io.on('connection', function (socket) {
     currentRoundSuit;
     roundsSinceLastWin = 0;
     deck = require('./gameplay/deck.js').cards();
-    // new_deal();
 
     for (var player in players) {
       var hand = deal();

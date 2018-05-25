@@ -330,6 +330,10 @@ $(function() {
   $('#btn_reset').on('click', function () {
       socket.emit('command', {command: 'reset'});
   });
+  $('#btn_team').on('click', function () {
+    socket.emit('command', {command: 'team'});
+});
+
   //#########################################################################################
   // Socket events
   //#########################################################################################
@@ -599,10 +603,13 @@ $(function() {
     playerSequence = data.playerSequence;
     playerNumber = data.playerNumber;
     playerPerspective = getPlayerPerspective(playerSequence);
+    x = {playerSequence:playerSequence,playerNumber:playerNumber,playerPerspective:playerPerspective};
+    console.log(x);
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
     clearTable(playerSequence[0]);
     addPlayerElement(playerSequence);
+    updatePlayerName(playerPerspective);
     $(".score").text("0 - 0");
     $(".trumpCard").hide();
     $(".requestTrump").hide();
