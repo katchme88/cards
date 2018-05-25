@@ -3,11 +3,11 @@
     "short_name": "BudRungi",
     "icons": [{
           "src": "images/icons/icon.png",
-          "sizes": "64x64",
-          "type": "image/webp"
+          "sizes": "256x256",
+          "type": "image/png"
         }],
     "scope": "",
     "start_url": "http://talha.guru:3000",
-    "display": "fullscreen",
+    "display": "standalone",
     "orientation": "landscape"
   }
