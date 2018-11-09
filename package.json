@@ -13,7 +13,8 @@
     "fisher-yates-shuffle": "latest",
     "mess": "latest",
     "npm": "latest",
-    "socket.io": "latest"
+    "socket.io": "latest",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "latest"

@@ -1,3 +1,5 @@
+let uuid = require('uuid/v1');
+
 let usersByRoom = {};
 let gameObjTemplate = {
     numUsers: 0,
@@ -19,9 +21,14 @@ let gameObjTemplate = {
     playerSequence: []
 }
 
+const deepCopy = (e) => {
+    return JSON.parse(JSON.stringify(e));
+}
+
 const createRoom = () => {
-    let newRoomID = Math.floor(Math.random() * Math.floor(10));
-    usersByRoom[newRoomID] = Object.assign({users: {}, totalUsers: 0}, gameObjTemplate);
+    let deck = require('./gameplay/deck.js').cards();
+    let newRoomID = uuid();
+    usersByRoom[newRoomID] = Object.assign({users: {}, totalUsers: 0, deck: deck}, deepCopy(gameObjTemplate));
     return newRoomID;
 }
 
@@ -38,8 +45,6 @@ module.exports = {
     addUser: (user) => {
         let roomID = getRoomID();
         usersByRoom[roomID]['users'][user.id] = user;
-        //++usersByRoom[roomID]['totalUsers'];
-        //++usersByRoom[roomID]['numUsers'];
         console.log(usersByRoom);
         return roomID;
     },
