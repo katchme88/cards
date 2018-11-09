@@ -6,11 +6,8 @@ var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
-var fs = require('fs');
 var rules = require('./gameplay/rules.js');
-//var deck = require('./gameplay/deck.js').cards();
-// var shuffle = require('fisher-yates-shuffle');
-let cache = require('./cache');
+let cache = require('./cache'); 
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -22,12 +19,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 let deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
 
 function deal(deck) {
-    var this_hand = [];
-    for (var i=0; i<=12; i++) {
-      var randomCard = deck.splice(0,1);
-      this_hand.push(randomCard[0]);
-    }
-    return this_hand;
+  var this_hand = [];
+  for (var i=0; i<=12; i++) {
+    var randomCard = deck.splice(0,1);
+    this_hand.push(randomCard[0]);
+  }
+  return this_hand;
 }
 
 io.on('connection', function (socket) {
@@ -36,15 +33,11 @@ io.on('connection', function (socket) {
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
     if (addedUser) return;
+    
     let roomID = cache.addUser(socket);
     socket.roomID = roomID;
     socket.join(roomID);
     thisCache = cache.getGameCache(roomID);
-    //Let additional users know that a game is in progress
-    if (thisCache.numUsers === 4) {socket.to(socket.roomID).emit('room full'); return;}
-
-    // we store the username in the socket session for this client
-
     if (!(username in thisCache.usersCards)) {
       socket.username = username;
       ++thisCache.numUsers;
@@ -98,7 +91,7 @@ io.on('connection', function (socket) {
         message: 'Waiting for other players to join' 
       });
     } else {
-      io.sockets.emit('enable ui', {
+      io.to(roomID).emit('enable ui', {
         message: "Let's go!" 
       });
     }
@@ -159,14 +152,14 @@ io.on('connection', function (socket) {
             thisCache.roundsSinceLastWin++;
           }
           
-          var winnerFlag = rules.getWinner(seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds);
+          var winnerFlag = rules.getWinner(seniorIndex, thisCache.roundsSinceLastWin, thisCache.revealedInThis, thisCache.totalRounds);
           
         }
       }
     }
 
     if (thisCache.turn==4 && !winnerFlag) {
-      io.sockets.emit('senior player', {
+      io.to(roomID).emit('senior player', {
         username: thisCache.currentRoundObj[seniorCard],
         totalRounds: thisCache.totalRounds
       });
@@ -178,11 +171,11 @@ io.on('connection', function (socket) {
     } else if (thisCache.turn==4 && winnerFlag) {
       var roundWinner = thisCache.currentRoundObj[seniorCard];
       if (thisCache.players.p1.username == roundWinner || thisCache.players.p3.username == roundWinner) {
-        thisCache.teamAHands+=roundsSinceLastWin;
+        thisCache.teamAHands+=thisCache.roundsSinceLastWin;
       } else {
         thisCache.teamBHands+=thisCache.roundsSinceLastWin;
       }
-      io.sockets.to(socket.roomID).emit('hands picked', {
+      io.to(roomID).emit('hands picked', {
         username: roundWinner,
         handsPicked: roundsSinceLastWin,
         totalRounds: totalRounds,
@@ -191,10 +184,10 @@ io.on('connection', function (socket) {
       });
       nextPlayerSocket = thisCache.players['p'+ (thisCache.playerSequence.indexOf(thisCache.currentRoundObj[seniorCard])+1)].socket;
       var x = {
-        handsPicked: roundsSinceLastWin,
-        totalRounds: totalRounds,
-        teamAHands: teamAHands,
-        teamBHands: teamBHands
+        handsPicked: thisCache.roundsSinceLastWin,
+        totalRounds: thisCache.totalRounds,
+        teamAHands: thisCache.teamAHands,
+        teamBHands: thisCache.teamBHands
       };
       thisCache.roundsSinceLastWin = 0;
       thisCache.turn=0;
@@ -204,7 +197,7 @@ io.on('connection', function (socket) {
 
       if (thisCache.teamAHands >= 7 || thisCache.teamBHands >=7) {
         var team = thisCache.teamAHands >= 7 ? 'teamA':'teamB';
-        io.to(socket.roomID).emit('winner announcement', {
+        io.to(roomID).emit('winner announcement', {
           winner: team
         });  
 
@@ -241,14 +234,14 @@ io.on('connection', function (socket) {
 
   socket.on('reveal trump', function () {
    console.log('revealed trump');
-   revealedInThis = thisCache.turn;
+   thisCache.revealedInThis = thisCache.turn;
    thisCache.trumpRevealed = 1;
    var arr = thisCache.trumpCard.split(/(\d+)/) ;
   //  console.log(arr);
    if (arr[1]>10){
      arr[1]=deckJargons[arr[1]];
    }
-   io.sockets.emit('reveal trump', {
+   io.to(roomID).emit('reveal trump', {
      username: socket.username,
      trumpCard: thisCache.trumpCard
     });
@@ -260,14 +253,14 @@ io.on('connection', function (socket) {
       // --numUsers;
 
       // echo globally that this client has left
-      socket.broadcast.emit('user left', {
+      io.to(socket.roomID).emit('user left', {
         username: socket.username,
         numUsers: thisCache.numUsers
       });
-      socket.broadcast.emit('disable ui', {
+      io.to(socket.roomID).emit('disable ui', {
         message: 'Player disconnected' 
       });
-      //reset();
+      reset(socket.roomID);
     }
 
   });
@@ -327,26 +320,27 @@ io.on('connection', function (socket) {
     redeal();
   }
 
-  function reset () { 
-    io.emit('reset');
-    usersCards = {};
-    turn = 0;
-    totalRounds = 0;
-    teamA = [];
-    teamB = [];
-    teamAHands = 0;
-    teamBHands = 0;
-    trumpRevealed = 0;
-    revealedInThis = 0;
-    trumpCard = '';
-    currentRoundCards = [];
-    currentRoundObj = {};
-    currentRoundSuit;
-    roundsSinceLastWin = 0;
-    playerSequence = [];
-    players = {};
-    deck = require('./gameplay/deck.js').cards();
-    numUsers = 0;
+  function reset (roomID) { 
+    io.to(roomID).emit('reset');
+    thisCache.usersCards = {};
+    thisCache.turn = 0;
+    thisCache.totalRounds = 0;
+    thisCache.teamA = [];
+    thisCache.teamB = [];
+    thisCache.teamAHands = 0;
+    thisCache.teamBHands = 0;
+    thisCache.trumpRevealed = 0;
+    thisCache.revealedInThis = 0;
+    thisCache.trumpCard = '';
+    thisCache.currentRoundCards = [];
+    thisCache.currentRoundObj = {};
+    thisCache.currentRoundSuit;
+    thisCache.roundsSinceLastWin = 0;
+    thisCache.playerSequence = [];
+    thisCache.players = {};
+    thisCache.deck = require('./gameplay/deck.js').cards();
+    thisCache.numUsers = 0;
+    thisCache.totalUsers = 0;
   }
 
   function redeal () {

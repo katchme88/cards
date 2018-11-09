@@ -45,7 +45,7 @@ module.exports = {
     addUser: (user) => {
         let roomID = getRoomID();
         usersByRoom[roomID]['users'][user.id] = user;
-        console.log(usersByRoom);
+        //console.log(usersByRoom);
         return roomID;
     },
     getGameCache: (roomID) => {
