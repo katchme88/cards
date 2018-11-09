@@ -159,7 +159,7 @@ io.on('connection', function (socket) {
     }
 
     if (thisCache.turn==4 && !winnerFlag) {
-      io.to(roomID).emit('senior player', {
+      io.to(socket.roomID).emit('senior player', {
         username: thisCache.currentRoundObj[seniorCard],
         totalRounds: thisCache.totalRounds
       });
@@ -175,12 +175,12 @@ io.on('connection', function (socket) {
       } else {
         thisCache.teamBHands+=thisCache.roundsSinceLastWin;
       }
-      io.to(roomID).emit('hands picked', {
+      io.to(socket.roomID).emit('hands picked', {
         username: roundWinner,
-        handsPicked: roundsSinceLastWin,
-        totalRounds: totalRounds,
-        teamAHands: teamAHands,
-        teamBHands: teamBHands
+        handsPicked: thisCache.roundsSinceLastWin,
+        totalRounds: thisCache.totalRounds,
+        teamAHands: thisCache.teamAHands,
+        teamBHands: thisCache.teamBHands
       });
       nextPlayerSocket = thisCache.players['p'+ (thisCache.playerSequence.indexOf(thisCache.currentRoundObj[seniorCard])+1)].socket;
       var x = {
@@ -241,7 +241,7 @@ io.on('connection', function (socket) {
    if (arr[1]>10){
      arr[1]=deckJargons[arr[1]];
    }
-   io.to(roomID).emit('reveal trump', {
+   io.to(socket.roomID).emit('reveal trump', {
      username: socket.username,
      trumpCard: thisCache.trumpCard
     });
@@ -267,57 +267,57 @@ io.on('connection', function (socket) {
 
   socket.on('command', function (data) {
     if (data.command==='next'){
-      next();
+      next(socket.roomID);
     }
     
     if (data.command==='redeal'){
-      redeal();
+      redeal(socket.roomID);
     }
 
     if (data.command==='reset'){
-      reset();
+      reset(socket.roomID);
     }
 
     if (data.command==='team'){
-      changeTeam();
+      changeTeam(socket.roomID);
     }
 
   });
 
-  function changeTeam() {
-    if (numUsers < 4) return;
-    var p1 = players.p1;
-    var p2 = players.p3;
-    var p3 = players.p2;
-    var p4 = players.p4;
+  function changeTeam(roomID) {
+    if (thisCache.numUsers < 4) return;
+    var p1 = thisCache.players.p1;
+    var p2 = thisCache.players.p3;
+    var p3 = thisCache.players.p2;
+    var p4 = thisCache.players.p4;
     
-    var a = playerSequence[1];
-    var b = playerSequence[2];
-    playerSequence[1] = b;
-    playerSequence[2] = a;
+    var a = thisCache.playerSequence[1];
+    var b = thisCache.playerSequence[2];
+    thisCache.playerSequence[1] = b;
+    thisCache.playerSequence[2] = a;
 
-    players = {}
-    players['p1'] = p1;
-    players['p2'] = p2;
-    players['p3'] = p3;
-    players['p4'] = p4;
+    thisCache.players = {}
+    thisCache.players['p1'] = p1;
+    thisCache.players['p2'] = p2;
+    thisCache.players['p3'] = p3;
+    thisCache.players['p4'] = p4;
     
-    redeal();
+    redeal(roomID);
   }
 
-  function next() {
-    if (numUsers < 4) return;
-    var p1 = players.p2;
-    var p2 = players.p3;
-    var p3 = players.p4;
-    var p4 = players.p1;
-    players = {}
-    players['p1'] = p1;
-    players['p2'] = p2;
-    players['p3'] = p3;
-    players['p4'] = p4;
-    playerSequence.push(playerSequence.shift());
-    redeal();
+  function next(roomID) {
+    if (thisCache.numUsers < 4) return;
+    var p1 = thisCache.players.p2;
+    var p2 = thisCache.players.p3;
+    var p3 = thisCache.players.p4;
+    var p4 = thisCache.players.p1;
+    thisCache.players = {}
+    thisCache.players['p1'] = p1;
+    thisCache.players['p2'] = p2;
+    thisCache.players['p3'] = p3;
+    thisCache.players['p4'] = p4;
+    thisCache.playerSequence.push(thisCache.playerSequence.shift());
+    redeal(roomID);
   }
 
   function reset (roomID) { 
@@ -343,36 +343,36 @@ io.on('connection', function (socket) {
     thisCache.totalUsers = 0;
   }
 
-  function redeal () {
-    if (numUsers < 4) return;
-    usersCards = {};
-    turn = 0;
-    totalRounds = 0;
-    teamA = [];
-    teamB = [];
-    teamAHands = 0;
-    teamBHands = 0;
-    trumpRevealed = 0;
-    revealedInThis = 0;
-    trumpCard = '';
-    currentRoundCards = [];
-    currentRoundObj = {};
-    currentRoundSuit;
-    roundsSinceLastWin = 0;
-    deck = require('./gameplay/deck.js').cards();
+  function redeal (roomID) {
+    if (thisCache.numUsers < 4) return;
+    thisCache.usersCards = {};
+    thisCache.turn = 0;
+    thisCache.totalRounds = 0;
+    thisCache.teamA = [];
+    thisCache.teamB = [];
+    thisCache.teamAHands = 0;
+    thisCache.teamBHands = 0;
+    thisCache.trumpRevealed = 0;
+    thisCache.revealedInThis = 0;
+    thisCache.trumpCard = '';
+    thisCache.currentRoundCards = [];
+    thisCache.currentRoundObj = {};
+    thisCache.currentRoundSuit;
+    thisCache.roundsSinceLastWin = 0;
+    thisCache.deck = require('./gameplay/deck.js').cards();
 
-    for (var player in players) {
-      var hand = deal();
-      var soc = players[player].socket;
-      usersCards[players[player].username] = hand;
+    for (var player in thisCache.players) {
+      var hand = deal(thisCache.deck);
+      var soc = thisCache.players[player].socket;
+      thisCache.usersCards[thisCache.players[player].username] = hand;
 
       soc.emit('redeal', {
-        playerSequence: playerSequence,
-        playerNumber: playerSequence.indexOf(players[player].username)+1
+        playerSequence: thisCache.playerSequence,
+        playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username)+1
       });
       
       if (player === 'p1') {
-        first5 = hand.splice(0,5);
+        let first5 = hand.splice(0,5);
 
         soc.emit('choose trump', {
           hand: first5,
