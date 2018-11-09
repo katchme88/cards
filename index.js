@@ -1,4 +1,5 @@
 // Setup basic express server
+"use strict";
 var express = require('express');
 var app = express();
 var path = require('path');
@@ -9,6 +10,7 @@ var fs = require('fs');
 var rules = require('./gameplay/rules.js');
 var deck = require('./gameplay/deck.js').cards();
 // var shuffle = require('fisher-yates-shuffle');
+let cache = require('./cache');
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -19,24 +21,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Chatroom
 
-var numUsers = 0;
-var usersCards = {};
-var turn = 0;
-var totalRounds = 0;
+// var numUsers = 0;
+// var usersCards = {};
+// var turn = 0;
+// var totalRounds = 0;
 
-var players = {};
-var teamA = [];
-var teamB = [];
-var teamAHands = 0;
-var teamBHands = 0;
-var trumpRevealed = 0;
-var revealedInThis = 0;
-var trumpCard = '';
-var currentRoundCards = [];
-var currentRoundObj = {};
-var currentRoundSuit;
-var roundsSinceLastWin = 0;
-var playerSequence = [];
+// var players = {};
+// var teamA = [];
+// var teamB = [];
+// var teamAHands = 0;
+// var teamBHands = 0;
+// var trumpRevealed = 0;
+// var revealedInThis = 0;
+// var trumpCard = '';
+// var currentRoundCards = [];
+// var currentRoundObj = {};
+// var currentRoundSuit;
+// var roundsSinceLastWin = 0;
+// var playerSequence = [];
 var deckJargons = {14:"Ace", 13:"King", 12:"Queen", 11:"Jack", C:"Clubs", D:"Diamonds", S:"Spades", H:"Hearts"}
 
 function deal() {
@@ -54,48 +56,52 @@ io.on('connection', function (socket) {
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
     if (addedUser) return;
-    
+    let roomID = cache.addUser(socket);
+    socket.roomID = roomID;
+    socket.join(roomID);
+    let thisCache = cache.getGameCache(roomID);
     //Let additional users know that a game is in progress
-    if (numUsers === 4) {socket.emit('room full'); return;}
+    if (thisCache.numUsers === 4) {socket.to(socket.roomID).emit('room full'); return;}
 
     // we store the username in the socket session for this client
 
-    if (!(username in usersCards)) {
+    if (!(username in thisCache.usersCards)) {
       socket.username = username;
-      ++numUsers;
+      ++thisCache.numUsers;
+      ++thisCache.totalUsers;
       addedUser = true;
       var hand = deal();
-      usersCards[socket.username] = hand;
-      if (numUsers <= 4) {
-        players['p'+numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
-        playerSequence.push(username);
-        playerNumber = playerSequence.indexOf(socket.username) + 1
+      thisCache.usersCards[socket.username] = hand;
+      if (thisCache.numUsers <= 4) {
+        thisCache.players['p'+thisCache.numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
+        thisCache.playerSequence.push(username);
+        thisCache.playerNumber = thisCache.playerSequence.indexOf(socket.username) + 1
       }
     } else {
       socket.username = username;
-      var hand = usersCards[username];
-      ++numUsers;
+      var hand = thisCache.usersCards[username];
+      ++thisCache.numUsers;
     }
 
-    socket.emit('login', {
-      numUsers: numUsers,
-      playerNumber: playerSequence.indexOf(socket.username) + 1,  
-      playerSequence: playerSequence
+    socket.to(socket.roomID).emit('login', {
+      numUsers: thisCache.numUsers,
+      playerNumber: thisCache.playerSequence.indexOf(socket.username) + 1,  
+      playerSequence: thisCache.playerSequence
     });
     
     // echo globally (all clients) that a person has connected
-    socket.broadcast.emit('user joined', {
+    socket.broadcast.to(socket.roomID).emit('user joined', {
       username: socket.username,
-      numUsers: numUsers,
-      playerSequence: playerSequence
+      numUsers: thisCache.numUsers,
+      playerSequence: thisCache.playerSequence
     }); 
     // console.log(players);
-    if (socket.username != players.p1.username){
+    if (socket.username != thisCache.players.p1.username){
       // send cards to socket
       socket.emit('deal', {
         hand: hand
       });
-    } else if (socket.username == players.p1.username && trumpCard == ""){
+    } else if (socket.username == thisCache.players.p1.username && thisCache.trumpCard == ""){
       // send player 1 cards to select trump
       var first5 = hand.splice(0,5);
       socket.emit('choose trump', {
@@ -107,7 +113,7 @@ io.on('connection', function (socket) {
       });
     }
 
-    if (numUsers < 4) {
+    if (thisCache.numUsers < 4) {
       socket.emit('disable ui', {
         message: 'Waiting for other players to join' 
       });
