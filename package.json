@@ -1,21 +1,25 @@
 {
-  "name": "socket.io-chat",
-  "version": "0.0.0",
-  "description": "A simple chat client using socket.io",
+  "name": "socket.io-cards",
+  "version": "1.0.0",
+  "description": "A simple cards application using socket.io",
   "main": "index.js",
-  "author": "Grant Timmerman",
+  "author": "Talha",
   "private": true,
   "license": "BSD",
   "dependencies": {
-    "crypto-secure-shuffle": "^2.0.4",
-    "crypto-shuffle": "^1.0.1",
-    "express": "4.13.4",
-    "fisher-yates-shuffle": "^0.2.0",
-    "mess": "^0.1.2",
-    "npm": "^5.8.0",
-    "socket.io": "^2.1.0"
+    "crypto-secure-shuffle": "latest",
+    "crypto-shuffle": "latest",
+    "express": "latest",
+    "fisher-yates-shuffle": "latest",
+    "mess": "latest",
+    "npm": "latest",
+    "socket.io": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   }
 }
