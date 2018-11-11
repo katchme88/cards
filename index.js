@@ -98,8 +98,7 @@ io.on('connection', function (socket) {
     }
   });
 
-  socket.on('trump card', function (data) {
-    console.log(('Trump setted '+ data));
+  socket.on('trump card', function (data) {   
     thisCache.trumpCard = data;
     // console.log(data);
     socket.broadcast.to(roomID).emit('trump setted', {
