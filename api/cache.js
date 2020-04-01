@@ -41,11 +41,24 @@ const getRoomID = () => {
     return createRoom();
 }
 
+const searchForUserRoom = (username) => {
+    for (let roomID in usersByRoom){
+        if (username in usersByRoom[roomID].usersCards){
+            return roomID
+        } else {
+            return false
+        }
+    }
+}
+
 module.exports = {
-    addUser: (user) => {
-        let roomID = getRoomID();
-        usersByRoom[roomID]['users'][user.id] = user;
-        //console.log(usersByRoom);
+    addUser: (socket, username) => {
+        let roomID = searchForUserRoom(username)
+        if (roomID) {
+            return roomID
+        }
+        roomID = getRoomID();
+        usersByRoom[roomID]['users'][socket.id] = socket;
         return roomID;
     },
     getGameCache: (roomID) => {
@@ -53,5 +66,9 @@ module.exports = {
     },
     updateGameCache: (roomID, data) => {
         usersByRoom[roomID] = data;
+    },
+    deleteRoom: (roomID) => {
+        delete usersByRoom[roomID];
+        return true
     }
 }

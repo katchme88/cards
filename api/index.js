@@ -31,11 +31,12 @@ io.on('connection', function (socket) {
   var addedUser = false;
   let thisCache;
   let roomID;
+  let reConnected = false;
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
     if (addedUser) return;
     
-    roomID = cache.addUser(socket);
+    roomID = cache.addUser(socket, username);
     socket.roomID = roomID;
     socket.join(roomID);
     thisCache = cache.getGameCache(roomID);
@@ -49,12 +50,19 @@ io.on('connection', function (socket) {
       if (thisCache.numUsers <= 4) {
         thisCache.players['p'+thisCache.numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
         thisCache.playerSequence.push(username);
-        //playerNumber = thisCache.playerSequence.indexOf(socket.username) + 1
       }
     } else {
       socket.username = username;
+      for (let player in thisCache.players) {
+        if (thisCache.players[player].username == username) {
+          thisCache.players[player].socket = socket
+        }
+      }
       var hand = thisCache.usersCards[username];
       ++thisCache.numUsers;
+      reConnected = true;
+      addedUser = true;
+      clearTimeout(thisCache.dcTimeOut)
     }
 
     socket.emit('login', {
@@ -69,6 +77,34 @@ io.on('connection', function (socket) {
       numUsers: thisCache.numUsers,
       playerSequence: thisCache.playerSequence
     }); 
+
+    if (reConnected) {
+      socket.emit('trump setted', {
+        data: 'budRangi'
+      });
+      for (const [key, value] of Object.entries(thisCache.currentRoundObj)) {
+        socket.emit('card thrown', {
+          username: value,
+          message: key,
+          turn: thisCache.turn
+        });
+      }
+      if (thisCache.turn < 4 && thisCache.turn > 0) {
+        if ( thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop())+1]  == socket.username ){
+          socket.emit('your turn', {
+            currentRoundSuit: thisCache.currentRoundSuit
+          });
+        }
+      }
+      if (thisCache.turn  == 0) {
+        if ( thisCache.lastRoundSenior  == socket.username ){
+          socket.emit('your turn', {
+            currentRoundSuit: thisCache.currentRoundSuit
+          });
+        }
+      }
+    }
+    
     // console.log(players);
     if (socket.username != thisCache.players.p1.username){
       // send cards to socket
@@ -135,13 +171,14 @@ io.on('connection', function (socket) {
       thisCache.currentRoundObj[data] = socket.username;
       thisCache.currentRoundCards.push(data);
       var nextPlayerSocket = thisCache.playerSequence.indexOf(socket.username) == 3 ? thisCache.players.p1.socket : thisCache.players['p'+ (thisCache.playerSequence.indexOf(socket.username)+2)].socket;
-
       if (thisCache.turn==4) {
 
         thisCache.totalRounds++;
         var seniorArr = rules.getSenior(thisCache.currentRoundCards , thisCache.trumpRevealed, thisCache.trumpCard.charAt(0), thisCache.revealedInThis);
         var seniorCard = seniorArr[0];
         var seniorIndex = seniorArr[1];
+        var seniorPlayer = Object.values(thisCache.currentRoundObj[seniorCard]);
+        thisCache.lastRoundSenior = seniorPlayer;
         thisCache.currentRoundSuit = '';
         
         if (thisCache.trumpRevealed){
@@ -250,17 +287,22 @@ io.on('connection', function (socket) {
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
     if (addedUser) {
-      // --numUsers;
+      --thisCache.numUsers;
 
       // echo globally that this client has left
       io.to(roomID).emit('user left', {
         username: socket.username,
         numUsers: thisCache.numUsers
       });
+      
       io.to(roomID).emit('disable ui', {
         message: 'Player disconnected' 
       });
-      reset(roomID);
+
+      thisCache.dcTimeOut = setTimeout(function() {
+        reset(roomID);
+      }, 30000)
+      
     }
 
   });
@@ -341,6 +383,7 @@ io.on('connection', function (socket) {
     thisCache.deck = require('./gameplay/deck.js').cards();
     thisCache.numUsers = 0;
     thisCache.totalUsers = 0;
+    cache.deleteRoom(roomID);
   }
 
   function redeal (roomID) {
