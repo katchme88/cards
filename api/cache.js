@@ -53,5 +53,9 @@ module.exports = {
     },
     updateGameCache: (roomID, data) => {
         usersByRoom[roomID] = data;
+    },
+    deleteRoom: (roomID) => {
+        delete usersByRoom[roomID];
+        return true
     }
 }

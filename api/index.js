@@ -341,6 +341,7 @@ io.on('connection', function (socket) {
     thisCache.deck = require('./gameplay/deck.js').cards();
     thisCache.numUsers = 0;
     thisCache.totalUsers = 0;
+    cache.deleteRoom(roomID);
   }
 
   function redeal (roomID) {
