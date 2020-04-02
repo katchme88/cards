@@ -79,9 +79,20 @@ io.on('connection', function (socket) {
     }); 
 
     if (reConnected) {
-      socket.emit('trump setted', {
-        data: 'budRangi'
-      });
+
+      if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 0) {
+        socket.emit('trump setted', {
+          data: 'budRangi'
+        });
+      } else if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 1) {
+        socket.emit('trump setted', {
+          data: 'budRangi'
+        });
+        socket.emit('reveal trump', {
+          username: thisCache.playerSequence[0],
+          trumpCard: thisCache.trumpCard
+        });
+      }
       for (const [key, value] of Object.entries(thisCache.currentRoundObj)) {
         socket.emit('card thrown', {
           username: value,
@@ -298,6 +309,10 @@ io.on('connection', function (socket) {
       io.to(roomID).emit('disable ui', {
         message: 'Player disconnected' 
       });
+
+      if (socket.username == thisCache.playerSequence[0]) {
+        reset(roomID);
+      }
 
       thisCache.dcTimeOut = setTimeout(function() {
         reset(roomID);
