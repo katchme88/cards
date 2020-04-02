@@ -68,14 +68,15 @@ io.on('connection', function (socket) {
     socket.emit('login', {
       numUsers: thisCache.numUsers,
       playerNumber: thisCache.playerSequence.indexOf(socket.username) + 1,  
-      playerSequence: thisCache.playerSequence
+      playerSequence: thisCache.playerSequence,
     });
     
     // echo globally (all clients) that a person has connected
     socket.broadcast.to(roomID).emit('user joined', {
       username: socket.username,
       numUsers: thisCache.numUsers,
-      playerSequence: thisCache.playerSequence
+      playerSequence: thisCache.playerSequence,
+      reConnected: reConnected
     }); 
 
     if (reConnected) {
@@ -297,13 +298,23 @@ io.on('connection', function (socket) {
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
+    let message = ''
+    const TIMEOUT = 60000  
+
     if (addedUser) {
       --thisCache.numUsers;
 
+      if (socket.username != thisCache.playerSequence[0]) {
+        message = `${socket.username} disconnected. Waiting for user to re-join in ${TIMEOUT/1000} seconds`
+      } else {
+        message = `${socket.username} disconnected. Game will restart in 3 seconds.`
+      }
       // echo globally that this client has left
       io.to(roomID).emit('user left', {
         username: socket.username,
-        numUsers: thisCache.numUsers
+        numUsers: thisCache.numUsers,
+        message: message,
+        timeout: TIMEOUT
       });
       
       io.to(roomID).emit('disable ui', {
@@ -316,7 +327,7 @@ io.on('connection', function (socket) {
 
       thisCache.dcTimeOut = setTimeout(function() {
         reset(roomID);
-      }, 30000)
+      }, TIMEOUT)
       
     }
 

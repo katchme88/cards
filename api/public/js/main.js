@@ -65,11 +65,15 @@ $(function() {
     }
   }
 
-  function showOverlay (data) {
+  function showOverlay (data, timeout = 500) {
     $('.overlay').html('<p>'+data+'</p>').fadeIn(1000);
     setTimeout(function(){
-      $('.overlay').fadeOut(500);
+      $('.overlay').fadeOut(timeout);
     },4000);
+  }
+
+  function hideOverlay () {
+    $('.overlay').hide()
   }
 
   // Sets the client's username
@@ -415,6 +419,10 @@ $(function() {
       indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     }
     addPlayerElement(playerSequence);
+    if (data.reConnected) {
+      hideOverlay()
+      showOverlay(`${data.username} is back online`)
+    }
   });
 
   // draw the received cards on screen
@@ -442,9 +450,8 @@ $(function() {
 
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
-    showOverlay(data.username + " left the room. Game will restart in 3 seconds.");
+    showOverlay(data.message, data.timeout);
     // setTimeout(function() { socket.emit('disconnect');}, 3000);
-
   });
 
   socket.on('disconnect', function () {
