@@ -357,6 +357,10 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
 	let message = ''
 	const TIMEOUT = 60000  
+	if (thisCache.trumpCard == '') {
+		reset(roomID);
+		return
+	}
 
 	if (addedUser) {
 	  --thisCache.numUsers;
