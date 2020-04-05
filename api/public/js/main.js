@@ -407,6 +407,10 @@ $(function() {
     trumpRevealed = true;
   });
 
+  socket.on("trump card", function(data) {
+    addTrumpElement(data.data);
+  });
+
   // Whenever the server emits 'user joined', log it in the chat body
   socket.on('user joined', function (data) {
     audio_ding.play();
@@ -527,7 +531,7 @@ $(function() {
       if ($(this).hasClass('co')) {
         if (choosingTrump) {
             sendTrumpCard($(this).attr('id'));
-            addTrumpElement($(this).attr('id'));
+            // addTrumpElement($(this).attr('id'));
             cardsInHand.splice(cardsInHand.indexOf($(this).attr('id')),1);
             updateSuitsInHand(cardsInHand);
             $(this).remove();

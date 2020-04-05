@@ -34,12 +34,14 @@ io.on('connection', function (socket) {
   let reConnected = false;
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
+    
     if (addedUser) return;
     
     roomID = cache.addUser(socket, username);
     socket.roomID = roomID;
     socket.join(roomID);
     thisCache = cache.getGameCache(roomID);
+
     if (!(username in thisCache.usersCards)) {
       socket.username = username;
       ++thisCache.numUsers;
@@ -48,7 +50,7 @@ io.on('connection', function (socket) {
       var hand = deal(thisCache.deck);
       thisCache.usersCards[socket.username] = hand;
       if (thisCache.numUsers <= 4) {
-        thisCache.players['p'+thisCache.numUsers] = {username: socket.username, socket:socket, cardsInHand:hand}
+        thisCache.players['p'+thisCache.numUsers] = {username: socket.username, socket:socket}
         thisCache.playerSequence.push(username);
       }
     } else {
@@ -81,19 +83,28 @@ io.on('connection', function (socket) {
 
     if (reConnected) {
 
-      if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 0) {
-        socket.emit('trump setted', {
-          data: 'budRangi'
-        });
-      } else if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 1) {
-        socket.emit('trump setted', {
-          data: 'budRangi'
-        });
-        socket.emit('reveal trump', {
-          username: thisCache.playerSequence[0],
-          trumpCard: thisCache.trumpCard
-        });
+      if (thisCache.playerSequence[0] != socket.username) {
+        if (thisCache.trumpRevealed == 0) {
+          socket.emit('trump setted', {
+            data: 'budRangi'
+          });
+        } else if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 1) {
+          socket.emit('trump setted', {
+            data: 'budRangi'
+          });
+          socket.emit('reveal trump', {
+            username: thisCache.playerSequence[0],
+            trumpCard: thisCache.trumpCard
+          });
+        }
+      } else {
+        if (thisCache.trumpRevealed == 0) {
+          socket.emit('trump card', {
+            data: thisCache.trumpCard
+          });
+        }
       }
+
       for (const [key, value] of Object.entries(thisCache.currentRoundObj)) {
         socket.emit('card thrown', {
           username: value,
@@ -101,6 +112,7 @@ io.on('connection', function (socket) {
           turn: thisCache.turn
         });
       }
+
       if (thisCache.turn < 4 && thisCache.turn > 0) {
         if ( thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop())+1]  == socket.username ){
           socket.emit('your turn', {
@@ -108,8 +120,9 @@ io.on('connection', function (socket) {
           });
         }
       }
+
       if (thisCache.turn  == 0) {
-        if ( thisCache.lastRoundSenior  == socket.username ){
+        if ( thisCache.lastRoundSenior  == socket.username || thisCache.lastRoundSenior == '' ){
           socket.emit('your turn', {
             currentRoundSuit: thisCache.currentRoundSuit
           });
@@ -117,15 +130,14 @@ io.on('connection', function (socket) {
       }
     }
     
-    // console.log(players);
-    if (socket.username != thisCache.players.p1.username){
+    if (socket.username != thisCache.playerSequence[0]) {
       // send cards to socket
       socket.emit('deal', {
         hand: hand
       });
     } else if (socket.username == thisCache.players.p1.username && thisCache.trumpCard == ""){
       // send player 1 cards to select trump
-      var first5 = hand.splice(0,5);
+      var first5 = hand.slice(0,5);
       socket.emit('choose trump', {
         hand: first5
       });
@@ -147,17 +159,20 @@ io.on('connection', function (socket) {
   });
 
   socket.on('trump card', function (data) {   
-    thisCache.trumpCard = data;
-    // console.log(data);
     socket.broadcast.to(roomID).emit('trump setted', {
       data: 'budRangi'
     });
-    thisCache.players.p1.socket.emit('deal', {
-      hand: thisCache.usersCards[thisCache.players.p1.username]
+    socket.emit('trump card', {
+      data: data
     });
-    thisCache.players.p1.socket.emit('your turn', {
-      hand: thisCache.usersCards[thisCache.players.p1.username]
+    socket.emit('deal', {
+      hand: thisCache.usersCards[socket.username].slice(5,14)
     });
+    socket.emit('your turn', {
+      currentRoundSuit: ''
+    });
+    thisCache.trumpCard = data;
+    thisCache.usersCards[socket.username].splice(thisCache.usersCards[socket.username].indexOf(data),1)
   });
 
   socket.on('card thrown', function (data) {
@@ -175,7 +190,6 @@ io.on('connection', function (socket) {
 
     if (thisCache.turn==1){
       thisCache.currentRoundSuit = data.split(/(\d+)/)[0];
-      // console.log(currentRoundSuit);
     }
     
     if (thisCache.turn <= 4) {
@@ -285,8 +299,8 @@ io.on('connection', function (socket) {
    console.log('revealed trump');
    thisCache.revealedInThis = thisCache.turn;
    thisCache.trumpRevealed = 1;
+   thisCache.usersCards[thisCache.playerSequence[0]].push(thisCache.trumpCard)
    var arr = thisCache.trumpCard.split(/(\d+)/) ;
-  //  console.log(arr);
    if (arr[1]>10){
      arr[1]=deckJargons[arr[1]];
    }
@@ -304,11 +318,11 @@ io.on('connection', function (socket) {
     if (addedUser) {
       --thisCache.numUsers;
 
-      if (socket.username != thisCache.playerSequence[0]) {
-        message = `${socket.username} disconnected. Waiting for user to re-join in ${TIMEOUT/1000} seconds`
-      } else {
-        message = `${socket.username} disconnected. Game will restart in 3 seconds.`
-      }
+      // if (socket.username != thisCache.playerSequence[0]) {
+      message = `${socket.username} disconnected. Waiting for user to re-join in ${TIMEOUT/1000} seconds`
+      // } else {
+      //   message = `${socket.username} disconnected. Game will restart in 3 seconds.`
+      // }
       // echo globally that this client has left
       io.to(roomID).emit('user left', {
         username: socket.username,
@@ -321,9 +335,9 @@ io.on('connection', function (socket) {
         message: 'Player disconnected' 
       });
 
-      if (socket.username == thisCache.playerSequence[0]) {
-        reset(roomID);
-      }
+      // if (socket.username == thisCache.playerSequence[0]) {
+      //   reset(roomID);
+      // }
 
       thisCache.dcTimeOut = setTimeout(function() {
         reset(roomID);
@@ -350,6 +364,10 @@ io.on('connection', function (socket) {
       changeTeam(roomID);
     }
 
+    if (data.command === 'showcache') {
+      console.log(thisCache)
+    }
+
   });
 
   function changeTeam(roomID) {
@@ -369,7 +387,7 @@ io.on('connection', function (socket) {
     thisCache.players['p2'] = p2;
     thisCache.players['p3'] = p3;
     thisCache.players['p4'] = p4;
-    
+    thisCache.lastRoundSenior = '';    
     redeal(roomID);
   }
 
@@ -385,6 +403,7 @@ io.on('connection', function (socket) {
     thisCache.players['p3'] = p3;
     thisCache.players['p4'] = p4;
     thisCache.playerSequence.push(thisCache.playerSequence.shift());
+    thisCache.lastRoundSenior = '';
     redeal(roomID);
   }
 
@@ -409,6 +428,7 @@ io.on('connection', function (socket) {
     thisCache.deck = require('./gameplay/deck.js').cards();
     thisCache.numUsers = 0;
     thisCache.totalUsers = 0;
+    thisCache.lastRoundSenior = '';
     cache.deleteRoom(roomID);
   }
 
@@ -429,6 +449,7 @@ io.on('connection', function (socket) {
     thisCache.currentRoundSuit;
     thisCache.roundsSinceLastWin = 0;
     thisCache.deck = require('./gameplay/deck.js').cards();
+    thisCache.lastRoundSenior = '';
 
     for (var player in thisCache.players) {
       var hand = deal(thisCache.deck);
@@ -441,7 +462,7 @@ io.on('connection', function (socket) {
       });
       
       if (player === 'p1') {
-        let first5 = hand.splice(0,5);
+        let first5 = hand.slice(0,5);
 
         soc.emit('choose trump', {
           hand: first5,

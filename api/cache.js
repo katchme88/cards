@@ -18,7 +18,8 @@ let gameObjTemplate = {
     currentRoundObj: {},
     currentRoundSuit:'',
     roundsSinceLastWin: 0,
-    playerSequence: []
+    playerSequence: [],
+    lastRoundSenior: ''
 }
 
 const deepCopy = (e) => {
