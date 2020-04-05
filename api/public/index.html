@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/overlay.css">
     <link rel="stylesheet" href="css/cards-fan.css">
     <link rel="stylesheet" href="css/chatBubble.css">
+    <link rel="stylesheet" href="css/betBubble.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
@@ -44,7 +45,8 @@
                         <div class="playerNameDisplay name-3"></div>
                     </div>
                 </center>
-                <div class="chatBubble chatBubble-3"><p>Jaldi karo salay Hello</p></div>
+                <div class="chatBubble chatBubble-3"><p></p></div>
+                <div class="betBubble betBubble-3"><p><b>BET 8</p></div>
             </div>
             <div class="right">
                 <div class="trumpCard"></div>
@@ -59,7 +61,8 @@
                         <div class="playerNameDisplay name-4"></div>
                     </div>
                 </center>
-                <div class="chatBubble chatBubble-4"><p>Hello</p></div>
+                <div class="chatBubble chatBubble-4"><p></p></div>
+                <div class="betBubble betBubble-4"><p><b>BET 8</p></div>
             </div>
             <div class="middle table"></div>
             <div class="right">
@@ -69,7 +72,8 @@
                         <div class="playerNameDisplay name-2"></div>
                     </div>
                 </center>
-                <div class="chatBubble chatBubble-2"><p>Hello</p></div>
+                <div class="chatBubble chatBubble-2"><p></p></div>
+                <div class="betBubble betBubble-2"><p><b>BET 8</p></div>
             </div>
         </div>
         <div class="bottom">
@@ -78,6 +82,8 @@
                     <div class="avatar avatar-1">
                         <img src="images/avatar-1.png" alt="Avatar">
                         <div class="playerNameDisplay name-1"></div>
+                        <div class="betBubble betBubble-1"><p><b>BET 8</p></div>
+
                     </div>
                 </center>
             </div>
@@ -105,6 +111,15 @@
         <input type="button" value="RESET" id="btn_reset"/><br><br>
         <input type="button" value="CHANGE TEAM" id="btn_team"/><br><br>
         <input type="button" value="Close" id="btn_close"/>
+    </div>
+    <div class="betbox">
+        <center>Choose Your Bet</center>
+        <input type="button" value="8" id="btn_bet_8"/><br><br>
+        <input type="button" value="9" id="btn_bet_9"/><br><br>
+        <input type="button" value="10" id="btn_bet_10"/><br><br>
+        <input type="button" value="11" id="btn_bet_11"/><br><br>
+        <input type="button" value="12" id="btn_bet_12"/><br><br>
+        <input type="button" value="13" id="btn_bet_13"/>
     </div>
     <script>
         function visibilityHandler() {

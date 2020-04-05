@@ -336,7 +336,32 @@ $(function() {
   });
   $('#btn_team').on('click', function () {
     socket.emit('command', {command: 'team'});
-});
+  });
+
+  $('#btn_bet_8').on('click', function () {
+    socket.emit('bet', {bet: 8, username: username});
+    $('.betbox').hide();
+  });
+  $('#btn_bet_9').on('click', function () {
+    socket.emit('bet', {bet: 9, username: username});
+    $('.betbox').hide();
+  });
+  $('#btn_bet_10').on('click', function () {
+    socket.emit('bet', {bet: 10, username: username});
+    $('.betbox').hide();
+  });
+  $('#btn_bet_11').on('click', function () {
+    socket.emit('bet', {bet: 11, username: username});
+    $('.betbox').hide();
+  });
+  $('#btn_bet_12').on('click', function () {
+    socket.emit('bet', {bet: 12, username: username});
+    $('.betbox').hide();
+  });
+  $('#btn_bet_13').on('click', function () {
+    socket.emit('bet', {bet: 13, username: username});
+    $('.betbox').hide();
+  });
 
   //#########################################################################################
   // Socket events
@@ -432,6 +457,13 @@ $(function() {
   // draw the received cards on screen
   socket.on('deal', function (data) {
     drawCardsInHand(data);
+    var firstPlayerBetBubble = playerPerspective.indexOf(playerSequence[0]) + 1
+    console.log(firstPlayerBetBubble)
+    for (var num=1; num<=4; num++) {
+      if (num != firstPlayerBetBubble) {
+        $(".betBubble-"+num).hide();
+      }
+    }
   });
   
   // Your turn
@@ -450,6 +482,10 @@ $(function() {
     drawCardsInHand(data);
     showOverlay('You can click to choose the trump when all players have joined');
     choosingTrump = true; 
+  });
+
+  socket.on('choose bet', function (data) {
+    $('.betbox').show();
   });
 
   // Whenever the server emits 'user left', log it in the chat body
@@ -567,7 +603,6 @@ $(function() {
       }
     });
 
-
     $document.on("click", ".trumpCard > img" , function() {
       if (trumpAsked) {
         socket.emit('reveal trump');
@@ -626,6 +661,30 @@ $(function() {
     $(".requestTrump").hide();
    });
 
+   socket.on('new sequence', function(data){
+    // choosingTrump = false;
+    // trumpCard = "";
+    // currentRoundSuit;
+    // trumpAsked = false;
+    // trumpRevealed = false;
+    // myTurn = false;
+    // turn = 0;
+    // youRequestedTrump = false;
+    playerSequence = data.playerSequence;
+    playerNumber = data.playerNumber;
+    playerPerspective = getPlayerPerspective(playerSequence);
+    // x = {playerSequence:playerSequence,playerNumber:playerNumber,playerPerspective:playerPerspective};
+    // console.log(x);
+    indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
+    bounceAvatar(0);
+    clearTable(playerSequence[0]);
+    addPlayerElement(playerSequence);
+    updatePlayerName(playerPerspective);
+    // $(".score").text("0 - 0");
+    // $(".trumpCard").hide();
+    // $(".requestTrump").hide();
+   });
+
    socket.on('reset', function () {
     //  socket.emit('disconnect');
      setTimeout(function() {showOverlay('game will reset');location.reload(true);}, 3000); 
@@ -638,5 +697,11 @@ $(function() {
     setTimeout(function(){
       $(".chatBubble-"+num).fadeOut();
     },5000);
+   });
+
+   socket.on('bet', function(data){
+    var num = playerPerspective.indexOf(data.username)+1;
+    $(".betBubble-"+num).html('<p>'+data.bet+'</>');
+    $(".betBubble-"+num).show();
    });
 });

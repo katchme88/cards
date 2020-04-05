@@ -19,7 +19,9 @@ let gameObjTemplate = {
     currentRoundSuit:'',
     roundsSinceLastWin: 0,
     playerSequence: [],
-    lastRoundSenior: ''
+    lastRoundSenior: '',
+    highestBet: 0,
+    highestBettor: ''
 }
 
 const deepCopy = (e) => {

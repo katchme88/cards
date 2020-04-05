@@ -1,0 +1,40 @@
+.betBubble {
+    width:40px;
+    height:auto;
+    color: red;
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
+    border: 0.5px solid white;
+    border-radius: 5px;
+    z-index: 1;
+    font-size: 16px;
+    font-family: sans-serif;
+    text-align: center;
+}
+.betBubble > p {
+    margin: 5px;
+}
+.betBubble-4 {
+    position: fixed;
+    left: 7%;
+    top:24%;
+    display: none;
+}
+.betBubble-3 {
+    position: fixed;
+    left:38%;
+    top:5%;
+    display: none;
+}
+.betBubble-2 {
+    position: fixed;
+    right: 7%;
+    top:24%;
+    display: none;
+}
+.betBubble-1 {
+    position: fixed;
+    left: 10%;
+    top:75%;
+    display: none;
+}

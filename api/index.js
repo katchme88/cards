@@ -129,23 +129,10 @@ io.on('connection', function (socket) {
 		}
 	  }
 	}
-	
-	if (socket.username != thisCache.playerSequence[0]) {
-	  // send cards to socket
-	  socket.emit('deal', {
-		hand: hand
-	  });
-	} else if (socket.username == thisCache.players.p1.username && thisCache.trumpCard == ""){
-	  // send player 1 cards to select trump
-	  var first5 = hand.slice(0,5);
-	  socket.emit('choose trump', {
-		hand: first5
-	  });
-	} else {
-	  socket.emit('deal', {
-		hand: hand
-	  });
-	}
+
+	socket.emit('deal', {
+		hand: hand.slice(0,5)
+	});
 
 	if (thisCache.numUsers < 4) {
 	  socket.emit('disable ui', {
@@ -155,6 +142,57 @@ io.on('connection', function (socket) {
 	  io.to(roomID).emit('enable ui', {
 		message: "Let's go!" 
 	  });
+	  thisCache.players.p1.socket.emit('choose bet')
+	}
+  });
+
+  socket.on('bet', function (data) {
+	if (data.bet > thisCache.highestBet) {
+		thisCache.highestBet = data.bet
+		thisCache.highestBettor = socket.username
+	}
+	
+	io.to(roomID).emit('bet', data)
+	if (thisCache.playerSequence.indexOf(socket.username) < thisCache.playerSequence.length - 1) {
+		var nextPlayerSocket = thisCache.players['p'+ (thisCache.playerSequence.indexOf(socket.username)+2)].socket
+		nextPlayerSocket.emit('choose bet')
+	} else {
+		var n = thisCache.playerSequence.indexOf(thisCache.highestBettor)
+		for (var i=0; i < n; i++) {
+			var p1 = thisCache.players.p2;
+			var p2 = thisCache.players.p3;
+			var p3 = thisCache.players.p4;
+			var p4 = thisCache.players.p1;
+			thisCache.players = {}
+			thisCache.players['p1'] = p1;
+			thisCache.players['p2'] = p2;
+			thisCache.players['p3'] = p3;
+			thisCache.players['p4'] = p4;
+			thisCache.playerSequence.push(thisCache.playerSequence.shift());
+		}
+		console.log('highest bettor', thisCache.players.p1.username)
+
+		for (var player in thisCache.players) {
+			var soc = thisCache.players[player].socket; 
+			soc.emit('new sequence', {
+			  playerSequence: thisCache.playerSequence,
+			  playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username)+1
+			});
+		  }
+
+		thisCache.players.p1.socket.emit('choose trump' , {
+			hand: ''
+		})
+
+		thisCache.players.p2.socket.emit('deal', {
+			hand: thisCache.usersCards[thisCache.players.p2.username].slice(5,13)			
+		})
+		thisCache.players.p3.socket.emit('deal', {
+			hand: thisCache.usersCards[thisCache.players.p3.username].slice(5,13)			
+		})
+		thisCache.players.p4.socket.emit('deal', {
+			hand: thisCache.usersCards[thisCache.players.p4.username].slice(5,13)			
+		})
 	}
   });
 
@@ -258,14 +296,14 @@ io.on('connection', function (socket) {
 	  thisCache.currentRoundObj = {};
 	  thisCache.currentRoundCards = [];
 
-	  if (thisCache.teamAHands >= 7 || thisCache.teamBHands >=7) {
-		var team = thisCache.teamAHands >= 7 ? 'teamA':'teamB';
+	  if (thisCache.teamAHands >= thisCache.highestBet || thisCache.teamBHands > (13 -  thisCache.highestBet)) {
+		var team = thisCache.teamAHands >= thisCache.highestBet ? 'teamA':'teamB';
 		io.to(roomID).emit('winner announcement', {
 		  winner: team
 		});  
 
 		setTimeout(function () { 
-		  if (thisCache.teamAHands >= 7) {
+		  if (thisCache.teamAHands >= thisCache.highestBet) {
 			redeal();
 		  } else {
 			next();
@@ -404,6 +442,8 @@ io.on('connection', function (socket) {
 	thisCache.players['p4'] = p4;
 	thisCache.playerSequence.push(thisCache.playerSequence.shift());
 	thisCache.lastRoundSenior = '';
+	thisCache.highestBet = 0;
+	thisCache.highestBettor = '';
 	redeal(roomID);
   }
 
@@ -450,6 +490,8 @@ io.on('connection', function (socket) {
 	thisCache.roundsSinceLastWin = 0;
 	thisCache.deck = require('./gameplay/deck.js').cards();
 	thisCache.lastRoundSenior = '';
+	thisCache.highestBet = 0;
+	thisCache.highestBettor = '';
 
 	for (var player in thisCache.players) {
 	  var hand = deal(thisCache.deck);
@@ -461,22 +503,23 @@ io.on('connection', function (socket) {
 		playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username)+1
 	  });
 	  
-	  if (player === 'p1') {
-		let first5 = hand.slice(0,5);
+	//   if (player === 'p1') {
+	// 	let first5 = hand.slice(0,5);
 
-		soc.emit('choose trump', {
-		  hand: first5,
-		  redeal: true
-		});
+	// 	soc.emit('choose trump', {
+	// 	  hand: first5,
+	// 	  redeal: true
+	// 	});
 
-		continue;
-	  }
+	// 	continue;
+	//   }
 
 	  soc.emit('deal', {
-		hand: hand,
+		hand: hand.slice(0,5),
 		redeal: true
 	  });
 	}
+	thisCache.players.p1.socket.emit('choose bet')
   }
 
   socket.on('message', function(data) {
