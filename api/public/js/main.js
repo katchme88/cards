@@ -53,9 +53,10 @@ $(function() {
   var playerPerspective = [];
   var turn = 0;
   var youRequestedTrump = false;
+  var highestBet = 0;
 
   var socket = io();
-
+ 
   function addParticipantsMessage (data) {
     var message = '';
     if (data.numUsers === 1) {
@@ -65,11 +66,11 @@ $(function() {
     }
   }
 
-  function showOverlay (data, timeout = 500) {
+  function showOverlay (data, timeout = 4000) {
     $('.overlay').html('<p>'+data+'</p>').fadeIn(1000);
     setTimeout(function(){
-      $('.overlay').fadeOut(timeout);
-    },4000);
+      $('.overlay').fadeOut(500);
+    },timeout);
   }
 
   function hideOverlay () {
@@ -338,29 +339,57 @@ $(function() {
     socket.emit('command', {command: 'team'});
   });
 
-  $('#btn_bet_8').on('click', function () {
-    socket.emit('bet', {bet: 8, username: username});
+  $('#btn_bet_pass').on('click', function () {
+    socket.emit('bet', {bet: 'pass', username: username});
     $('.betbox').hide();
+  });
+  $('#btn_bet_8').on('click', function () {
+    if (8 > highestBet) {
+      socket.emit('bet', {bet: 8, username: username});
+      $('.betbox').hide();
+    } else {
+      showOverlay(`Current highest bet is ${highestBet}. Choose a different bet or pass.`);
+    }
   });
   $('#btn_bet_9').on('click', function () {
-    socket.emit('bet', {bet: 9, username: username});
-    $('.betbox').hide();
+    if (9 > highestBet) {
+      socket.emit('bet', {bet: 9, username: username});
+      $('.betbox').hide();
+    } else {
+      showOverlay(`Current highest bet is ${highestBet}. Choose a different bet or pass.`);
+    }
   });
   $('#btn_bet_10').on('click', function () {
-    socket.emit('bet', {bet: 10, username: username});
-    $('.betbox').hide();
+    if (10 > highestBet) {
+      socket.emit('bet', {bet: 10, username: username});
+      $('.betbox').hide();
+    } else {
+      showOverlay(`Current highest bet is ${highestBet}. Choose a different bet or pass.`);
+    }
   });
   $('#btn_bet_11').on('click', function () {
-    socket.emit('bet', {bet: 11, username: username});
-    $('.betbox').hide();
+    if (11 > highestBet) {
+      socket.emit('bet', {bet: 11, username: username});
+      $('.betbox').hide();
+    } else {
+      showOverlay(`Current highest bet is ${highestBet}. Choose a different bet or pass.`);
+    }
   });
   $('#btn_bet_12').on('click', function () {
-    socket.emit('bet', {bet: 12, username: username});
-    $('.betbox').hide();
+    if (12 > highestBet) {
+      socket.emit('bet', {bet: 12, username: username});
+      $('.betbox').hide();
+    } else {
+      showOverlay(`Current highest bet is ${highestBet}. Choose a different bet or pass.`);
+    }
   });
   $('#btn_bet_13').on('click', function () {
-    socket.emit('bet', {bet: 13, username: username});
-    $('.betbox').hide();
+    if (13 > highestBet) {
+      socket.emit('bet', {bet: 13, username: username});
+      $('.betbox').hide();
+    } else {
+      showOverlay(`Current highest bet is ${highestBet}. Choose a different bet or pass.`);
+    }
   });
 
   //#########################################################################################
@@ -485,6 +514,7 @@ $(function() {
   });
 
   socket.on('choose bet', function (data) {
+    highestBet = data.highestBet
     $('.betbox').show();
   });
 
@@ -662,31 +692,17 @@ $(function() {
    });
 
    socket.on('new sequence', function(data){
-    // choosingTrump = false;
-    // trumpCard = "";
-    // currentRoundSuit;
-    // trumpAsked = false;
-    // trumpRevealed = false;
-    // myTurn = false;
-    // turn = 0;
-    // youRequestedTrump = false;
     playerSequence = data.playerSequence;
     playerNumber = data.playerNumber;
     playerPerspective = getPlayerPerspective(playerSequence);
-    // x = {playerSequence:playerSequence,playerNumber:playerNumber,playerPerspective:playerPerspective};
-    // console.log(x);
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
     clearTable(playerSequence[0]);
     addPlayerElement(playerSequence);
     updatePlayerName(playerPerspective);
-    // $(".score").text("0 - 0");
-    // $(".trumpCard").hide();
-    // $(".requestTrump").hide();
    });
 
    socket.on('reset', function () {
-    //  socket.emit('disconnect');
      setTimeout(function() {showOverlay('game will reset');location.reload(true);}, 3000); 
    });
 

@@ -20,7 +20,7 @@ let gameObjTemplate = {
     roundsSinceLastWin: 0,
     playerSequence: [],
     lastRoundSenior: '',
-    highestBet: 0,
+    highestBet: 7,
     highestBettor: ''
 }
 

@@ -11,6 +11,7 @@
   text-align: center;
   display: none;
   transform: translate(-50%,-50%);
+  z-index: 5;
 }
 .overlay > p {
   padding: 5px;

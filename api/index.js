@@ -142,7 +142,9 @@ io.on('connection', function (socket) {
 	  io.to(roomID).emit('enable ui', {
 		message: "Let's go!" 
 	  });
-	  thisCache.players.p1.socket.emit('choose bet')
+	  thisCache.players.p1.socket.emit('choose bet', {
+		highestBet: thisCache.highestBet
+      });
 	}
   });
 
@@ -153,9 +155,12 @@ io.on('connection', function (socket) {
 	}
 	
 	io.to(roomID).emit('bet', data)
+
 	if (thisCache.playerSequence.indexOf(socket.username) < thisCache.playerSequence.length - 1) {
 		var nextPlayerSocket = thisCache.players['p'+ (thisCache.playerSequence.indexOf(socket.username)+2)].socket
-		nextPlayerSocket.emit('choose bet')
+		nextPlayerSocket.emit('choose bet', {
+			highestBet: thisCache.highestBet
+		})
 	} else {
 		var n = thisCache.playerSequence.indexOf(thisCache.highestBettor)
 		for (var i=0; i < n; i++) {
@@ -442,7 +447,7 @@ io.on('connection', function (socket) {
 	thisCache.players['p4'] = p4;
 	thisCache.playerSequence.push(thisCache.playerSequence.shift());
 	thisCache.lastRoundSenior = '';
-	thisCache.highestBet = 0;
+	thisCache.highestBet = 7;
 	thisCache.highestBettor = '';
 	redeal(roomID);
   }
@@ -490,7 +495,7 @@ io.on('connection', function (socket) {
 	thisCache.roundsSinceLastWin = 0;
 	thisCache.deck = require('./gameplay/deck.js').cards();
 	thisCache.lastRoundSenior = '';
-	thisCache.highestBet = 0;
+	thisCache.highestBet = 7;
 	thisCache.highestBettor = '';
 
 	for (var player in thisCache.players) {
