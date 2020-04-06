@@ -214,7 +214,8 @@ io.on('connection', function(socket) {
             }
 
             thisCache.players.p1.socket.emit('choose trump', {
-                hand: ''
+				chooseTrump: true,
+				hand: '' 
             })
 
             thisCache.players.p2.socket.emit('deal', {
@@ -385,16 +386,10 @@ io.on('connection', function(socket) {
     socket.on('disconnect', function() {
         let message = ''
         const TIMEOUT = 60000
-				
-		if (thisCache.trumpCard == '') {
-            reset(roomID);
-            return
-        }
 
         if (addedUser) {
-            --thisCache.numUsers;
-
-            
+			--thisCache.numUsers;
+			   
             message = `${socket.username} disconnected. Waiting for user to re-join in ${TIMEOUT/1000} seconds`
 
             // echo globally that this client has left
@@ -411,8 +406,12 @@ io.on('connection', function(socket) {
 			
             thisCache.dcTimeOut = setTimeout(function() {
                 reset(roomID);
-            }, TIMEOUT)
-
+			}, TIMEOUT)			
+		
+			if (thisCache.trumpCard === '' ) {
+            	reset(roomID);
+            	return
+        	} 
         }
 
     });

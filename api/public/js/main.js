@@ -415,9 +415,6 @@ $(function() {
       indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     }
     addParticipantsMessage(data);
-    // if (playerNumber == 1 || playerNumber == 3){
-    //   $requestTrump.hide();
-    // }
   });
 
 
@@ -472,7 +469,7 @@ $(function() {
     playerSequence = data.playerSequence;
     playerPerspective = getPlayerPerspective(playerSequence);
     updatePlayerName(playerPerspective);
-    if (playerSequence.length == 4) {
+    if (playerSequence.length == 4 && !data.reConnected) {
       updateNextAvatar(playerPerspective.indexOf(playerSequence[0]));
       indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     }
@@ -504,11 +501,13 @@ $(function() {
 
   // draw cards and ask him to choose trump
   socket.on('choose trump', function (data) {
-    if (data.redeal) {
-      indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
-      clearTable(playerSequence[0]);
-    }
-    drawCardsInHand(data);
+    
+    // if (data.redeal) {
+    //   indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
+    //   clearTable(playerSequence[0]);
+    // }
+    // drawCardsInHand(data);
+    bounceAvatar(1);
     showOverlay('You can click to choose the trump when all players have joined');
     choosingTrump = true; 
   });
@@ -697,7 +696,6 @@ $(function() {
     playerPerspective = getPlayerPerspective(playerSequence);
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
-    clearTable(playerSequence[0]);
     addPlayerElement(playerSequence);
     updatePlayerName(playerPerspective);
    });
