@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/cards-fan.css">
     <link rel="stylesheet" href="css/chatBubble.css">
     <link rel="stylesheet" href="css/betBubble.css">
+    <link rel="stylesheet" href="css/gameType.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
@@ -99,6 +100,12 @@
         <div class="form">
             <h3 class="title">What's your nickname?</h3>
             <input class="usernameInput" type="text" maxlength="14" />
+        </div>
+    </div>
+    <div class="game type">
+        <div class="form">
+            <button id="singlePlayer" class="chooseGame singlePlayer">Single Player</button><br><br>
+            <button id="withFriends" class="chooseGame withFriends">Play With Friends</button>
         </div>
     </div>
     <div class="overlay"></div>

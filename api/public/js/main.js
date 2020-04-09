@@ -54,6 +54,9 @@ $(function() {
   var turn = 0;
   var youRequestedTrump = false;
   var highestBet = 0;
+  var $withFriendsBtn = $('#withFriends');
+  var $singlePlayerBtn = $('#singlePlayer');
+  var $gameType = $('.game.type')
 
   var socket = io();
  
@@ -84,13 +87,18 @@ $(function() {
     // If the username is valid
     if (username) {
       $loginPage.fadeOut();
-      $chatPage.show();
       $loginPage.off('click');
+      $gameType.show();
       $currentInput = $inputMessage.focus();
       $usernameInput.blur();
-      // Tell the server your username
-      socket.emit('add user', username);
     }
+  }
+
+  function playWithFriends () {
+    $gameType.fadeOut();
+    $gameType.off('click');
+    $chatPage.fadeIn();
+    socket.emit('add user', username);
   }
 
   function throwCard (id, budRungi) {
@@ -289,6 +297,11 @@ $(function() {
   $loginPage.click(function () {
     $currentInput.focus();
   });
+
+  $withFriendsBtn.click( function() {
+    playWithFriends()
+  })
+
 
   // Focus input when clicking on the message input's border
   $inputMessage.click(function () {
@@ -524,8 +537,11 @@ $(function() {
   });
 
   socket.on('disconnect', function () {
-      showOverlay('You have been disconnected');
-      setTimeout(function() { location.reload(true); }, 3000);
+    // showOverlay('You have been disconnected');
+    setTimeout(function() { 
+      $chatPage.fadeOut()
+      $gameType.fadeIn() 
+    }, 3000);
   });
 
   socket.on('reconnect', function () {
@@ -701,7 +717,22 @@ $(function() {
    });
 
    socket.on('reset', function () {
-     setTimeout(function() {showOverlay('game will reset');location.reload(true);}, 3000); 
+    //  socket.emit('disconnect');
+     setTimeout(function() {
+       showOverlay('game will reset');
+        myTurn = false;
+        cardsInHand = [];
+        suitsInHand = [];
+        playerNumber;
+        playerSequence=[];
+        playerPerspective = [];
+        turn = 0;
+        youRequestedTrump = false;
+        highestBet = 0;
+        $chatPage.fadeOut();
+        $gameType.fadeIn();
+      //  location.reload(true);
+      }, 3000);
    });
 
    socket.on('message', function(data){
