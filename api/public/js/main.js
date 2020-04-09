@@ -95,8 +95,9 @@ $(function() {
   }
 
   function playWithFriends () {
+    // console.log(socket)
+    socket.connect()
     $gameType.fadeOut();
-    $gameType.off('click');
     $chatPage.fadeIn();
     socket.emit('add user', username);
   }
@@ -155,18 +156,32 @@ $(function() {
     $(".avatar-"+next).addClass('trumpCaller');
   }
 
+  function resetTrumpCaller() {
+    for (var i=1; i <=4 ; i++) {
+      $(".avatar-"+i).removeClass('trumpCaller');
+    }
+  }
+
   function updatePlayerName(perspective) {
     for (var i = 0; i < perspective.length; i++) {
       $(".name-"+(i+1)).html("<center><b>"+perspective[i]+"</b></center>");
     }
   }
 
-  // Log a message
-  function log (message, options) {
-    var $el = $('<li>').addClass('log').text(message);
-    addLogElement($el, options);
+  function resetPlayerNames() {
+    for (var i = 0; i < 4; i++) {
+      $(".name-"+(i+1)).html("<center><b></b></center>");
+    }
   }
 
+  // function resetBubbles() {
+  //   for (var num = 1; num < 5; num++) {
+  //     $(".betBubble-"+num);
+  //     $(".chatBubble-"+num);
+  //   }
+  // }
+
+  
   
   // Adds the thrown card on to the message list
   function addCard (data, options) {
@@ -719,7 +734,8 @@ $(function() {
    socket.on('reset', function () {
     //  socket.emit('disconnect');
      setTimeout(function() {
-       showOverlay('game will reset');
+        showOverlay('game will reset');
+        socket.disconnect()
         myTurn = false;
         cardsInHand = [];
         suitsInHand = [];
@@ -731,6 +747,12 @@ $(function() {
         highestBet = 0;
         $chatPage.fadeOut();
         $gameType.fadeIn();
+        resetPlayerNames();
+        $(".betBubble").hide();
+        $(".tableCard").remove();
+        $(".betbox").hide();
+        bounceAvatar(0);
+        resetTrumpCaller();
       //  location.reload(true);
       }, 3000);
    });

@@ -414,6 +414,8 @@ io.on('connection', function(socket) {
         	} 
         }
 
+        addedUser = false
+
     });
 
     socket.on('command', function(data) {
