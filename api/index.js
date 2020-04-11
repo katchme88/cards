@@ -5,7 +5,7 @@ var app = express();
 var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 3000;
 var rules = require('./gameplay/rules.js');
 let cache = require('./cache');
 
