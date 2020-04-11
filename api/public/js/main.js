@@ -210,10 +210,32 @@ $(function() {
     for (var i in cardsInHand){
       arr.push(cardsInHand[i].split(/(\d+)/)[0]);
     }
-
     $.each(arr, function(i, el){
       if($.inArray(el, suitsInHand) === -1) suitsInHand.push(el);
     });
+  }
+
+  function arrangeCards(cardsInHand) {
+    let diamonds = []
+    let clubs = []
+    let hearts = []
+    let spades = []
+    for (let i in cardsInHand) {
+      let x = cardsInHand[i].split(/(\d+)/)[0]
+      if (x == 'C') {
+        clubs.push(cardsInHand[i]) 
+      } 
+      if (x == 'D') {
+        diamonds.push(cardsInHand[i]) 
+      }
+      if (x == 'S') {
+        spades.push(cardsInHand[i]) 
+      }
+      if (x == 'H') {
+        hearts.push(cardsInHand[i]) 
+      }
+    }
+    return clubs.concat(diamonds).concat(spades).concat(hearts)
   }
 
   // Prevents input from having injected markup
@@ -228,11 +250,13 @@ $(function() {
     }
     cardsInHand = cardsInHand.concat(data.hand);
     cardsInHand.sort();
+    cardsInHand = arrangeCards(cardsInHand);
     $('.card-in-hand').remove();
     for(var i in cardsInHand){
       $cards_in_hand.append("<div class='card-in-hand cih-"+i+"' id='"+cardsInHand[i]+"'><img src='images/cards/"+cardsInHand[i]+".png' \/></div>");
       
     }
+    console.log(cardsInHand);
     updateSuitsInHand(cardsInHand);
   }
 
@@ -242,11 +266,13 @@ $(function() {
     var player3 = data[2] || '';
     var player4 = data[3] || '';
     $("#teamAnames").text(`${player1} ${player3}`);
-    $("#teamBnames").text(`${player2} ${player4}`) 
-    $('#teamAscore').text(scores.teamAscore);
-    $('#teamBscore').text(scores.teamBscore);
-    $('#teamAwins').text(scores.teamAwins);
-    $('#teamBwins').text(scores.teamBwins);
+    $("#teamBnames").text(`${player2} ${player4}`); 
+    if (! scores == undefined) {
+      $('#teamAscore').text(scores.teamAscore);
+      $('#teamBscore').text(scores.teamBscore);
+      $('#teamAwins').text(scores.teamAwins);
+      $('#teamBwins').text(scores.teamBwins);
+    }
   }
 
   function getPlayerPerspective (data) {
@@ -449,6 +475,7 @@ $(function() {
   });
 
   socket.on('winner announcement', function(data) {
+    showOverlay(data.message);
     $('#teamAhands').text(data.teamAHands);
     $('#teamBhands').text(data.teamBHands);
     $('#teamAscore').text(data.teamAscore);
@@ -496,7 +523,6 @@ $(function() {
   socket.on('deal', function (data) {
     drawCardsInHand(data);
     var firstPlayerBetBubble = playerPerspective.indexOf(playerSequence[0]) + 1
-    console.log(firstPlayerBetBubble)
     for (var num=1; num<=4; num++) {
       if (num != firstPlayerBetBubble) {
         $(".betBubble-"+num).hide();

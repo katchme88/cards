@@ -125,8 +125,9 @@ io.on('connection', function(socket) {
                     turn: thisCache.turn
                 });
             }
-
+            console.log(thisCache.turn);
             if (thisCache.turn < 4 && thisCache.turn > 0) {
+                
                 if (thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop()) + 1] == socket.username) {
                     socket.emit('your turn', {
                         currentRoundSuit: thisCache.currentRoundSuit
@@ -353,6 +354,7 @@ io.on('connection', function(socket) {
                 console.log(`${thisCache.players.p2.username}-${thisCache.players.p4.username} | wins: ${thisCache.players.p2.wins + thisCache.players.p4.wins} | score: ${thisCache.players.p2.score + thisCache.players.p4.score}`)
 
                 io.to(roomID).emit('winner announcement', {
+                    message: msg,
                     teamAhands: thisCache.teamAHands,
                     teamBhands: thisCache.teamBHands,
                     teamAwins: thisCache.players.p1.wins + thisCache.players.p3.wins,
