@@ -243,8 +243,6 @@ $(function() {
     var player4 = data[3] || '';
     $("#teamAnames").text(`${player1} ${player3}`);
     $("#teamBnames").text(`${player2} ${player4}`) 
-    $('#teamAhands').text(scores.teamAHands);
-    $('#teamBhands').text(scores.teamBHands);
     $('#teamAscore').text(scores.teamAscore);
     $('#teamBscore').text(scores.teamBscore);
     $('#teamAwins').text(scores.teamAwins);
