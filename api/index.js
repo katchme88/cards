@@ -332,8 +332,15 @@ io.on('connection', function(socket) {
 
             if (thisCache.teamAHands >= thisCache.highestBet || thisCache.teamBHands > (13 - thisCache.highestBet)) {
                 var team = thisCache.teamAHands >= thisCache.highestBet ? 'teamA' : 'teamB';
+                var msg = ''
+                if (team == 'teamA') {
+                    msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
+                } else {
+                    msg = `${thisCache.playerSequence[1]} and ${thisCache.playerSequence[3]} won!`
+                }
+                
                 io.to(roomID).emit('winner announcement', {
-                    winner: team
+                    message: msg
                 });
 
                 setTimeout(function() {
@@ -343,7 +350,6 @@ io.on('connection', function(socket) {
                         next();
                     }
                 }, 5000);
-
             }
         }
 

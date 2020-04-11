@@ -442,7 +442,7 @@ $(function() {
   });
 
   socket.on('winner announcement', function(data){
-    showOverlay('Winner');
+    showOverlay(data.message);
   });
 
   socket.on("request trump", function(data) {
