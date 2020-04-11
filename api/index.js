@@ -61,7 +61,9 @@ io.on('connection', function(socket) {
             if (thisCache.numUsers <= 4) {
                 thisCache.players['p' + thisCache.numUsers] = {
                     username: socket.username,
-                    socket: socket
+                    socket: socket,
+                    score: 0,
+                    wins: 0
                 }
                 thisCache.playerSequence.push(username);
             }
@@ -209,7 +211,11 @@ io.on('connection', function(socket) {
                 var soc = thisCache.players[player].socket;
                 soc.emit('new sequence', {
                     playerSequence: thisCache.playerSequence,
-                    playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username) + 1
+                    playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username) + 1,
+                    teamAwins: thisCache.players.p1.wins + thisCache.players.p3.wins,
+                    teamBwins: thisCache.players.p2.wins + thisCache.players.p4.wins,
+                    teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
+                    teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
                 });
             }
 
@@ -251,7 +257,7 @@ io.on('connection', function(socket) {
         // we tell the client to execute 'card thrown'
 
         thisCache.turn++;
-
+        console.log(socket.username, data)
         socket.broadcast.to(roomID).emit('card thrown', {
             username: socket.username,
             message: data,
@@ -335,12 +341,24 @@ io.on('connection', function(socket) {
                 var msg = ''
                 if (team == 'teamA') {
                     msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
+                    thisCache.players.p1.score += thisCache.teamAHands
+                    thisCache.players.p1.wins += 1 
                 } else {
                     msg = `${thisCache.playerSequence[1]} and ${thisCache.playerSequence[3]} won!`
+                    thisCache.players.p2.score += (thisCache.highestBet * 2)
+                    thisCache.players.p2.wins += 1
                 }
                 
+                console.log(`${thisCache.players.p1.username}-${thisCache.players.p3.username} | wins: ${thisCache.players.p1.wins + thisCache.players.p3.wins} | score: ${thisCache.players.p1.score + thisCache.players.p3.score}`)
+                console.log(`${thisCache.players.p2.username}-${thisCache.players.p4.username} | wins: ${thisCache.players.p2.wins + thisCache.players.p4.wins} | score: ${thisCache.players.p2.score + thisCache.players.p4.score}`)
+
                 io.to(roomID).emit('winner announcement', {
-                    message: msg
+                    teamAhands: thisCache.teamAHands,
+                    teamBhands: thisCache.teamBHands,
+                    teamAwins: thisCache.players.p1.wins + thisCache.players.p3.wins,
+                    teamBwins: thisCache.players.p2.wins + thisCache.players.p4.wins,
+                    teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
+                    teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
                 });
 
                 setTimeout(function() {
@@ -537,7 +555,11 @@ io.on('connection', function(socket) {
 
             soc.emit('redeal', {
                 playerSequence: thisCache.playerSequence,
-                playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username) + 1
+                playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username) + 1,
+                teamAwins: thisCache.players.p1.wins + thisCache.players.p3.wins,
+                teamBwins: thisCache.players.p2.wins + thisCache.players.p4.wins,
+                teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
+                teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
             });
 
             soc.emit('deal', {

@@ -236,11 +236,19 @@ $(function() {
     updateSuitsInHand(cardsInHand);
   }
 
-  function addPlayerElement (data) {
-    for (i in data) {
-      var element = $('.player-'+(parseInt(i)+1));
-      element.text(data[i]);
-    }
+  function addPlayerElement (data, scores) {
+    var player1 = data[0] || '';
+    var player2 = data[1] || '';
+    var player3 = data[2] || '';
+    var player4 = data[3] || '';
+    $("#teamAnames").text(`${player1} ${player3}`);
+    $("#teamBnames").text(`${player2} ${player4}`) 
+    $('#teamAhands').text(scores.teamAHands);
+    $('#teamBhands').text(scores.teamBHands);
+    $('#teamAscore').text(scores.teamAscore);
+    $('#teamBscore').text(scores.teamBscore);
+    $('#teamAwins').text(scores.teamAwins);
+    $('#teamBwins').text(scores.teamBwins);
   }
 
   function getPlayerPerspective (data) {
@@ -429,7 +437,8 @@ $(function() {
   });
   
   socket.on('hands picked', function (data){
-    $(".score").text((data.teamAHands + " - " + data.teamBHands));
+    $("#teamAHands").text(data.teamAHands);
+    $("#teamBHands").text(data.teamBHands);
     var winner = playerSequence.indexOf(data.username)+1;
     var msg = '';
     if (playerNumber === winner || playerNumber === winner+2 || playerNumber === winner-2) {
@@ -441,8 +450,13 @@ $(function() {
     clearTable(data.username);
   });
 
-  socket.on('winner announcement', function(data){
-    showOverlay(data.message);
+  socket.on('winner announcement', function(data) {
+    $('#teamAhands').text(data.teamAHands);
+    $('#teamBhands').text(data.teamBHands);
+    $('#teamAscore').text(data.teamAscore);
+    $('#teamBscore').text(data.teamBscore);
+    $('#teamAwins').text(data.teamAwins);
+    $('#teamBwins').text(data.teamBwins);
   });
 
   socket.on("request trump", function(data) {
@@ -683,9 +697,9 @@ $(function() {
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
     clearTable(playerSequence[0]);
-    addPlayerElement(playerSequence);
+    addPlayerElement(playerSequence, data);
     updatePlayerName(playerPerspective);
-    $(".score").text("0 - 0");
+    $(".tricks").text("0");
     $(".trumpCard").hide();
     $(".requestTrump").hide();
    });
@@ -696,7 +710,7 @@ $(function() {
     playerPerspective = getPlayerPerspective(playerSequence);
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
-    addPlayerElement(playerSequence);
+    addPlayerElement(playerSequence, data);
     updatePlayerName(playerPerspective);
    });
 
