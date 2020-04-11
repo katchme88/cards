@@ -267,7 +267,9 @@ $(function() {
     var player4 = data[3] || '';
     $("#teamAnames").text(`${player1} ${player3}`);
     $("#teamBnames").text(`${player2} ${player4}`); 
-    if (! scores == undefined) {
+
+    if (! (typeof scores === 'undefined')) {
+      console.log(scores)
       $('#teamAscore').text(scores.teamAscore);
       $('#teamBscore').text(scores.teamBscore);
       $('#teamAwins').text(scores.teamAwins);
@@ -721,6 +723,7 @@ $(function() {
     indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
     bounceAvatar(0);
     clearTable(playerSequence[0]);
+    console.log(data)
     addPlayerElement(playerSequence, data);
     updatePlayerName(playerPerspective);
     $(".tricks").text("0");
