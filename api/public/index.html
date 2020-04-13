@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="css/cards-fan.css">
     <link rel="stylesheet" href="css/chatBubble.css">
     <link rel="stylesheet" href="css/betBubble.css">
+    <link rel="stylesheet" href="css/partnerCardsOverlay.css">
+    <link rel="stylesheet" href="css/moodaBtnOverlay.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
@@ -105,20 +107,68 @@
                 </center>
             </div>
             <div class="middle">
-                <div class="cards-in-hand"></div>
+                <div class="cards-in-hand">
+                    <div class="card-in-hand cih-0" id="C04"><img src="images/cards/C04.png"></div>
+                    <div class="card-in-hand cih-1" id="C06"><img src="images/cards/C06.png"></div>
+                    <div class="card-in-hand cih-2" id="S06"><img src="images/cards/S06.png"></div>
+                    <div class="card-in-hand cih-3" id="H11"><img src="images/cards/H11.png"></div>
+                    <div class="card-in-hand cih-4" id="H14"><img src="images/cards/H14.png"></div>
+                    <div class="card-in-hand cih-5" id="C04"><img src="images/cards/C04.png"></div>
+                    <div class="card-in-hand cih-6" id="C06"><img src="images/cards/C06.png"></div>
+                    <div class="card-in-hand cih-7" id="S06"><img src="images/cards/S06.png"></div>
+                    <div class="card-in-hand cih-8" id="H11"><img src="images/cards/H11.png"></div>
+                    <div class="card-in-hand cih-9" id="H14"><img src="images/cards/H14.png"></div>
+                    <div class="card-in-hand cih-10" id="C04"><img src="images/cards/C04.png"></div>
+                    <div class="card-in-hand cih-11" id="C06"><img src="images/cards/C06.png"></div>
+                    <div class="card-in-hand cih-12" id="S06"><img src="images/cards/S06.png"></div>
+                </div>
             </div>
             <div class="right">
                 <img src="images/chat-bubble-icon.png" id="send-msg" alt="">
             </div>
         </div>
     </div> 
-    <div class="login page">
+    <!-- <div class="login page">
         <div class="form">
             <h3 class="title">What's your nickname?</h3>
             <input class="usernameInput" type="text" maxlength="14" />
         </div>
-    </div>
+    </div> -->
     <div class="overlay"></div>
+    <!-- <div class="partnerCardsOverlay">
+        <div class="partnerCards">
+            <div class="pcih pcih-0" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-1" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-2" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-3" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-4" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-5" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-6" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-7" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-8" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-9" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-10" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-11" id="H14"><img src="images/cards/H14.png"></div>
+            <div class="pcih pcih-12" id="H14"><img src="images/cards/H14.png"></div>
+        </div>
+        <div>
+            <button id="acceptmooda">Accept</button>
+            <button id="rejectmooda">Reject</button>
+        </div>
+    </div> -->
+    <div class="moodaBtnOverlay">
+        <center>Mooda Suit</center>
+        <div class="moodaBtns">
+            <div class="moodaBtn" id="heart"><img src="images/cards/heart.png"></div>
+            <div class="moodaBtn" id="club"><img src="images/cards/club.png"></div>
+            <div class="moodaBtn" id="diamond"><img src="images/cards/diamond.png"></div>
+            <div class="moodaBtn" id="spade"><img src="images/cards/spade.png"></div>
+        </div>
+    </div>
+    <div class="moodaConfirm">
+        <button>Yes</button>
+        <button>No</button>
+    </div>
     <div class="chatBox">
         <input type="text" id="chat-msg"/>
     </div>
