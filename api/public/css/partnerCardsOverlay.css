@@ -12,7 +12,8 @@
     transform: translate(-50%,-50%);
     z-index: 5;
     height: 40%;
-    width: 50%
+    width: 50%;
+    display: none;
   }
 
 .partnerCards {

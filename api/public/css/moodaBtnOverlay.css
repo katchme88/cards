@@ -8,12 +8,12 @@
     color: rgb(33, 36, 38);
     font-family: 'Comic Sans MS';
     text-align: center;
-    display: block;
     transform: translate(-50%,-50%);
     z-index: 5;
     height: 20%;
     width: 20%;
     border-radius: 20px;
+    display: none;
   }
 
 .moodaBtns {
@@ -51,7 +51,7 @@
     padding: 30px;
     z-index: 6;
     height: 1%;
-    width: 10%;
+    width: 10%;    
 }
 
 .moodaConfirm > button {

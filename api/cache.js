@@ -21,7 +21,8 @@ let gameObjTemplate = {
     playerSequence: [],
     lastRoundSenior: '',
     highestBet: 7,
-    highestBettor: ''
+    highestBettor: '',
+    mooda: false
 }
 
 const deepCopy = (e) => {
