@@ -63,7 +63,7 @@ var rules = {
     },
 
     getWinner: function (seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds) {
-        if (seniorIndex == 1 && roundsSinceLastWin > 1 && revealedInThis < 1 && (totalRounds > 3 && totalRounds < 12) || totalRounds == 13) {
+        if (seniorIndex == 1 && roundsSinceLastWin > 1 && revealedInThis < 1 && (totalRounds >= 3 && totalRounds < 12) || totalRounds == 13) {
             return (1);
         } else if (totalRounds == 12) {
             return (0);

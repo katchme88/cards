@@ -131,7 +131,8 @@ io.on('connection', function(socket) {
                 if (thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop()) + 1] == socket.username) {
                     socket.emit('your turn', {
                         currentRoundSuit: thisCache.currentRoundSuit,
-                        totalRounds: thisCache.totalRounds
+						totalRounds: thisCache.totalRounds,
+						moodaCalled: thisCache.moodaCalled
                     });
                 }
             }
@@ -140,7 +141,8 @@ io.on('connection', function(socket) {
                 if (thisCache.lastRoundSenior == socket.username || thisCache.lastRoundSenior == '') {
                     socket.emit('your turn', {
                         currentRoundSuit: thisCache.currentRoundSuit,
-                        totalRounds: thisCache.totalRounds
+						totalRounds: thisCache.totalRounds,
+						moodaCalled: thisCache.moodaCalled
                     });
                 }
 			}
@@ -251,7 +253,8 @@ io.on('connection', function(socket) {
         });
         socket.emit('your turn', {
             currentRoundSuit: '',
-            totalRounds: thisCache.totalRounds
+			totalRounds: thisCache.totalRounds,
+			moodaCalled: thisCache.moodaCalled
         });
         thisCache.trumpCard = data;
         thisCache.usersCards[socket.username].splice(thisCache.usersCards[socket.username].indexOf(data), 1)
@@ -344,13 +347,25 @@ io.on('connection', function(socket) {
                 var team = thisCache.teamAHands >= thisCache.highestBet ? 'teamA' : 'teamB';
                 var msg = ''
                 if (team == 'teamA') {
-                    msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
-                    thisCache.players.p1.score += thisCache.teamAHands
+					msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
+					
+					if (thisCache.moodaCalled) {
+						thisCache.players.p1.score += 52	
+ 					} else {
+						thisCache.players.p1.score += thisCache.teamAHands
+					}
+
                     thisCache.players.p1.wins += 1 
                 } else {
-                    msg = `${thisCache.playerSequence[1]} and ${thisCache.playerSequence[3]} won!`
-                    thisCache.players.p2.score += (thisCache.highestBet * 2)
-                    thisCache.players.p2.wins += 1
+					msg = `${thisCache.playerSequence[1]} and ${thisCache.playerSequence[3]} won!`
+					
+					if (thisCache.moodaCalled) {
+						thisCache.players.p2.score += 52	
+ 					} else {
+						thisCache.players.p2.score += (thisCache.highestBet * 2)
+					}
+					
+					thisCache.players.p2.wins += 1
                 }
                 
                 console.log(`${thisCache.players.p1.username}-${thisCache.players.p3.username} | wins: ${thisCache.players.p1.wins + thisCache.players.p3.wins} | score: ${thisCache.players.p1.score + thisCache.players.p3.score}`)
@@ -380,13 +395,15 @@ io.on('connection', function(socket) {
             setTimeout(function() {
                 nextPlayerSocket.emit('your turn', {
                     currentRoundSuit: thisCache.currentRoundSuit,
-                    totalRounds: thisCache.totalRounds
+					totalRounds: thisCache.totalRounds,
+					moodaCalled: thisCache.moodaCalled
                 });
             }, 3000)
         } else {
             nextPlayerSocket.emit('your turn', {
                 currentRoundSuit: thisCache.currentRoundSuit,
-                totalRounds: thisCache.totalRounds
+				totalRounds: thisCache.totalRounds,
+				moodaCalled: thisCache.moodaCalled
             });
         }
     });
@@ -414,26 +431,33 @@ io.on('connection', function(socket) {
     });
 
     socket.on('mooda', function(data) {
+		
+		thisCache.usersCards[thisCache.players.p1.username].push(thisCache.trumpCard)
 
-        for (var idx in thisCache.currentRoundCards) {
-            thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
-            if (idx == 0) {
-                thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.trumpCard)
-            }
-            var playerNumber = `p${(parseInt(idx)+1).toString()}`
-            console.log(playerNumber)
-            thisCache.players[playerNumber].socket.emit('deal', {
-                redeal: true,
-                hand: thisCache.usersCards[thisCache.playerSequence[idx]]
-            })
-        }
+		if (thisCache.currentRoundCards.length > 0 ) {
+			for (var idx in thisCache.currentRoundCards) {
+				thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
+				var playerNumber = `p${(parseInt(idx)+1).toString()}`
+				console.log(playerNumber)
+				thisCache.players[playerNumber].socket.emit('deal', {
+					redeal: true,
+					hand: thisCache.usersCards[thisCache.playerSequence[idx]]
+				})
+			}
+		} else {
+			thisCache.players.p1.socket.emit('deal', {
+				redeal: true,
+				hand: thisCache.usersCards[thisCache.players.p1.username]
+			})
+		}
+        
         
         thisCache.revealedInThis = thisCache.turn;
         thisCache.trumpRevealed = 1;
-        thisCache.mooda = true;
+        thisCache.moodaCalled = true;
         thisCache.highestBet = 13;
         thisCache.highestBettor = socket.username;
-        thisCache.moodaSuit = data.moodaSuit.charAt(0).toUpperCase();
+        thisCache.moodaSuit = data.moodaSuit; //data.moodaSuit.charAt(0).toUpperCase();
         thisCache.trumpCard = data.moodaSuit.charAt(0).toUpperCase()+'14';
         thisCache.currentRoundSuit = ''
         thisCache.currentRoundObj = {}
@@ -478,6 +502,67 @@ io.on('connection', function(socket) {
         })  
 
     })
+
+    socket.on('accepted', function() {
+		thisCache.moodaStatus.push('accepted');
+		io.to(roomID).emit('accepted', {
+			username: socket.username
+		})
+
+		if(thisCache.moodaStatus.length == 2) {
+			thisCache.players.p1.socket.emit('your turn', {
+				currentRoundSuit: thisCache.currentRoundSuit,
+				totalRounds: thisCache.totalRounds,
+				moodaCalled: thisCache.moodaCalled
+			})
+		}
+	})
+
+	socket.on('rejected', function() {
+		thisCache.moodaStatus.push('rejected');
+		io.to(roomID).emit('rejected', {
+			username: socket.username
+		});
+
+		if(thisCache.moodaStatus.length == 2) {
+			var count = 0;
+			var array = thisCache.moodaStatus;
+			for(var i = 0; i < array.length; ++i) {
+				if(array[i] == 'rejected') {
+					count++;
+				}
+			}
+			console.log(count)
+			if (count == 2) {
+				thisCache.teamAHands = 13;
+				thisCache.players.p1.score += 26
+				thisCache.players.p1.wins += 1
+				var msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
+
+				io.to(roomID).emit('winner announcement', {
+                    message: msg,
+                    teamAhands: thisCache.teamAHands,
+                    teamBhands: thisCache.teamBHands,
+                    teamAwins: thisCache.players.p1.wins + thisCache.players.p3.wins,
+                    teamBwins: thisCache.players.p2.wins + thisCache.players.p4.wins,
+                    teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
+                    teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
+				});
+				
+				setTimeout(function() {
+                        redeal();
+                }, 5000);
+				
+			} else {
+				thisCache.players.p1.socket.emit('your turn', {
+					currentRoundSuit: thisCache.currentRoundSuit,
+					totalRounds: thisCache.totalRounds,
+					moodaCalled: thisCache.moodaCalled
+				})
+			}
+		}
+
+	})
 
     // when the user disconnects.. perform this
     socket.on('disconnect', function() {
@@ -535,7 +620,7 @@ io.on('connection', function(socket) {
         }
 
     });
-
+	
     function changeTeam(roomID) {
         if (thisCache.numUsers < 4) return;
         var p1 = thisCache.players.p1;
@@ -572,7 +657,8 @@ io.on('connection', function(socket) {
         thisCache.lastRoundSenior = '';
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
-        thisCache.mooda = false;
+		thisCache.moodaCalled = false;
+		thisCache.moodaStatus = [];
         redeal(roomID);
     }
 
@@ -598,7 +684,8 @@ io.on('connection', function(socket) {
         thisCache.numUsers = 0;
         thisCache.totalUsers = 0;
         thisCache.lastRoundSenior = '';
-        thisCache.mooda = false;
+		thisCache.moodaCalled = false;
+		thisCache.moodaStatus = [];
         cache.deleteRoom(roomID);
     }
 
@@ -622,7 +709,8 @@ io.on('connection', function(socket) {
         thisCache.lastRoundSenior = '';
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
-        thisCache.mooda = false;
+		thisCache.moodaCalled = false;
+		thisCache.moodaStatus = [];
 
         for (var player in thisCache.players) {
             var hand = deal(thisCache.deck);
