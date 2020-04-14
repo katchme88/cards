@@ -130,7 +130,8 @@ io.on('connection', function(socket) {
                 
                 if (thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop()) + 1] == socket.username) {
                     socket.emit('your turn', {
-                        currentRoundSuit: thisCache.currentRoundSuit
+                        currentRoundSuit: thisCache.currentRoundSuit,
+                        totalRounds: thisCache.totalRounds
                     });
                 }
             }
@@ -138,7 +139,8 @@ io.on('connection', function(socket) {
             if (thisCache.turn == 0) {
                 if (thisCache.lastRoundSenior == socket.username || thisCache.lastRoundSenior == '') {
                     socket.emit('your turn', {
-                        currentRoundSuit: thisCache.currentRoundSuit
+                        currentRoundSuit: thisCache.currentRoundSuit,
+                        totalRounds: thisCache.totalRounds
                     });
                 }
 			}
@@ -248,7 +250,8 @@ io.on('connection', function(socket) {
             hand: thisCache.usersCards[socket.username].slice(5, 14)
         });
         socket.emit('your turn', {
-            currentRoundSuit: ''
+            currentRoundSuit: '',
+            totalRounds: thisCache.totalRounds
         });
         thisCache.trumpCard = data;
         thisCache.usersCards[socket.username].splice(thisCache.usersCards[socket.username].indexOf(data), 1)
@@ -386,12 +389,14 @@ io.on('connection', function(socket) {
         if (thisCache.turn === 0) {
             setTimeout(function() {
                 nextPlayerSocket.emit('your turn', {
-                    currentRoundSuit: thisCache.currentRoundSuit
+                    currentRoundSuit: thisCache.currentRoundSuit,
+                    totalRounds: thisCache.totalRounds
                 });
             }, 3000)
         } else {
             nextPlayerSocket.emit('your turn', {
-                currentRoundSuit: thisCache.currentRoundSuit
+                currentRoundSuit: thisCache.currentRoundSuit,
+                totalRounds: thisCache.totalRounds
             });
         }
     });
@@ -417,6 +422,72 @@ io.on('connection', function(socket) {
             trumpCard: thisCache.trumpCard
         });
     });
+
+    socket.on('mooda', function(data) {
+
+        for (var idx in thisCache.currentRoundCards) {
+            thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
+            if (idx == 0) {
+                thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.trumpCard)
+            }
+            var playerNumber = `p${(parseInt(idx)+1).toString()}`
+            console.log(playerNumber)
+            thisCache.players[playerNumber].socket.emit('deal', {
+                redeal: true,
+                hand: thisCache.usersCards[thisCache.playerSequence[idx]]
+            })
+        }
+        
+        thisCache.revealedInThis = thisCache.turn;
+        thisCache.trumpRevealed = 1;
+        thisCache.mooda = true;
+        thisCache.highestBet = 13;
+        thisCache.highestBettor = socket.username;
+        thisCache.moodaSuit = data.moodaSuit.charAt(0).toUpperCase();
+        thisCache.trumpCard = data.moodaSuit.charAt(0).toUpperCase()+'14';
+        thisCache.currentRoundSuit = ''
+        thisCache.currentRoundObj = {}
+        thisCache.turn = 0
+        thisCache.currentRoundCards =[]
+
+        var n = thisCache.playerSequence.indexOf(thisCache.highestBettor)
+        for (var i = 0; i < n; i++) {
+            var p1 = thisCache.players.p2;
+            var p2 = thisCache.players.p3;
+            var p3 = thisCache.players.p4;
+            var p4 = thisCache.players.p1;
+            thisCache.players = {}
+            thisCache.players['p1'] = p1;
+            thisCache.players['p2'] = p2;
+            thisCache.players['p3'] = p3;
+            thisCache.players['p4'] = p4;
+            thisCache.playerSequence.push(thisCache.playerSequence.shift());
+        }
+        for (var player in thisCache.players) {
+            var soc = thisCache.players[player].socket;
+            soc.emit('new sequence', {
+                playerSequence: thisCache.playerSequence,
+                playerNumber: thisCache.playerSequence.indexOf(thisCache.players[player].username) + 1,
+                teamAwins: thisCache.players.p1.wins + thisCache.players.p3.wins,
+                teamBwins: thisCache.players.p2.wins + thisCache.players.p4.wins,
+                teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
+                teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
+            });
+        }
+
+        io.to(roomID).emit('mooda', {
+            username: socket.username,
+            moodaSuit: thisCache.moodaSuit
+        });
+
+        thisCache.players.p2.socket.emit('share cards', {
+            partnerCards: thisCache.usersCards[thisCache.players.p4.username]
+        })
+        thisCache.players.p4.socket.emit('share cards', {
+            partnerCards: thisCache.usersCards[thisCache.players.p2.username]
+        })  
+
+    })
 
     // when the user disconnects.. perform this
     socket.on('disconnect', function() {
@@ -512,6 +583,7 @@ io.on('connection', function(socket) {
         thisCache.lastRoundSeniorCard = '';
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
+        thisCache.mooda = false;
         redeal(roomID);
     }
 
@@ -539,6 +611,7 @@ io.on('connection', function(socket) {
         thisCache.totalUsers = 0;
         thisCache.lastRoundSenior = '';
         thisCache.lastRoundSeniorCard = '';
+        thisCache.mooda = false;
         cache.deleteRoom(roomID);
     }
 
@@ -564,6 +637,7 @@ io.on('connection', function(socket) {
         thisCache.lastRoundSeniorCard = '';
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
+        thisCache.mooda = false;
 
         for (var player in thisCache.players) {
             var hand = deal(thisCache.deck);
