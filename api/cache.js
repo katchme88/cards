@@ -24,7 +24,9 @@ let gameObjTemplate = {
     lastRoundSeniorCard: '',
     highestBet: 7,
     highestBettor: '',
-    mooda: false
+    moodaCalled: false,
+    moodaStatus: []
+    
 }
 
 const deepCopy = (e) => {
