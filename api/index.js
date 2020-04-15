@@ -10,7 +10,7 @@ var rules = require('./gameplay/rules.js');
 let cache = require('./cache');
 
 server.listen(port, function() {
-    console.log('Server listening at port %d', port);
+    //xconsole.log('Server listening at port %d', port);
 });
 
 // Routing
@@ -125,7 +125,7 @@ io.on('connection', function(socket) {
                     turn: thisCache.turn
                 });
             }
-            console.log(thisCache.turn);
+            //xconsole.log(thisCache.turn);
             if (thisCache.turn < 4 && thisCache.turn > 0) {
                 
                 if (thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop()) + 1] == socket.username) {
@@ -210,7 +210,7 @@ io.on('connection', function(socket) {
                 thisCache.players['p4'] = p4;
                 thisCache.playerSequence.push(thisCache.playerSequence.shift());
             }
-            console.log('highest bettor', thisCache.players.p1.username)
+            //xconsole.log('highest bettor', thisCache.players.p1.username)
 
             for (var player in thisCache.players) {
                 var soc = thisCache.players[player].socket;
@@ -264,7 +264,7 @@ io.on('connection', function(socket) {
         // we tell the client to execute 'card thrown'
 
         thisCache.turn++;
-        console.log(socket.username, data)
+        //xconsole.log(socket.username, data)
         socket.broadcast.to(roomID).emit('card thrown', {
             username: socket.username,
             message: data,
@@ -378,8 +378,8 @@ io.on('connection', function(socket) {
 					thisCache.players.p2.wins += 1
                 }
                 
-                console.log(`${thisCache.players.p1.username}-${thisCache.players.p3.username} | wins: ${thisCache.players.p1.wins + thisCache.players.p3.wins} | score: ${thisCache.players.p1.score + thisCache.players.p3.score}`)
-                console.log(`${thisCache.players.p2.username}-${thisCache.players.p4.username} | wins: ${thisCache.players.p2.wins + thisCache.players.p4.wins} | score: ${thisCache.players.p2.score + thisCache.players.p4.score}`)
+                //xconsole.log(`${thisCache.players.p1.username}-${thisCache.players.p3.username} | wins: ${thisCache.players.p1.wins + thisCache.players.p3.wins} | score: ${thisCache.players.p1.score + thisCache.players.p3.score}`)
+                //xconsole.log(`${thisCache.players.p2.username}-${thisCache.players.p4.username} | wins: ${thisCache.players.p2.wins + thisCache.players.p4.wins} | score: ${thisCache.players.p2.score + thisCache.players.p4.score}`)
 
                 io.to(roomID).emit('winner announcement', {
                     message: msg,
@@ -398,6 +398,7 @@ io.on('connection', function(socket) {
                         next();
                     }
                 }, 5000);
+                return
             }
         }
 
@@ -419,14 +420,14 @@ io.on('connection', function(socket) {
     });
 
     socket.on('request trump', function() {
-        console.log(socket.username + ' asked for trump');
+        //xconsole.log(socket.username + ' asked for trump');
         io.sockets.to(roomID).emit('request trump', {
             username: socket.username,
         });
     });
 
     socket.on('reveal trump', function() {
-        console.log('revealed trump');
+        //xconsole.log('revealed trump');
         thisCache.revealedInThis = thisCache.turn;
         thisCache.trumpRevealed = 1;
         thisCache.usersCards[thisCache.playerSequence[0]].push(thisCache.trumpCard)
@@ -448,7 +449,7 @@ io.on('connection', function(socket) {
 			for (var idx in thisCache.currentRoundCards) {
 				thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
 				var playerNumber = `p${(parseInt(idx)+1).toString()}`
-				console.log(playerNumber)
+				//xconsole.log(playerNumber)
 				thisCache.players[playerNumber].socket.emit('deal', {
 					redeal: true,
 					hand: thisCache.usersCards[thisCache.playerSequence[idx]]
@@ -461,8 +462,6 @@ io.on('connection', function(socket) {
 			})
 		}
         
-        
-        thisCache.revealedInThis = thisCache.turn;
         thisCache.trumpRevealed = 1;
         thisCache.moodaCalled = true;
         thisCache.highestBet = 13;
@@ -542,7 +541,7 @@ io.on('connection', function(socket) {
 					count++;
 				}
 			}
-			console.log(count)
+			//xconsole.log(count)
 			if (count == 2) {
 				thisCache.teamAHands = 13;
 				thisCache.players.p1.score += 26
@@ -626,7 +625,7 @@ io.on('connection', function(socket) {
         }
 
         if (data.command === 'showcache') {
-            console.log(thisCache)
+            //xconsole.log(thisCache)
         }
 
     });
