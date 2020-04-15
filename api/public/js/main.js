@@ -220,12 +220,14 @@ $(function() {
     function addTrumpElement(id) {
         choosingTrump = false;
         $requestTrump.hide();
+        $moodaSuit.hide();
         $trumpCard.html('<img id="' + id + '" src="images/cards/' + id + '.png"></img>');
         $trumpCard.show();
     }
 
     function addRequestTrumpElement(id) {
         $trumpCard.hide();
+        $moodaSuit.hide();
         $requestTrump.html('<img id="' + id + '" src="images/cards/' + id + '.png"></img>');
         $requestTrump.show();
     }
@@ -291,7 +293,7 @@ $(function() {
         var partnerCards = data.partnerCards;
         partnerCards.sort();
         partnerCards = arrangeCards(partnerCards);
-        // $('.card-in-hand').remove();
+        $('.pcih').remove();
         for (var i in partnerCards) {
             $partnerCards.append("<div class='pcih'><img src='images/cards/" + partnerCards[i] + ".png' \/></div>");
         }
@@ -830,21 +832,21 @@ $(function() {
         playerSequence = data.playerSequence;
         playerNumber = data.playerNumber;
         playerPerspective = getPlayerPerspective(playerSequence);
-        x = {
-            playerSequence: playerSequence,
-            playerNumber: playerNumber,
-            playerPerspective: playerPerspective
-        };
-        // console.log(x);
+        // x = {
+        //     playerSequence: playerSequence,
+        //     playerNumber: playerNumber,
+        //     playerPerspective: playerPerspective
+        // };
+        // // console.log(x);
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);
         clearTable(playerSequence[0]);
-        // console.log(data)
         addPlayerElement(playerSequence, data);
         updatePlayerName(playerPerspective);
         $(".tricks").text("0");
-        $(".trumpCard").hide();
-        $(".requestTrump").hide();
+        $trumpCard.hide();
+        $requestTrump.hide();
+        $moodaSuit.hide();
     });
 
     socket.on('new sequence', function(data) {
@@ -860,12 +862,13 @@ $(function() {
     socket.on('mooda', function(data) {
 		myTurn = false;
 		trumpRevealed = true;
-        $trumpCard.hide()
-		$requestTrump.hide()
-		hideBetBubbles()
-		clearTable(socket.username)
+        $trumpCard.hide();
+		$requestTrump.hide();
+		hideBetBubbles();
+		clearTable(socket.username);
 		var num = playerPerspective.indexOf(data.username) + 1;
-		$(".betBubble-" + num).html('<p>Mooda</p>');
+        $(".betBubble-" + num).html('<p>Mooda</p>');
+        $(".betBubble-" + num).show();
         $moodaSuit.html('<img src="images/cards/' + data.moodaSuit + '.jpg"></img>');
         $moodaSuit.show()
     });
