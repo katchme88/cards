@@ -867,6 +867,7 @@ $(function() {
 		var num = playerPerspective.indexOf(data.username) + 1;
 		$(".betBubble-" + num).html('<p>Mooda</p>');
         $moodaSuit.html('<img src="images/cards/' + data.moodaSuit + '.jpg"></img>');
+        $moodaSuit.show()
     });
 
     socket.on('share cards', function(data) {
