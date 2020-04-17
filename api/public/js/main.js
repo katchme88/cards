@@ -244,23 +244,24 @@ $(function() {
     }
 
     function arrangeCards(data) {
+        var cards = data.slice();
         let diamonds = []
         let clubs = []
         let hearts = []
         let spades = []
-        for (let i in data) {
-            let x = data[i].split(/(\d+)/)[0]
+        for (let i in cards) {
+            let x = cards[i].split(/(\d+)/)[0]
             if (x == 'C') {
-                clubs.push(data[i])
+                clubs.push(cards[i])
             }
             if (x == 'D') {
-                diamonds.push(data[i])
+                diamonds.push(cards[i])
             }
             if (x == 'S') {
-                spades.push(data[i])
+                spades.push(cards[i])
             }
             if (x == 'H') {
-                hearts.push(data[i])
+                hearts.push(cards[i])
             }
         }
         return clubs.concat(diamonds).concat(spades).concat(hearts)
@@ -276,9 +277,9 @@ $(function() {
         if (data.redeal) {
             cardsInHand = [];
         }
-        cardsInHand = cardsInHand.concat(data.hand);
-        cardsInHand.sort();
-        cardsInHand = arrangeCards(cardsInHand);
+        var x = cardsInHand.concat(data.hand);
+        x.sort();
+        cardsInHand = arrangeCards(x);
         $('.card-in-hand').remove();
         for (var i in cardsInHand) {
             $cards_in_hand.append("<div class='card-in-hand cih-" + i + "' id='" + cardsInHand[i] + "'><img src='images/cards/" + cardsInHand[i] + ".png' \/></div>");
@@ -526,7 +527,6 @@ $(function() {
         $partnerCardsOverlay.hide();
     });
 
-
     //#########################################################################################
     // Socket events
     //#########################################################################################
@@ -625,6 +625,7 @@ $(function() {
 
     // draw the received cards on screen
     socket.on('deal', function(data) {
+        console.log('deal:', data)
         drawCardsInHand(data);
         var firstPlayerBetBubble = playerPerspective.indexOf(playerSequence[0]) + 1
         for (var num = 1; num <= 4; num++) {
@@ -640,7 +641,9 @@ $(function() {
         currentRoundSuit = data.currentRoundSuit;
 		updateNextAvatar(0);
 		if (!data.moodaCalled && data.totalRounds == 0) {
-			$moodaBtnOverlay.show();
+            $('.moodaicon').on('click', function () {
+                $moodaBtnOverlay.show();
+            });
 		}
         
     });
@@ -844,7 +847,8 @@ $(function() {
         addPlayerElement(playerSequence, data);
         updatePlayerName(playerPerspective);
         $(".tricks").text("0");
-        $trumpCard.hide();
+        $trumpCard.children().remove()
+        $trumoCard.hide();
         $requestTrump.hide();
         $moodaSuit.hide();
     });
@@ -862,7 +866,8 @@ $(function() {
     socket.on('mooda', function(data) {
 		myTurn = false;
 		trumpRevealed = true;
-        $trumpCard.hide();
+        $trumpCard.children().remove()
+        $trumoCard.hide();
 		$requestTrump.hide();
 		hideBetBubbles();
 		clearTable(socket.username);

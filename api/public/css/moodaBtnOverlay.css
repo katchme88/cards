@@ -57,3 +57,20 @@
 .moodaConfirm > button {
     float: left;
 }
+
+.right-btns {
+    margin-left: 20%;
+    margin-top: 20%;
+}
+
+.msgicon {
+    float: left;
+    width: 30%;
+    padding: 2%;
+}
+
+.moodaicon {
+    float: left;
+    width: 30%;
+    padding: 2%;
+}
