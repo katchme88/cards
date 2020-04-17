@@ -433,24 +433,50 @@ io.on('connection', function(socket) {
 
     socket.on('mooda', function(data) {
 		
-		thisCache.usersCards[thisCache.players.p1.username].push(thisCache.trumpCard)
+        thisCache.usersCards[thisCache.players.p1.username].push(thisCache.trumpCard)
+        for (var idx in thisCache.currentRoundCards) {
+            thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
+            // var playerNumber = `p${(parseInt(idx)+1).toString()}`
+            // thisCache.players[playerNumber].socket.emit('deal', {
+            //     redeal: true,
+            //     hand: thisCache.usersCards[thisCache.playerSequence[idx]]
+            // })
+        }
+        
+        thisCache.players.p1.socket.emit('deal', {
+            redeal: true,
+            hand: thisCache.usersCards[thisCache.players.p1.username]
+        })
+        thisCache.players.p2.socket.emit('deal', {
+            redeal: true,
+            hand: thisCache.usersCards[thisCache.players.p2.username]
+        })
+        thisCache.players.p3.socket.emit('deal', {
+            redeal: true,
+            hand: thisCache.usersCards[thisCache.players.p3.username]
+        })
+        thisCache.players.p4.socket.emit('deal', {
+            redeal: true,
+            hand: thisCache.usersCards[thisCache.players.p4.username]
+        })
 
-		if (thisCache.currentRoundCards.length > 0 ) {
-			for (var idx in thisCache.currentRoundCards) {
-				thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
-				var playerNumber = `p${(parseInt(idx)+1).toString()}`
-				//xconsole.log(playerNumber)
-				thisCache.players[playerNumber].socket.emit('deal', {
-					redeal: true,
-					hand: thisCache.usersCards[thisCache.playerSequence[idx]]
-				})
-			}
-		} else {
-			thisCache.players.p1.socket.emit('deal', {
-				redeal: true,
-				hand: thisCache.usersCards[thisCache.players.p1.username]
-			})
-		}
+
+		// if (thisCache.currentRoundCards.length > 0 ) {
+		// 	for (var idx in thisCache.currentRoundCards) {
+		// 		thisCache.usersCards[thisCache.playerSequence[idx]].push(thisCache.currentRoundCards[idx])
+		// 		var playerNumber = `p${(parseInt(idx)+1).toString()}`
+		// 		//xconsole.log(playerNumber)
+		// 		thisCache.players[playerNumber].socket.emit('deal', {
+		// 			redeal: true,
+		// 			hand: thisCache.usersCards[thisCache.playerSequence[idx]]
+		// 		})
+		// 	}
+		// } else {
+		// 	thisCache.players.p1.socket.emit('deal', {
+		// 		redeal: true,
+		// 		hand: thisCache.usersCards[thisCache.players.p1.username]
+		// 	})
+		// }
         
         thisCache.trumpRevealed = 1;
         thisCache.moodaCalled = true;
@@ -458,12 +484,12 @@ io.on('connection', function(socket) {
         thisCache.highestBettor = socket.username;
         thisCache.moodaSuit = data.moodaSuit; //data.moodaSuit.charAt(0).toUpperCase();
         thisCache.trumpCard = data.moodaSuit.charAt(0).toUpperCase()+'14';
-        thisCache.currentRoundSuit = ''
-        thisCache.currentRoundObj = {}
-        thisCache.turn = 0
-        thisCache.currentRoundCards =[]
+        thisCache.currentRoundSuit = '';
+        thisCache.currentRoundObj = {};
+        thisCache.turn = 0;
+        thisCache.currentRoundCards = [];
 
-        var n = thisCache.playerSequence.indexOf(thisCache.highestBettor)
+        var n = thisCache.playerSequence.indexOf(thisCache.highestBettor);
         for (var i = 0; i < n; i++) {
             var p1 = thisCache.players.p2;
             var p2 = thisCache.players.p3;
@@ -476,6 +502,7 @@ io.on('connection', function(socket) {
             thisCache.players['p4'] = p4;
             thisCache.playerSequence.push(thisCache.playerSequence.shift());
         }
+
         for (var player in thisCache.players) {
             var soc = thisCache.players[player].socket;
             soc.emit('new sequence', {
