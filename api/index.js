@@ -98,28 +98,37 @@ io.on('connection', function(socket) {
         if (reConnected) {
 
             socket.emit('deal', {
-				hand: thisCache.usersCards[socket.username]
+                hand: thisCache.usersCards[socket.username],
+                redeal: true
 			});
 
-            if (thisCache.playerSequence[0] != socket.username) {
-                if (thisCache.trumpRevealed == 0) {
-                    socket.emit('trump setted', {
-                        data: 'budRangi'
-                    });
-                } else if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 1) {
-                    socket.emit('trump setted', {
-                        data: 'budRangi'
-                    });
-                    socket.emit('reveal trump', {
-                        username: thisCache.playerSequence[0],
-                        trumpCard: thisCache.trumpCard
-                    });
-                }
+            if (thisCache.moodaCalled && thisCache.moodaAccepted) {
+                socket.emit('mooda', {
+                    username: thisCache.playerSequence[0],
+                    moodaSuit: thisCache.moodaSuit,
+                    reConnected: reConnected
+                });
             } else {
-                if (thisCache.trumpRevealed == 0) {
-                    socket.emit('trump card', {
-                        data: thisCache.trumpCard
-                    });
+                if (thisCache.playerSequence[0] != socket.username) {
+                    if (thisCache.trumpRevealed == 0) {
+                        socket.emit('trump setted', {
+                            data: 'budRangi'
+                        });
+                    } else if (thisCache.playerSequence[0] != socket.username && thisCache.trumpRevealed == 1) {
+                        socket.emit('trump setted', {
+                            data: 'budRangi'
+                        });
+                        socket.emit('reveal trump', {
+                            username: thisCache.playerSequence[0],
+                            trumpCard: thisCache.trumpCard
+                        });
+                    }
+                } else {
+                    if (thisCache.trumpRevealed == 0) {
+                        socket.emit('trump card', {
+                            data: thisCache.trumpCard
+                        });
+                    }
                 }
             }
 
@@ -143,7 +152,7 @@ io.on('connection', function(socket) {
             }
 
             if (thisCache.turn == 0) {
-                if (thisCache.lastRoundSenior == socket.username || thisCache.lastRoundSenior == '') {
+                if (thisCache.lastRoundSenior == socket.username || (thisCache.lastRoundSenior == '' && thisCache.totalRounds > 0)) {
                     socket.emit('your turn', {
                         currentRoundSuit: thisCache.currentRoundSuit,
 						totalRounds: thisCache.totalRounds,
@@ -180,7 +189,8 @@ io.on('connection', function(socket) {
 					highestBet: thisCache.highestBet
 				});
 			}
-		}
+        }
+        reConnected = false;
 			
     });
 
@@ -528,7 +538,8 @@ io.on('connection', function(socket) {
 
         io.to(roomID).emit('mooda', {
             username: socket.username,
-            moodaSuit: thisCache.moodaSuit
+            moodaSuit: thisCache.moodaSuit,
+            reConnected: false
         });
 
         thisCache.players.p2.socket.emit('share cards', {
@@ -547,11 +558,12 @@ io.on('connection', function(socket) {
 		})
 
 		if(thisCache.moodaStatus.length == 2) {
+            thisCache.moodaAccepted = true;
 			thisCache.players.p1.socket.emit('your turn', {
 				currentRoundSuit: thisCache.currentRoundSuit,
 				totalRounds: thisCache.totalRounds,
 				moodaCalled: thisCache.moodaCalled
-			})
+            })
 		}
 	})
 
@@ -591,6 +603,7 @@ io.on('connection', function(socket) {
                 }, 5000);
 				
 			} else {
+                thisCache.moodaAccepted = true;
 				thisCache.players.p1.socket.emit('your turn', {
 					currentRoundSuit: thisCache.currentRoundSuit,
 					totalRounds: thisCache.totalRounds,
@@ -627,7 +640,7 @@ io.on('connection', function(socket) {
                 reset(roomID);
 			}, TIMEOUT)			
 		
-			if (thisCache.trumpCard === '' ) {
+			if (thisCache.trumpCard === '' || (thisCache.moodaCalled && !thisCache.moodaAccepted)) {
             	reset(roomID);
             	return
         	} 
@@ -696,7 +709,8 @@ io.on('connection', function(socket) {
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
 		thisCache.moodaCalled = false;
-		thisCache.moodaStatus = [];
+        thisCache.moodaStatus = [];
+        thisCache.moodaAccepted = false;
         redeal(roomID);
     }
 
@@ -726,7 +740,8 @@ io.on('connection', function(socket) {
         thisCache.lastRoundSeniorCard = '';
         thisCache.mooda = false;
 		thisCache.moodaCalled = false;
-		thisCache.moodaStatus = [];
+        thisCache.moodaStatus = [];
+        thisCache.moodaAccepted = false;
         cache.deleteRoom(roomID);
     }
 
@@ -753,7 +768,8 @@ io.on('connection', function(socket) {
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
 		thisCache.moodaCalled = false;
-		thisCache.moodaStatus = [];
+        thisCache.moodaStatus = [];
+        thisCache.moodaAccepted = false;
 
         for (var player in thisCache.players) {
             var hand = deal(thisCache.deck);

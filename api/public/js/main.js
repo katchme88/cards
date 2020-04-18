@@ -887,8 +887,10 @@ $(function() {
         $trumpCard.children().remove()
         $trumpCard.hide();
 		$requestTrump.hide();
-		hideBetBubbles();
-		clearTable(socket.username);
+        hideBetBubbles();
+        if (!data.reConnected) {
+		    clearTable(socket.username);
+        } 
 		var num = playerPerspective.indexOf(data.username) + 1;
         $(".betBubble-" + num).html('<p>Mooda</p>');
         $(".betBubble-" + num).show();
