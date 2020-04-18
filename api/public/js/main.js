@@ -36,6 +36,7 @@ $(function() {
     var $chatPage = $('.chat.page'); // The chatroom page
     var $overlay = $('#overlay');
     var $moodaBtnOverlay = $('.moodaBtnOverlay');
+    var $moodaicon = $('.moodaicon');
 
     var $cards_in_hand = $('.cards-in-hand');
     var choosingTrump = false;
@@ -63,6 +64,7 @@ $(function() {
     var turn = 0;
     var youRequestedTrump = false;
     var highestBet = 0;
+    var enableMoodaBtn = false;
 
     var socket = io();
 
@@ -108,7 +110,7 @@ $(function() {
             // tell server to execute 'card thrown' and send along one parameter
             cardsInHand.splice(cardsInHand.indexOf(message), 1);
             updateSuitsInHand(cardsInHand);
-
+            enableMoodaBtn = false;
             //throw a budrungi if budRungi is true
             message = budRungi ? 'budRungi' : message;
             animateThrowCard(id, budRungi);
@@ -413,6 +415,7 @@ $(function() {
             moodaSuit: moodaSuit
         })
         $moodaBtnOverlay.hide();
+        enableMoodaBtn = false;
     });
 
     $('.close').on('click', function() {
@@ -525,6 +528,12 @@ $(function() {
     $('#rejectmooda').on('click', function() {
         socket.emit('rejected');
         $partnerCardsOverlay.hide();
+    });
+
+    $moodaicon.on('click', function () {
+        if (enableMoodaBtn) {
+            $moodaBtnOverlay.show();
+        }
     });
 
     //#########################################################################################
@@ -640,10 +649,8 @@ $(function() {
         myTurn = true;
         currentRoundSuit = data.currentRoundSuit;
 		updateNextAvatar(0);
-		if (!data.moodaCalled && data.totalRounds == 0) {
-            $('.moodaicon').on('click', function () {
-                $moodaBtnOverlay.show();
-            });
+		if (data.totalRounds == 0 && !data.moodaCalled) {
+            enableMoodaBtn = true;
 		}
         
     });
@@ -664,6 +671,17 @@ $(function() {
     socket.on('choose bet', function(data) {
         highestBet = data.highestBet
         $('.betbox').show();
+        // if (playerNumber == 1) {
+        //     socket.emit('bet', {
+        //         bet: 10,
+        //         username: username
+        //     })
+        // } else {
+        //     socket.emit('bet', {
+        //         bet: 'pass',
+        //         username: username
+        //     })
+        // }
     });
 
     // Whenever the server emits 'user left', log it in the chat body
@@ -848,7 +866,7 @@ $(function() {
         updatePlayerName(playerPerspective);
         $(".tricks").text("0");
         $trumpCard.children().remove()
-        $trumoCard.hide();
+        $trumpCard.hide();
         $requestTrump.hide();
         $moodaSuit.hide();
     });
@@ -867,7 +885,7 @@ $(function() {
 		myTurn = false;
 		trumpRevealed = true;
         $trumpCard.children().remove()
-        $trumoCard.hide();
+        $trumpCard.hide();
 		$requestTrump.hide();
 		hideBetBubbles();
 		clearTable(socket.username);
