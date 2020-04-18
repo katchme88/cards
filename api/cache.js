@@ -16,10 +16,12 @@ let gameObjTemplate = {
     trumpCard: '',
     currentRoundCards: [],
     currentRoundObj: {},
+    lastRoundObj: {},
     currentRoundSuit:'',
     roundsSinceLastWin: 0,
     playerSequence: [],
     lastRoundSenior: '',
+    lastRoundSeniorCard: '',
     highestBet: 7,
     highestBettor: ''
 }

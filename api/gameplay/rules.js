@@ -62,8 +62,17 @@ var rules = {
         return ([seniorCard, currentRoundCards.indexOf(seniorCard)+1]);
     },
 
-    getWinner: function (seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds) {
-        if (seniorIndex == 1 && roundsSinceLastWin > 1 && revealedInThis < 1 && (totalRounds > 3 && totalRounds < 12) || totalRounds == 13) {
+    getWinner: function (seniorIndex, roundsSinceLastWin, revealedInThis, totalRounds, twoAcesCondition, aceInThirdRound) {
+        
+        if (aceInThirdRound) {
+            return (0);
+        }
+
+        if (twoAcesCondition && totalRounds <= 12) {
+            return (0)
+        }
+
+        if (seniorIndex == 1 && roundsSinceLastWin > 1 && revealedInThis < 1 && (totalRounds >= 3 && totalRounds < 12) || totalRounds == 13) {
             return (1);
         } else if (totalRounds == 12) {
             return (0);
@@ -71,6 +80,14 @@ var rules = {
             return(1);
         }
         return (0);
+    },
+
+    checkTwoAcesCondition: function (seniorCard, seniorPlayer, lastRoundSeniorCard, lastRoundSenior) {
+        if ( (seniorCard.split(/(\d+)/)[1] == 14 && lastRoundSeniorCard.split(/(\d+)/)[1] == 14) && (seniorPlayer == lastRoundSenior)) {
+            return  true
+        } else {
+            return false
+        }
     }
 }
 

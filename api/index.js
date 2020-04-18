@@ -276,14 +276,16 @@ io.on('connection', function(socket) {
             thisCache.currentRoundObj[data] = socket.username;
             thisCache.currentRoundCards.push(data);
             var nextPlayerSocket = thisCache.playerSequence.indexOf(socket.username) == 3 ? thisCache.players.p1.socket : thisCache.players['p' + (thisCache.playerSequence.indexOf(socket.username) + 2)].socket;
+            
             if (thisCache.turn == 4) {
-
+                Object.assign(thisCache.lastRoundObj, thisCache.currentRoundObj);
                 thisCache.totalRounds++;
+                
                 var seniorArr = rules.getSenior(thisCache.currentRoundCards, thisCache.trumpRevealed, thisCache.trumpCard.charAt(0), thisCache.revealedInThis);
                 var seniorCard = seniorArr[0];
                 var seniorIndex = seniorArr[1];
-                var seniorPlayer = Object.values(thisCache.currentRoundObj[seniorCard]);
-                thisCache.lastRoundSenior = seniorPlayer;
+                var seniorPlayer = Object.values(thisCache.currentRoundObj[seniorCard])[0];
+                
                 thisCache.currentRoundSuit = '';
 
                 if (thisCache.trumpRevealed) {
@@ -294,9 +296,17 @@ io.on('connection', function(socket) {
                         thisCache.roundsSinceLastWin++;
                     }
 
-                    var winnerFlag = rules.getWinner(seniorIndex, thisCache.roundsSinceLastWin, thisCache.revealedInThis, thisCache.totalRounds);
-
+                    var aceInThirdRound = (thisCache.totalRounds == 3 && seniorCard.split(/(\d+)/)[1] == 14) ? 1:0;  
+                    var twoAcesCondition = rules.checkTwoAcesCondition(seniorCard, seniorPlayer, thisCache.lastRoundSeniorCard, thisCache.lastRoundSenior)
+                    var winnerFlag = rules.getWinner(seniorIndex, thisCache.roundsSinceLastWin, thisCache.revealedInThis, thisCache.totalRounds, twoAcesCondition, aceInThirdRound);
+                    
+                    // var winnerFlag = rules.getWinner(seniorIndex, thisCache.roundsSinceLastWin, thisCache.revealedInThis, thisCache.totalRounds);
+ 
                 }
+                
+                console.log(seniorCard, seniorPlayer, thisCache.lastRoundSeniorCard, thisCache.lastRoundSenior);
+                thisCache.lastRoundSeniorCard = seniorArr[0];
+                thisCache.lastRoundSenior = seniorPlayer;
             }
         }
 
@@ -499,6 +509,7 @@ io.on('connection', function(socket) {
         thisCache.players['p4'] = p4;
         thisCache.playerSequence.push(thisCache.playerSequence.shift());
         thisCache.lastRoundSenior = '';
+        thisCache.lastRoundSeniorCard = '';
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
         redeal(roomID);
@@ -517,6 +528,7 @@ io.on('connection', function(socket) {
         thisCache.revealedInThis = 0;
         thisCache.trumpCard = '';
         thisCache.currentRoundCards = [];
+        thisCache.lastRoundObj = {};
         thisCache.currentRoundObj = {};
         thisCache.currentRoundSuit;
         thisCache.roundsSinceLastWin = 0;
@@ -526,6 +538,7 @@ io.on('connection', function(socket) {
         thisCache.numUsers = 0;
         thisCache.totalUsers = 0;
         thisCache.lastRoundSenior = '';
+        thisCache.lastRoundSeniorCard = '';
         cache.deleteRoom(roomID);
     }
 
@@ -542,11 +555,13 @@ io.on('connection', function(socket) {
         thisCache.revealedInThis = 0;
         thisCache.trumpCard = '';
         thisCache.currentRoundCards = [];
+        thisCache.lastRoundObj = {};
         thisCache.currentRoundObj = {};
         thisCache.currentRoundSuit;
         thisCache.roundsSinceLastWin = 0;
         thisCache.deck = require('./gameplay/deck.js').cards();
         thisCache.lastRoundSenior = '';
+        thisCache.lastRoundSeniorCard = '';
         thisCache.highestBet = 7;
         thisCache.highestBettor = '';
 
