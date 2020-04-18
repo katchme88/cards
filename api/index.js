@@ -96,6 +96,11 @@ io.on('connection', function(socket) {
         });
 
         if (reConnected) {
+
+            socket.emit('deal', {
+				hand: thisCache.usersCards[socket.username]
+			});
+
             if (thisCache.playerSequence[0] != socket.username) {
                 if (thisCache.trumpRevealed == 0) {
                     socket.emit('trump setted', {
@@ -146,10 +151,6 @@ io.on('connection', function(socket) {
                     });
                 }
 			}
-			
-			socket.emit('deal', {
-				hand: thisCache.usersCards[socket.username]
-			});
 
 			if (thisCache.numUsers < 4) {
 				socket.emit('disable ui', {
