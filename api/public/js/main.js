@@ -207,11 +207,11 @@ $(function() {
             default:
                 animateObj = {};
         }
-        $('.middle.table').append('<img id="card-' + perspective + '" class="tableCard" src='+IMAGE_URL + data.message + '.png />');
-        setTimeout(function() {
-            $('#card-' + perspective).animate(animateObj);
-        }, 500);
         
+        var $img = $('<img id="card-' + perspective + '" class="tableCard" src='+IMAGE_URL + data.message + '.png />').on('load', function(){
+            $('#card-' + perspective).animate(animateObj);
+        });
+        $('.middle.table').append($img);
         updateNextAvatar(perspective);
     }
 
