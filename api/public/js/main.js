@@ -58,7 +58,7 @@ $(function() {
     var playerNumber;
     var audio_throw = new Audio("sounds/cardPlace1.wav");
     var audio_ding = new Audio("sounds/ding.wav");
-
+    var IMAGE_URL = "https://cards-io.s3.us-east-2.amazonaws.com/images/cards/";
     var playerSequence = [];
     var playerPerspective = [];
     var turn = 0;
@@ -131,7 +131,7 @@ $(function() {
         }, function() {
             $el.remove();
             id = budRungi ? 'budRungi' : id;
-            $('.middle.table').append('<img id="card-1" class="tableCard" src="images/cards/' + id + '.png" />');
+            $('.middle.table').append('<img id="card-1" class="tableCard" src='+IMAGE_URL + id + '.png />');
             updateNextAvatar(1);
         });
     }
@@ -207,7 +207,7 @@ $(function() {
             default:
                 animateObj = {};
         }
-        $('.middle.table').append('<img id="card-' + perspective + '" class="tableCard" src="images/cards/' + data.message + '.png" />');
+        $('.middle.table').append('<img id="card-' + perspective + '" class="tableCard" src='+IMAGE_URL + data.message + '.png />');
         $('#card-' + perspective).animate(animateObj);
         updateNextAvatar(perspective);
     }
@@ -223,14 +223,14 @@ $(function() {
         choosingTrump = false;
         $requestTrump.hide();
         $moodaSuit.hide();
-        $trumpCard.html('<img id="' + id + '" src="images/cards/' + id + '.png"></img>');
+        $trumpCard.html('<img id="' + id + '" src='+IMAGE_URL + id + '.png></img>');
         $trumpCard.show();
     }
 
     function addRequestTrumpElement(id) {
         $trumpCard.hide();
         $moodaSuit.hide();
-        $requestTrump.html('<img id="' + id + '" src="images/cards/' + id + '.png"></img>');
+        $requestTrump.html('<img id="' + id + '" src='+IMAGE_URL + id + '.png></img>');
         $requestTrump.show();
     }
 
@@ -284,7 +284,7 @@ $(function() {
         cardsInHand = arrangeCards(x);
         $('.card-in-hand').remove();
         for (var i in cardsInHand) {
-            $cards_in_hand.append("<div class='card-in-hand cih-" + i + "' id='" + cardsInHand[i] + "'><img src='images/cards/" + cardsInHand[i] + ".png' \/></div>");
+            $cards_in_hand.append("<div class='card-in-hand cih-" + i + "' id='" + cardsInHand[i] + "'><img src="+IMAGE_URL + cardsInHand[i] + ".png \/></div>");
 
         }
         console.log(cardsInHand);
@@ -298,7 +298,7 @@ $(function() {
         partnerCards = arrangeCards(partnerCards);
         $('.pcih').remove();
         for (var i in partnerCards) {
-            $partnerCards.append("<div class='pcih'><img src='images/cards/" + partnerCards[i] + ".png' \/></div>");
+            $partnerCards.append("<div class='pcih'><img src="+IMAGE_URL + partnerCards[i] + ".png \/></div>");
         }
         $partnerCardsOverlay.show();
     }
@@ -604,7 +604,7 @@ $(function() {
 
     socket.on("reveal trump", function(data) {
         // log(("The trump is " + data.trumpCard));
-        $requestTrump.html('<img src="images/cards/' + data.trumpCard + '.png"></img>');
+        $requestTrump.html('<img src='+IMAGE_URL + data.trumpCard + '.png></img>');
         trumpCard = data.trumpCard;
         trumpRevealed = true;
     });
@@ -812,7 +812,7 @@ $(function() {
                 socket.emit('reveal trump');
                 cardsInHand.push($(this).attr('id'));
                 updateSuitsInHand(cardsInHand);
-                $cards_in_hand.append("<div class='card-in-hand' id='" + $(this).attr('id') + "'><img src='images/cards/" + $(this).attr('id') + ".png' /></div>");
+                $cards_in_hand.append("<div class='card-in-hand' id='" + $(this).attr('id') + "'><img src="+IMAGE_URL + $(this).attr('id') + ".png /></div>");
                 $(this).remove();
                 trumpRevealed = true;
             } else {
@@ -894,7 +894,7 @@ $(function() {
 		var num = playerPerspective.indexOf(data.username) + 1;
         $(".betBubble-" + num).html('<p>Mooda</p>');
         $(".betBubble-" + num).show();
-        $moodaSuit.html('<img src="images/cards/' + data.moodaSuit + '.jpg"></img>');
+        $moodaSuit.html('<img src='+IMAGE_URL + data.moodaSuit + '.jpg"></img>');
         $moodaSuit.show()
     });
 
