@@ -208,7 +208,10 @@ $(function() {
                 animateObj = {};
         }
         $('.middle.table').append('<img id="card-' + perspective + '" class="tableCard" src='+IMAGE_URL + data.message + '.png />');
-        $('#card-' + perspective).animate(animateObj);
+        setTimeout(function() {
+            $('#card-' + perspective).animate(animateObj);
+        }, 500);
+        
         updateNextAvatar(perspective);
     }
 
