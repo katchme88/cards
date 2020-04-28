@@ -13,6 +13,8 @@
     "fisher-yates-shuffle": "latest",
     "mess": "latest",
     "npm": "latest",
+    "pg": "^8.0.3",
+    "redis": "^3.0.2",
     "socket.io": "latest",
     "uuid": "^3.3.2"
   },

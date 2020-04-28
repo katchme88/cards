@@ -1,0 +1,12 @@
+{
+    "dependencies": {
+        "nodemon": "*",
+        "redis": "^3.0.2",
+        "pg": "*",
+        "body-parser": "*"
+    },
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon"
+    }
+}

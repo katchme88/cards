@@ -1,0 +1,69 @@
+.home.screen {
+    background-color: #000;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    font-family:
+      "HelveticaNeue-Light",
+      "Helvetica Neue Light",
+      "Helvetica Neue",
+      "Helvetica",
+      "Arial",
+      "Lucida Grande",
+      "sans-serif";
+    display: none;
+  }
+  
+  .home.screen .form {
+    height: 100px;
+    margin-top: -100px;
+    position: absolute;
+  
+    text-align: center;
+    top: 50%;
+    width: 100%;
+  }
+  
+  .home.screen .form .usernameInput {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #fff;
+    outline: none;
+    padding-bottom: 15px;
+    text-align: center;
+    width: 400px;
+  }
+  
+  .home.screen .title {
+    font-size: 200%;
+  }
+  
+  .home.screen .usernameInput {
+    font-size: 200%;
+    letter-spacing: 3px;
+  }
+  
+  .home.screen .title, .home.screen .usernameInput {
+    color: #fff;
+    font-weight: 100;
+  }
+  
+  .chooseGame {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 200px;
+  }
+  .withFriends {
+    background-color: #008CBA; /* Green */
+  }
+  
+  .singlePlayer {
+    background-color: #4CAF50; /* Green */
+  }

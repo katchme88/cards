@@ -22,8 +22,9 @@
     <link rel="stylesheet" href="css/betBubble.css">
     <link rel="stylesheet" href="css/partnerCardsOverlay.css">
     <link rel="stylesheet" href="css/moodaBtnOverlay.css">
+    <link rel="stylesheet" href="css/homeScreen.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
     <script src="js/main.js"></script>
     <script>
@@ -134,8 +135,17 @@
     </div> 
     <div class="login page">
         <div class="form">
-            <h3 class="title">What's your nickname?</h3>
-            <input class="usernameInput" type="text" maxlength="14" />
+            <!-- <h3 class="title">What's your nickname?</h3> -->
+            <center>
+                <input class="input username" type="text" maxlength="14" placeholder="username"/>
+                <input class="input password" type="password" maxlength="14" placeholder="password"/>
+            </center>
+        </div>
+    </div>
+    <div class="home screen">
+        <div class="form">
+            <button id="singlePlayer" class="chooseGame singlePlayer">Single Player</button><br><br>
+            <button id="withFriends" class="chooseGame withFriends">Play With Friends</button>
         </div>
     </div>
     <div class="overlay"></div>

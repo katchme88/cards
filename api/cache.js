@@ -26,7 +26,9 @@ let gameObjTemplate = {
     highestBettor: '',
     moodaCalled: false,
     moodaStatus: [],
-    moodaAccepted: false   
+    moodaAccepted: false,
+    winningTeam: '',
+    winningTeamScore: 0   
 }
 
 const deepCopy = (e) => {

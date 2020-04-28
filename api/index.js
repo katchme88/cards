@@ -1,22 +1,27 @@
 // Setup basic express server
 "use strict";
-var express = require('express');
-var app = express();
-var path = require('path');
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
-var port = process.env.PORT || 3000;
-var rules = require('./gameplay/rules.js');
+const express = require('express');
+const app = express();
+const path = require('path');
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const port = process.env.PORT || 3000;
+const rules = require('./gameplay/rules');
 let cache = require('./cache');
+const uid = require('uuid/v4');
+const keys = require('./keys');
+const redis = require("redis");
 
 server.listen(port, function() {
-    //xconsole.log('Server listening at port %d', port);
+    console.log('Server listening at port %d', port);
 });
 
 // Routing
-app.use(express.static(path.join(__dirname, 'public')));
 
-let deckJargons = {
+app.use(express.static(path.join(__dirname, 'public')));
+app.post(['/authenticate', '/api/authenticate'], require('./routes/authenticate'));
+
+const deckJargons = {
     14: "Ace",
     13: "King",
     12: "Queen",
@@ -27,7 +32,7 @@ let deckJargons = {
     H: "Hearts"
 }
 
-function deal(deck) {
+const deal = (deck) => {
     var this_hand = [];
     for (var i = 0; i <= 12; i++) {
         var randomCard = deck.splice(0, 1);
@@ -36,21 +41,35 @@ function deal(deck) {
     return this_hand;
 }
 
+const deepCopy = (sourceObject, destinationObject) => {
+
+    for(let key in sourceObject) {
+        if(typeof sourceObject[key] != "object") {
+            destinationObject[key] = sourceObject[key];
+        } else {
+            destinationObject[key] = {};
+            deepCopy(sourceObject[key], destinationObject[key]);
+        }
+    }
+}
+
 io.on('connection', function(socket) {
     var addedUser = false;
-    let thisCache;
     let roomID;
+    let thisCache;
     let reConnected = false;
+    
     // when the client emits 'add user', this listens and executes
-    socket.on('add user', function(username) {
-
+    socket.on('add user', function(data) {
         if (addedUser) return;
-
+        const username = data.username
+        const playerID = data.playerID
+        console.log(username)
         roomID = cache.addUser(socket, username);
         socket.roomID = roomID;
+        console.log(roomID)
         socket.join(roomID);
         thisCache = cache.getGameCache(roomID);
-
         if (!(username in thisCache.usersCards)) {
             socket.username = username;
             ++thisCache.numUsers;
@@ -60,10 +79,12 @@ io.on('connection', function(socket) {
             thisCache.usersCards[socket.username] = hand;
             if (thisCache.numUsers <= 4) {
                 thisCache.players['p' + thisCache.numUsers] = {
-                    username: socket.username,
+                    username: username,
                     socket: socket,
-                    score: 0,
-                    wins: 0
+                    score: 0,   
+                    wins: 0,
+                    handsPicked: 0,
+                    playerID: playerID
                 }
                 thisCache.playerSequence.push(username);
             }
@@ -168,7 +189,7 @@ io.on('connection', function(socket) {
 			} else {
 				io.to(roomID).emit('enable ui', {
 					message: "Let's go!"
-				});
+                });
 			}
 		}
 		
@@ -182,6 +203,8 @@ io.on('connection', function(socket) {
 					message: 'Waiting for other players to join'
 				});
 			} else {
+                thisCache.gameID = uid();
+                thisCache.start_dt = Date.now();
 				io.to(roomID).emit('enable ui', {
 					message: "Let's go!"
 				});
@@ -195,6 +218,7 @@ io.on('connection', function(socket) {
     });
 
     socket.on('bet', function(data) {
+        thisCache.players['p' + (thisCache.playerSequence.indexOf(socket.username) + 1)].bet = data.bet == "pass" ? 0:data.bet; 
         if (data.bet > thisCache.highestBet) {
             thisCache.highestBet = data.bet
             thisCache.highestBettor = socket.username
@@ -341,8 +365,18 @@ io.on('connection', function(socket) {
             var roundWinner = thisCache.currentRoundObj[seniorCard];
             if (thisCache.players.p1.username == roundWinner || thisCache.players.p3.username == roundWinner) {
                 thisCache.teamAHands += thisCache.roundsSinceLastWin;
+                if (roundWinner == thisCache.players.p1.username) {
+                    thisCache.players.p1.handsPicked += thisCache.roundsSinceLastWin;
+                } else {
+                    thisCache.players.p3.handsPicked += thisCache.roundsSinceLastWin;
+                }
             } else {
                 thisCache.teamBHands += thisCache.roundsSinceLastWin;
+                if (roundWinner == thisCache.players.p2.username) {
+                    thisCache.players.p2.handsPicked += thisCache.roundsSinceLastWin;
+                } else {
+                    thisCache.players.p4.handsPicked += thisCache.roundsSinceLastWin;
+                }
             }
             io.to(roomID).emit('hands picked', {
                 username: roundWinner,
@@ -371,27 +405,29 @@ io.on('connection', function(socket) {
 					msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
 					
 					if (thisCache.moodaCalled) {
-						thisCache.players.p1.score += 52	
+                        thisCache.players.p1.score += 52;
+                        thisCache.winningTeamScore = 52;	
  					} else {
-						thisCache.players.p1.score += thisCache.teamAHands
-					}
-
-                    thisCache.players.p1.wins += 1 
+                        thisCache.players.p1.score += thisCache.teamAHands;
+                        thisCache.winningTeamScore = thisCache.teamAHands;
+                    }
+                    thisCache.players.p1.wins += 1; 
                 } else {
 					msg = `${thisCache.playerSequence[1]} and ${thisCache.playerSequence[3]} won!`
 					
 					if (thisCache.moodaCalled) {
-						thisCache.players.p2.score += 52	
+                        thisCache.players.p2.score += 52;
+                        thisCache.winningTeamScore = 52;	
  					} else {
-						thisCache.players.p2.score += (thisCache.highestBet * 2)
+                        thisCache.players.p2.score += (thisCache.highestBet * 2)
+                        thisCache.winningTeamScore = (thisCache.highestBet * 2);
 					}
 					
 					thisCache.players.p2.wins += 1
                 }
                 
-                //xconsole.log(`${thisCache.players.p1.username}-${thisCache.players.p3.username} | wins: ${thisCache.players.p1.wins + thisCache.players.p3.wins} | score: ${thisCache.players.p1.score + thisCache.players.p3.score}`)
-                //xconsole.log(`${thisCache.players.p2.username}-${thisCache.players.p4.username} | wins: ${thisCache.players.p2.wins + thisCache.players.p4.wins} | score: ${thisCache.players.p2.score + thisCache.players.p4.score}`)
-
+                thisCache.winningTeam = team;
+                
                 io.to(roomID).emit('winner announcement', {
                     message: msg,
                     teamAhands: thisCache.teamAHands,
@@ -401,6 +437,8 @@ io.on('connection', function(socket) {
                     teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
                     teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
                 });
+
+                addToQueue();
 
                 setTimeout(function() {
                     if (thisCache.teamAHands >= thisCache.highestBet) {
@@ -584,10 +622,13 @@ io.on('connection', function(socket) {
 			//xconsole.log(count)
 			if (count == 2) {
 				thisCache.teamAHands = 13;
-				thisCache.players.p1.score += 26
-				thisCache.players.p1.wins += 1
-				var msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
+				thisCache.players.p1.score += 26;
+				thisCache.players.p1.wins += 1;
+                thisCache.winningTeam = 'teamA';
+                thisCache.winningTeamScore = 26;
 
+                var msg = `${thisCache.playerSequence[0]} and ${thisCache.playerSequence[2]} won!`
+        
 				io.to(roomID).emit('winner announcement', {
                     message: msg,
                     teamAhands: thisCache.teamAHands,
@@ -596,8 +637,10 @@ io.on('connection', function(socket) {
                     teamBwins: thisCache.players.p2.wins + thisCache.players.p4.wins,
                     teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
                     teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
-				});
-				
+                });
+                
+                addToQueue();
+                
 				setTimeout(function() {
                         redeal();
                 }, 5000);
@@ -645,6 +688,8 @@ io.on('connection', function(socket) {
             	return
         	} 
         }
+
+        addedUser = false
 
     });
 
@@ -711,42 +756,53 @@ io.on('connection', function(socket) {
 		thisCache.moodaCalled = false;
         thisCache.moodaStatus = [];
         thisCache.moodaAccepted = false;
+        thisCache.moodaSuit = '';
+        thisCache.winningTeam = '';
+        thisCache.winningTeamScore = 0;
+        thisCache.players.p1.handsPicked = 0;
+        thisCache.players.p2.handsPicked = 0;
+        thisCache.players.p3.handsPicked = 0;
+        thisCache.players.p4.handsPicked = 0;
         redeal(roomID);
     }
 
     function reset(roomID) {
         io.to(roomID).emit('reset');
-        thisCache.usersCards = {};
-        thisCache.turn = 0;
-        thisCache.totalRounds = 0;
-        thisCache.teamA = [];
-        thisCache.teamB = [];
-        thisCache.teamAHands = 0;
-        thisCache.teamBHands = 0;
-        thisCache.trumpRevealed = 0;
-        thisCache.revealedInThis = 0;
-        thisCache.trumpCard = '';
-        thisCache.currentRoundCards = [];
-        thisCache.lastRoundObj = {};
-        thisCache.currentRoundObj = {};
-        thisCache.currentRoundSuit;
-        thisCache.roundsSinceLastWin = 0;
-        thisCache.playerSequence = [];
-        thisCache.players = {};
-        thisCache.deck = require('./gameplay/deck.js').cards();
-        thisCache.numUsers = 0;
-        thisCache.totalUsers = 0;
-        thisCache.lastRoundSenior = '';
-        thisCache.lastRoundSeniorCard = '';
-        thisCache.mooda = false;
-		thisCache.moodaCalled = false;
-        thisCache.moodaStatus = [];
-        thisCache.moodaAccepted = false;
+        // thisCache.usersCards = {};
+        // thisCache.turn = 0;
+        // thisCache.totalRounds = 0;
+        // thisCache.teamA = [];
+        // thisCache.teamB = [];
+        // thisCache.teamAHands = 0;
+        // thisCache.teamBHands = 0;
+        // thisCache.trumpRevealed = 0;
+        // thisCache.revealedInThis = 0;
+        // thisCache.trumpCard = '';
+        // thisCache.currentRoundCards = [];
+        // thisCache.lastRoundObj = {};
+        // thisCache.currentRoundObj = {};
+        // thisCache.currentRoundSuit;
+        // thisCache.roundsSinceLastWin = 0;
+        // thisCache.playerSequence = [];
+        // thisCache.players = {};
+        // thisCache.deck = require('./gameplay/deck.js').cards();
+        // thisCache.numUsers = 0;
+        // thisCache.totalUsers = 0;
+        // thisCache.lastRoundSenior = '';
+        // thisCache.lastRoundSeniorCard = '';
+        // thisCache.mooda = false;
+		// thisCache.moodaCalled = false;
+        // thisCache.moodaStatus = [];
+        // thisCache.moodaAccepted = false;
+        // thisCache.winningTeam = '';
+        // thisCache.winningTeamScore = 0;
+        thisCache = {}
         cache.deleteRoom(roomID);
     }
 
     function redeal(roomID) {
         if (thisCache.numUsers < 4) return;
+        thisCache.gameID = uid();
         thisCache.usersCards = {};
         thisCache.turn = 0;
         thisCache.totalRounds = 0;
@@ -762,7 +818,7 @@ io.on('connection', function(socket) {
         thisCache.currentRoundObj = {};
         thisCache.currentRoundSuit;
         thisCache.roundsSinceLastWin = 0;
-        thisCache.deck = require('./gameplay/deck.js').cards();
+        thisCache.deck = require('./gameplay/deck').cards();
         thisCache.lastRoundSenior = '';
         thisCache.lastRoundSeniorCard = '';
         thisCache.highestBet = 7;
@@ -770,6 +826,13 @@ io.on('connection', function(socket) {
 		thisCache.moodaCalled = false;
         thisCache.moodaStatus = [];
         thisCache.moodaAccepted = false;
+        thisCache.moodaSuit = ''
+        thisCache.winningTeam = '';
+        thisCache.winningTeamScore = 0;
+        thisCache.players.p1.handsPicked = 0;
+        thisCache.players.p2.handsPicked = 0;
+        thisCache.players.p3.handsPicked = 0;
+        thisCache.players.p4.handsPicked = 0;
 
         for (var player in thisCache.players) {
             var hand = deal(thisCache.deck);
@@ -784,7 +847,7 @@ io.on('connection', function(socket) {
                 teamAscore: thisCache.players.p1.score + thisCache.players.p3.score,
                 teamBscore: thisCache.players.p2.score + thisCache.players.p4.score
             });
-
+            
             soc.emit('deal', {
                 hand: hand.slice(0, 5),
                 redeal: true
@@ -793,6 +856,82 @@ io.on('connection', function(socket) {
         thisCache.players.p1.socket.emit('choose bet', {
             highestBet: thisCache.highestBet
         });
+        thisCache.start_dt = Date.now();
+    }
+
+    function addToQueue() {
+
+        let gameObject = {};
+        gameObject.end_dt = Date.now();
+        gameObject.start_dt = thisCache.start_dt
+        gameObject.gameID = thisCache.gameID
+        gameObject.roomID = roomID
+        gameObject.trumpCard = thisCache.trumpCard
+        gameObject.moodaSuit = thisCache.moodaSuit
+        gameObject.moodaCalled = thisCache.moodaCalled
+        gameObject.moodaStatus  = thisCache.moodaStatus
+        gameObject.moodaAccepted = thisCache.moodaAccepted
+        gameObject.highestBet = thisCache.highestBet
+        gameObject.players = {}
+        for (let i=1; i<5; ++i) {
+            gameObject.players[`p${i}`] = {}
+            gameObject.players[`p${i}`].tricks = thisCache.players[`p${i}`].handsPicked
+            gameObject.players[`p${i}`].username = thisCache.players[`p${i}`].username
+            gameObject.players[`p${i}`].playerID = thisCache.players[`p${i}`].playerID
+            gameObject.players[`p${i}`].bet = thisCache.players[`p${i}`].bet
+            gameObject.players[`p${i}`].playerNum = i
+        }
+        // gameObject.players.p1 = {}
+        // gameObject.players.p2 = {}
+        // gameObject.players.p3 = {}
+        // gameObject.players.p4 = {}
+        // gameObject.players.p1.tricks = thisCache.players.p1.handsPicked
+        // gameObject.players.p2.tricks = thisCache.players.p2.handsPicked
+        // gameObject.players.p3.tricks = thisCache.players.p3.handsPicked
+        // gameObject.players.p4.tricks = thisCache.players.p4.handsPicked
+        // gameObject.players.p1.username = thisCache.players.p1.username
+        // gameObject.players.p2.username = thisCache.players.p2.username
+        // gameObject.players.p3.username = thisCache.players.p3.username
+        // gameObject.players.p4.username = thisCache.players.p4.username
+        // gameObject.players.p1.bet = thisCache.players.p1.bet
+        // gameObject.players.p2.bet = thisCache.players.p2.bet
+        // gameObject.players.p3.bet = thisCache.players.p3.bet
+        // gameObject.players.p4.bet = thisCache.players.p4.bet
+        // gameObject.players.p1.playerID = thisCache.players.p1.playerID
+        // gameObject.players.p2.playerID = thisCache.players.p2.playerID
+        // gameObject.players.p3.playerID = thisCache.players.p3.playerID
+        // gameObject.players.p4.playerID = thisCache.players.p4.playerID
+        // gameObject.players.p1.playerNum = 1 
+        // gameObject.players.p2.playerNum = 2 
+        // gameObject.players.p3.playerNum = 3 
+        // gameObject.players.p4.playerNum = 4 
+
+        if (thisCache.winningTeam == 'teamA') {
+            gameObject.players.p1.score = thisCache.winningTeamScore
+            gameObject.players.p3.score = thisCache.winningTeamScore
+            gameObject.players.p1.result = 'won'
+            gameObject.players.p3.result = 'won'
+            gameObject.players.p2.score = 0
+            gameObject.players.p4.score = 0
+            gameObject.players.p2.result = 'lost'
+            gameObject.players.p4.result = 'lost'
+        } else {
+            gameObject.players.p2.score = thisCache.winningTeamScore
+            gameObject.players.p4.score = thisCache.winningTeamScore
+            gameObject.players.p2.result = 'won'
+            gameObject.players.p4.result = 'won'
+            gameObject.players.p1.score = 0
+            gameObject.players.p3.score = 0
+            gameObject.players.p1.result = 'lost'
+            gameObject.players.p3.result = 'lost'
+        }
+
+        const client = redis.createClient({
+            // host: keys.redisHost,
+            // port: keys.redisPort,
+            retry_strategy: () => 1000
+        });
+        client.rpush('queue', JSON.stringify(gameObject));
     }
 
     socket.on('message', function(data) {
