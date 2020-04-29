@@ -20,6 +20,22 @@ services:
     ports:
       - '3000:3000'
     restart: always
+    env_file: 
+      - '.env'
+    depends_on:
+      - redis
+  worker:
+    build:
+      dockerfile: Dockerfile
+      context: ./worker
+    volumes:
+      - /app/node_modules
+    restart: always
+    env_file: 
+      - '.env'
+    depends_on:
+      - redis
+      - postgres
   redis:
     image: redis
     volumes: 
@@ -30,8 +46,10 @@ services:
   postgres:
     image: postgres
     volumes: 
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - /tmp/postgres/data:/var/lib/postgresql/data
     restart: always
     ports: 
       - 5432:5432
-  
+    env_file:
+      - '.env'

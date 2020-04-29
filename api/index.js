@@ -6,11 +6,11 @@ const path = require('path');
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = process.env.PORT || 3000;
+const redis = require("redis");
 const rules = require('./gameplay/rules');
 let cache = require('./cache');
 const uid = require('uuid/v4');
 const keys = require('./keys');
-const redis = require("redis");
 
 server.listen(port, function() {
     console.log('Server listening at port %d', port);
@@ -927,8 +927,8 @@ io.on('connection', function(socket) {
         }
 
         const client = redis.createClient({
-            // host: keys.redisHost,
-            // port: keys.redisPort,
+            host: keys.redisHost,
+            port: keys.redisPort,
             retry_strategy: () => 1000
         });
         client.rpush('queue', JSON.stringify(gameObject));
