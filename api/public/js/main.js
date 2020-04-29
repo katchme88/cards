@@ -122,8 +122,8 @@ $(function() {
 
     // Sets the client's username
     function login() {
-        username = cleanInput($username.val().trim());
-        const password = cleanInput($password.val().trim());
+        username = cleanInput($username.val().trim().toLowerCase());
+        const password = cleanInput($password.val().trim().toLowerCase());
         
         $.ajax({
             type: "POST",

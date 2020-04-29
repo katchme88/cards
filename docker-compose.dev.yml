@@ -1,0 +1,56 @@
+version: '3'
+services:
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    volumes:
+        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports: 
+      - '8080:80'
+    restart: always
+  api:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./api
+    volumes:
+      - /app/node_modules
+      - ./api:/app
+    ports:
+      - '3000:3000'
+    restart: always
+    env_file: 
+      - '.env'
+    depends_on:
+      - redis
+  worker:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
+    restart: always
+    env_file: 
+      - '.env'
+    depends_on:
+      - redis
+      - postgres
+  redis:
+    image: redis
+    volumes: 
+      - /tmp/redis/data:/data
+    restart: always
+    ports:
+      - 6379:6379
+  postgres:
+    image: postgres
+    volumes: 
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /tmp/postgres/data:/var/lib/postgresql/data
+    restart: always
+    ports: 
+      - 5432:5432
+    env_file:
+      - '.env'
