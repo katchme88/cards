@@ -168,7 +168,7 @@ $(function() {
         $homeScreen.fadeOut();
         $chatPage.fadeIn();
         console.log(username);
-        socket.emit('add user', {username: username.toUpperCase(), playerID: playerID});
+        socket.emit('add user', {username: username, playerID: playerID});
     }
 
     function resetTrumpCaller() {
