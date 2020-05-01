@@ -949,14 +949,9 @@ $(function() {
         turn = 0;
         youRequestedTrump = false;
         playerSequence = data.playerSequence;
-        playerNumber = data.playerNumber;
+        playerNumber = thisCache.playerSequence.indexOf(username) + 1;;
         playerPerspective = getPlayerPerspective(playerSequence);
-        // x = {
-        //     playerSequence: playerSequence,
-        //     playerNumber: playerNumber,
-        //     playerPerspective: playerPerspective
-        // };
-        // // console.log(x);
+
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);
         clearTable(playerSequence[0]);
@@ -971,7 +966,7 @@ $(function() {
 
     socket.on('new sequence', function(data) {
         playerSequence = data.playerSequence;
-        playerNumber = data.playerNumber;
+        playerNumber = thisCache.playerSequence.indexOf(username) + 1;
         playerPerspective = getPlayerPerspective(playerSequence);
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);

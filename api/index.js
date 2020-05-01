@@ -1142,7 +1142,7 @@ io.on('connection', function(socket) {
        
     }
 
-    function addToQueue() {
+    async function addToQueue() {
         log(LOCAL, 'server', 'to queue', {
             roomID: roomID, gameID: thisCache.gameID
         });
@@ -1192,7 +1192,7 @@ io.on('connection', function(socket) {
             port: keys.redisPort,
             retry_strategy: () => 1000
         });
-        client.rpush('queue', JSON.stringify(gameObject));
+        await client.rpush('queue', JSON.stringify(gameObject));
     }
     
     const getGameID = () => {
