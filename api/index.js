@@ -945,8 +945,13 @@ io.on('connection', function(socket) {
         const TIMEOUT = 60000
 
         if (addedUser) {
-			--thisCache.numUsers;
-			   
+            log(DOWN, socket.username, 'disconnect', {})
+            --thisCache.numUsers;
+            
+            if (thisCache.numUsers < 2) {
+                reset(roomID)
+            }
+			
             message = `${socket.username} disconnected. Waiting for user to re-join in ${TIMEOUT/1000} seconds`
 
             // echo globally that this client has left
@@ -1143,7 +1148,7 @@ io.on('connection', function(socket) {
     }
 
     async function addToQueue() {
-        log(LOCAL, 'server', 'to queue', {
+        log(LOCAL, 'server', 'addToQueue', {
             roomID: roomID, gameID: thisCache.gameID
         });
         let gameObject = {};
@@ -1192,6 +1197,7 @@ io.on('connection', function(socket) {
             port: keys.redisPort,
             retry_strategy: () => 1000
         });
+        
         await client.rpush('queue', JSON.stringify(gameObject));
     }
     

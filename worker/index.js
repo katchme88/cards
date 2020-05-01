@@ -1,14 +1,9 @@
 const redis = require("redis");
 const keys = require("./keys");
-const { Pool } = require('pg');
+const { Client } = require('pg');
 
-const pool = new Pool({
-	user: keys.pgUser,
-	host: keys.pgHost,
-	database: keys.pgDatabase,
-	password: keys.pgPassword,
-	port: keys.pgPort
-});
+const ERR = 'ERROR' 
+const INFO = 'INFO'
 
 const redisClient = redis.createClient({
 	host: keys.redisHost,
@@ -18,8 +13,9 @@ const redisClient = redis.createClient({
 
 const addToDatabase = async (data) => {
 	let status = true;
-    const pgClient = await pool.connect();
-    const gameObject = JSON.parse(data)
+	const pgClient = new Client();
+	await pgClient.connect();
+    const gameObject = data
     const gameType = gameObject.moodaCalled ? "mooda": "bidding";
     const gameStatus = "ended";
     const start_dt = new Date(gameObject.start_dt).toISOString().replace(/T/, ' ').replace(/\..+/, '')
@@ -37,21 +33,28 @@ const addToDatabase = async (data) => {
 		await pgClient.query(playersGamesSQL);
     } catch (err) {
 		status = false
+		log(ERR, `${err.detail} in ${err.table}`)
     }
     
-	pgClient.end();
+	await pgClient.end();
 	return status
 }
 
 
 const waitForPush = () => {
     redisClient.blpop(['queue', 0], async (error, item) => {
-		let status = await addToDatabase(item[1]);
+		const data = JSON.parse(item[1])
+		log(INFO, `${data.roomID} ${data.gameID}`)
+		let status = await addToDatabase(data);
 		if (!status) {
-			redisClient.rpush('errors', item[1]);
+			await redisClient.rpush('errors', JSON.stringify(data));
 		}
         waitForPush();
     });
+}
+
+const log = (type, data) =>{
+	console.log(new Date(Date.now()).toISOString().replace(/T/, ' ').replace(/\..+/, ''), type, data)
 }
 
 waitForPush()

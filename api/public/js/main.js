@@ -966,7 +966,7 @@ $(function() {
 
     socket.on('new sequence', function(data) {
         playerSequence = data.playerSequence;
-        playerNumber = thisCache.playerSequence.indexOf(username) + 1;
+        playerNumber = playerSequence.indexOf(username) + 1;
         playerPerspective = getPlayerPerspective(playerSequence);
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);

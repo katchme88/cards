@@ -2,18 +2,10 @@ const router = require('express').Router();
 const keys = require('../keys');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json()
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  user: keys.pgUser,
-  host: keys.pgHost,
-  database: keys.pgDatabase,
-  password: keys.pgPassword,
-  port: keys.pgPort
-});
-
+const { Client } = require('pg');
 router.use(['/authenticate', '/api/authenticate'], jsonParser, async (req, res) => {
-    const client = await pool.connect();
+    const client = new Client()
+    await client.connect()
     let sql = `SELECT "playerID", "username" from players where username = '${req.body.username}' and password = '${req.body.password}'`
     const values = await client.query(sql)
     if (values.rowCount) {
@@ -22,7 +14,7 @@ router.use(['/authenticate', '/api/authenticate'], jsonParser, async (req, res) 
     } else {
         res.status(401).jsonp({error: 'failed', reason: 'username or password incorrect'})
     }
-    client.end();
+    await client.end();
 });
 
 module.exports = router;
