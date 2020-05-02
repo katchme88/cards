@@ -949,7 +949,7 @@ $(function() {
         turn = 0;
         youRequestedTrump = false;
         playerSequence = data.playerSequence;
-        playerNumber = thisCache.playerSequence.indexOf(username) + 1;;
+        playerNumber = playerSequence.indexOf(username) + 1;;
         playerPerspective = getPlayerPerspective(playerSequence);
 
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
