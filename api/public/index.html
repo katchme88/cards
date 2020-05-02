@@ -110,19 +110,7 @@
             </div>
             <div class="middle">
                 <div class="cards-in-hand">
-                    <!-- <div class="card-in-hand cih-0" id="C04"><img src="images/cards/C04.png"></div>
-                    <div class="card-in-hand cih-1" id="C06"><img src="images/cards/C06.png"></div>
-                    <div class="card-in-hand cih-2" id="S06"><img src="images/cards/S06.png"></div>
-                    <div class="card-in-hand cih-3" id="H11"><img src="images/cards/H11.png"></div>
-                    <div class="card-in-hand cih-4" id="H14"><img src="images/cards/H14.png"></div>
-                    <div class="card-in-hand cih-5" id="C04"><img src="images/cards/C04.png"></div>
-                    <div class="card-in-hand cih-6" id="C06"><img src="images/cards/C06.png"></div>
-                    <div class="card-in-hand cih-7" id="S06"><img src="images/cards/S06.png"></div>
-                    <div class="card-in-hand cih-8" id="H11"><img src="images/cards/H11.png"></div>
-                    <div class="card-in-hand cih-9" id="H14"><img src="images/cards/H14.png"></div>
-                    <div class="card-in-hand cih-10" id="C04"><img src="images/cards/C04.png"></div>
-                    <div class="card-in-hand cih-11" id="C06"><img src="images/cards/C06.png"></div>
-                    <div class="card-in-hand cih-12" id="S06"><img src="images/cards/S06.png"></div> -->
+                    <!-- <div class="card-in-hand cih-0" id="C04"><img src="images/cards/C04.png"></div> -->
                 </div>
             </div>
             <div class="right">
@@ -135,7 +123,6 @@
     </div> 
     <div class="login page">
         <div class="form">
-            <!-- <h3 class="title">What's your nickname?</h3> -->
             <center>
                 <input class="input username" type="text" maxlength="14" placeholder="username"/>
                 <input class="input password" type="password" maxlength="14" placeholder="password"/>
@@ -147,23 +134,12 @@
             <button id="singlePlayer" class="chooseGame singlePlayer">Single Player</button><br><br>
             <button id="withFriends" class="chooseGame withFriends">Play With Friends</button>
         </div>
-        <!-- <a href="https://wa.me/13067378171?text=http://localhost:8080">WhatsApp</a> -->
     </div>
+    <!-- <a href="https://wa.me/13067378171?text=http://localhost:8080">WhatsApp</a> -->
     <div class="overlay"></div>
     <div class="partnerCardsOverlay">
         <div class="partnerCards">
             <!-- <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
-            <div class="pcih" ><img src="images/cards/H14.png"></div>
             <div class="pcih" ><img src="images/cards/H14.png"></div> -->
         </div>
         <div>
@@ -172,6 +148,7 @@
         </div>
     </div>
     <div class="moodaBtnOverlay">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <center>Call Mooda</center>
         <div class="moodaBtns">
             <div class="moodaBtn" id="HeartSuit"><img src="images/cards/heart.png"></div>
@@ -179,7 +156,6 @@
             <div class="moodaBtn" id="DiamondSuit"><img src="images/cards/diamond.png"></div>
             <div class="moodaBtn" id="SpadeSuit"><img src="images/cards/spade.png"></div>
         </div>
-        <button class="close">Close</button>
     </div>
     <div class="chatBox">
         <input type="text" id="chat-msg"/>
@@ -193,23 +169,27 @@
     </div>
     <div class="betbox">
         <center>Choose Your Bet</center>
-        <input type="button" value="Pass" id="btn_bet_pass"/><br><br>
-        <input type="button" value="8" id="btn_bet_8"/><br><br>
-        <input type="button" value="9" id="btn_bet_9"/><br><br>
-        <input type="button" value="10" id="btn_bet_10"/><br><br>
-        <input type="button" value="11" id="btn_bet_11"/><br><br>
-        <input type="button" value="12" id="btn_bet_12"/><br><br>
-        <input type="button" value="13" id="btn_bet_13"/>
+        <div class="betButtonDiv">
+            <ul class="betButtonList">
+                <li class="betButton" ><input type="button" value="8" id="btn_bet_8"/><br><br></li>
+                <li class="betButton" ><input type="button" value="9" id="btn_bet_9"/><br><br></li>
+                <li class="betButton" ><input type="button" value="10" id="btn_bet_10"/><br><br></li>
+                <li class="betButton" ><input type="button" value="11" id="btn_bet_11"/><br><br></li>
+                <li class="betButton" ><input type="button" value="12" id="btn_bet_12"/><br><br></li>
+                <li class="betButton" ><input type="button" value="13" id="btn_bet_13"/></li>
+                <li class="betButton" ><input type="button" value="Pass" id="btn_bet_pass"/><br><br></li>
+            </ul>
+        </div>
     </div>
     <script>
         function visibilityHandler() {
-        var hash = '#bg';
-        if (document.hidden && !window.location.hash) {
-            window.history.replaceState(null, null, window.location + hash);
-        } else if (!document.hidden && window.location.hash == hash) {
-            var l = '' + window.location;
-            window.history.replaceState(null, null, l.substr(0, l.length - hash.length));
-        }
+            var hash = '#bg';
+            if (document.hidden && !window.location.hash) {
+                window.history.replaceState(null, null, window.location + hash);
+            } else if (!document.hidden && window.location.hash == hash) {
+                var l = '' + window.location;
+                window.history.replaceState(null, null, l.substr(0, l.length - hash.length));
+            }
         };
         document.addEventListener('visibilitychange', visibilityHandler, false);
         visibilityHandler();

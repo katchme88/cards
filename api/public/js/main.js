@@ -516,8 +516,8 @@ $(function() {
         enableMoodaBtn = false;
     });
 
-    $('.close').on('click', function() {
-        $('.close').parent().hide();
+    $('.closebtn').on('click', function() {
+        $('.closebtn').parent().hide();
     });
 
     $('#btn_close').on('click', function() {
@@ -938,6 +938,8 @@ $(function() {
     });
 
     socket.on('redeal', function(data) {
+        $('.controller').hide();
+        $('.betbox').hide();
         choosingTrump = false;
         trumpCard = "";
         currentRoundSuit;
@@ -951,7 +953,7 @@ $(function() {
         playerSequence = data.playerSequence;
         playerNumber = playerSequence.indexOf(username) + 1;;
         playerPerspective = getPlayerPerspective(playerSequence);
-
+        
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);
         clearTable(playerSequence[0]);
