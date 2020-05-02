@@ -44,8 +44,15 @@ const addToDatabase = async (data) => {
 const waitForPush = () => {
     redisClient.blpop(['queue', 0], async (error, item) => {
 		const data = JSON.parse(item[1])
+		let status;
 		log(INFO, `${data.roomID} ${data.gameID}`)
-		let status = await addToDatabase(data);
+		
+		try {
+			status = await addToDatabase(data);
+		} catch {
+			log(ERR, 'data error')
+			await redisClient.rpush('errors', JSON.stringify(data));
+		}
 		if (!status) {
 			await redisClient.rpush('errors', JSON.stringify(data));
 		}

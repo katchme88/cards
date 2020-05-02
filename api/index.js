@@ -218,39 +218,69 @@ io.on('connection', function(socket) {
                 });
             }
             //xconsole.log(thisCache.turn);
-            if (thisCache.turn < 4 && thisCache.turn > 0) {
+            // if (thisCache.turn < 4 && thisCache.turn > 0) {
+            //         console.log(thisCache.playerSequence);
+            //         console.log(thisCache.currentRoundObj);
+            //         console.log(socket.username);
+            //     if (thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop()) + 1] == socket.username) {
+            //         socket.emit('your turn', {
+            //             currentRoundSuit: thisCache.currentRoundSuit,
+			// 			totalRounds: thisCache.totalRounds,
+			// 			moodaCalled: thisCache.moodaCalled
+            //         });
+
+            //         log(UP, username, 'your turn', {
+            //             currentRoundSuit: thisCache.currentRoundSuit,
+			// 			totalRounds: thisCache.totalRounds,
+			// 			moodaCalled: thisCache.moodaCalled
+            //         });
+            //     }
+            // }
+
+            // if (thisCache.turn == 0) {
+            //     if (thisCache.lastRoundSenior == socket.username || (thisCache.lastRoundSenior == '' && thisCache.totalRounds > 0)) {
+                    
+            //         socket.emit('your turn', {
+            //             currentRoundSuit: thisCache.currentRoundSuit,
+			// 			totalRounds: thisCache.totalRounds,
+			// 			moodaCalled: thisCache.moodaCalled
+            //         });
+                    
+            //         log(UP, username, 'your turn', {
+            //             currentRoundSuit: thisCache.currentRoundSuit,
+			// 			totalRounds: thisCache.totalRounds,
+			// 			moodaCalled: thisCache.moodaCalled
+            //         });
+            //     }
+            // }
+            
+            if (thisCache.totalRounds == 0 && thisCache.turn == 0 && thisCache.players.p1.username == username) {
+                socket.emit('your turn', {
+                    currentRoundSuit: thisCache.currentRoundSuit,
+                    totalRounds: thisCache.totalRounds,
+                    moodaCalled: thisCache.moodaCalled
+                });
                 
-                if (thisCache.playerSequence[thisCache.playerSequence.indexOf(Object.values(thisCache.currentRoundObj).pop()) + 1] == socket.username) {
-                    socket.emit('your turn', {
-                        currentRoundSuit: thisCache.currentRoundSuit,
-						totalRounds: thisCache.totalRounds,
-						moodaCalled: thisCache.moodaCalled
-                    });
-
-                    log(UP, username, 'your turn', {
-                        currentRoundSuit: thisCache.currentRoundSuit,
-						totalRounds: thisCache.totalRounds,
-						moodaCalled: thisCache.moodaCalled
-                    });
-                }
+                log(UP, username, 'your turn', {
+                    currentRoundSuit: thisCache.currentRoundSuit,
+                    totalRounds: thisCache.totalRounds,
+                    moodaCalled: thisCache.moodaCalled
+                });
             }
-
-            if (thisCache.turn == 0) {
-                if (thisCache.lastRoundSenior == socket.username || (thisCache.lastRoundSenior == '' && thisCache.totalRounds > 0)) {
-                    
-                    socket.emit('your turn', {
-                        currentRoundSuit: thisCache.currentRoundSuit,
-						totalRounds: thisCache.totalRounds,
-						moodaCalled: thisCache.moodaCalled
-                    });
-                    
-                    log(UP, username, 'your turn', {
-                        currentRoundSuit: thisCache.currentRoundSuit,
-						totalRounds: thisCache.totalRounds,
-						moodaCalled: thisCache.moodaCalled
-                    });
-                }
-			}
+            
+            if (thisCache.nextTurnUsername == username) {
+                socket.emit('your turn', {
+                    currentRoundSuit: thisCache.currentRoundSuit,
+                    totalRounds: thisCache.totalRounds,
+                    moodaCalled: thisCache.moodaCalled
+                });
+                
+                log(UP, username, 'your turn', {
+                    currentRoundSuit: thisCache.currentRoundSuit,
+                    totalRounds: thisCache.totalRounds,
+                    moodaCalled: thisCache.moodaCalled
+                });
+            }
 
 			if (thisCache.numUsers < 4) {
 
@@ -642,9 +672,11 @@ io.on('connection', function(socket) {
             }
         }
 
+        thisCache.nextTurnUsername = nextPlayerSocket.username;
+
         if (thisCache.turn === 0) {
             setTimeout(function() {
-
+                
                 nextPlayerSocket.emit('your turn', {
                     currentRoundSuit: thisCache.currentRoundSuit,
 					totalRounds: thisCache.totalRounds,
@@ -1106,6 +1138,7 @@ io.on('connection', function(socket) {
         thisCache.players.p2.handsPicked = 0;
         thisCache.players.p3.handsPicked = 0;
         thisCache.players.p4.handsPicked = 0;
+        thisCache.nextTurnUsername = '';
 
         io.to(roomID).emit('redeal', {
             playerSequence: thisCache.playerSequence,
