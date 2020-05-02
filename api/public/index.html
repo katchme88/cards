@@ -27,8 +27,28 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="socket.io/socket.io.js"></script>
     <script src="js/main.js"></script>
-    <script>
-    </script>
+    <style>
+        .msgBox {
+            background-color: lightblue;
+            width: 110px;
+            height: 80px;
+            overflow: auto;
+            font-size:x-small;
+            margin-left: 5px;
+            padding: 5px;
+        }
+        .msgBox > ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .msgUsername {
+            display: inline;
+        }
+        .msgText{
+            display: inline;
+        }
+    </style>
 </head>
 <body>
     <div class="bkg"></div>
@@ -95,6 +115,12 @@
                 </center>
                 <div class="chatBubble chatBubble-2"><p></p></div>
                 <div class="betBubble betBubble-2"><p><b>BET 8</p></div>
+                <div class="msgBox">
+                    <center>Message Box</center>
+                    <ul class="msgBoxList">
+                        <!-- <li><div class="msgUsername">Talha:</div><div class="msgText">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.</div></li></li>-->
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="bottom">

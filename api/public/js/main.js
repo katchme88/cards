@@ -1,11 +1,7 @@
 $(function() {
     var FADE_TIME = 150; // ms
     var TYPING_TIMER_LENGTH = 400; // ms
-    var COLORS = [
-        '#e21400', '#91580f', '#f8a700', '#f78b00',
-        '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-        '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
-    ];
+    var COLORS = ['#eb4034', '#30b359','#3449eb', '#eb349c'];
     var CIH_TOPS = {
         'cih-0': '58%',
         'cih-1': '53%',
@@ -41,8 +37,9 @@ $(function() {
     var $withFriendsBtn = $('#withFriends');
     var $singlePlayerBtn = $('#singlePlayer');
     var $homeScreen = $('.home.screen')
-
     var $cards_in_hand = $('.cards-in-hand');
+    var $msgBox = $('.msgBox');
+
     var choosingTrump = false;
     var trumpCard = "";
     var currentRoundSuit;
@@ -70,6 +67,7 @@ $(function() {
     var youRequestedTrump = false;
     var highestBet = 0;
     var enableMoodaBtn = false;
+    var messages = [];
     var socket = io();
 
     window.onload = function() {
@@ -482,7 +480,7 @@ $(function() {
 
     function sendMessage() {
         var msg = $("#chat-msg").val();
-        if (msg.length == 0) {
+        if (msg.length == 0 || msg == "") {
             $("#chat-msg").val('');
             $("#chat-msg").blur();
             $(".chatBox").fadeOut();
@@ -501,6 +499,10 @@ $(function() {
             username: username,
             message: msg,
         });
+        updateMsgBox({
+            username: username,
+            message: msg,
+        })
         $("#chat-msg").val('');
         $("#chat-msg").blur();
         $(".chatBox").fadeOut();
@@ -1024,6 +1026,8 @@ $(function() {
     });
 
     socket.on('message', function(data) {
+        updateMsgBox(data)
+        console.log(messages);
         var num = playerPerspective.indexOf(data.username) + 1;
         $(".chatBubble-" + num).html('<p>' + data.message + '</p>');
         $(".chatBubble-" + num).show();
@@ -1031,6 +1035,12 @@ $(function() {
             $(".chatBubble-" + num).fadeOut();
         }, 5000);
     });
+    
+    const updateMsgBox = (data) => {
+        let color = COLORS[playerPerspective.indexOf(data.username)]
+        $('.msgBoxList').append(`<li><div style="color: ${color}" class="msgUsername">${data.username}:</div><div class="msgText">${data.message}</div></li>`)
+        $msgBox.scrollTop($msgBox.prop("scrollHeight"));
+    }
 
     socket.on('bet', function(data) {
         var num = playerPerspective.indexOf(data.username) + 1;
