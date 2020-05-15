@@ -1,4 +1,4 @@
-version: '3'
+version: '3.1'
 services:
   nginx:
     restart: always
@@ -46,8 +46,8 @@ services:
   postgres:
     image: postgres
     volumes: 
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
       - /tmp/postgres/data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
     ports: 
       - 5432:5432
