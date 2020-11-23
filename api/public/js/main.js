@@ -1,11 +1,7 @@
 $(function() {
     var FADE_TIME = 150; // ms
     var TYPING_TIMER_LENGTH = 400; // ms
-    var COLORS = [
-        '#e21400', '#91580f', '#f8a700', '#f78b00',
-        '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-        '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
-    ];
+    var COLORS = ['#eb4034', '#30b359','#3449eb', '#eb349c'];
     var CIH_TOPS = {
         'cih-0': '58%',
         'cih-1': '53%',
@@ -25,7 +21,8 @@ $(function() {
     // Initialize variables
     var $window = $(window);
     var $document = $(document);
-    var $usernameInput = $('.usernameInput'); // Input for username
+    var $username = $('.username'); // Input for username
+    var $password = $('.password'); // Input for username
     var $inputMessage = $('.inputMessage'); // Input message input box
     //var $revealTrump = $('.revealTrump');
     var $requestTrump = $('.requestTrump');
@@ -37,8 +34,12 @@ $(function() {
     var $overlay = $('#overlay');
     var $moodaBtnOverlay = $('.moodaBtnOverlay');
     var $moodaicon = $('.moodaicon');
-
+    var $withFriendsBtn = $('#withFriends');
+    var $singlePlayerBtn = $('#singlePlayer');
+    var $homeScreen = $('.home.screen')
     var $cards_in_hand = $('.cards-in-hand');
+    var $msgBox = $('.msgBox');
+
     var choosingTrump = false;
     var trumpCard = "";
     var currentRoundSuit;
@@ -48,10 +49,11 @@ $(function() {
 
     // Prompt for setting a username
     var username;
+    var playerID;
     var connected = false;
     var typing = false;
     var lastTypingTime;
-    var $currentInput = $usernameInput.focus();
+    var $currentInput = $username.focus();
     var myTurn = false;
     var cardsInHand = [];
     var suitsInHand = [];
@@ -65,8 +67,36 @@ $(function() {
     var youRequestedTrump = false;
     var highestBet = 0;
     var enableMoodaBtn = false;
-
+    var messages = [];
     var socket = io();
+
+    window.onload = function() {
+        
+        let cookies = document.cookie
+            .split(';')
+            .reduce((res, c) => {
+                const [key, val] = c.trim().split('=').map(decodeURIComponent)
+                try {
+                return Object.assign(res, { [key]: JSON.parse(val) })
+                } catch (e) {
+                return Object.assign(res, { [key]: val })
+                }
+            }, {});
+
+        if (typeof(cookies.playerID) != 'undefined' && typeof(cookies.username) != 'undefined') {
+            username = cookies.username;
+            playerID = cookies.playerID
+            $loginPage.fadeOut();
+            // $chatPage.show();
+            $loginPage.off('click');
+            $homeScreen.show();
+            $username.blur();
+            $password.blur();
+            // socket.emit('add user', {username: username, playerID: playerID});
+        } else {
+            return
+        }
+    };
 
     function addParticipantsMessage(data) {
         var message = '';
@@ -89,18 +119,65 @@ $(function() {
     }
 
     // Sets the client's username
-    function setUsername() {
-        username = cleanInput($usernameInput.val().trim());
-        username = username.toUpperCase();
+    function login() {
+        username = cleanInput($username.val().trim().toLowerCase());
+        const password = cleanInput($password.val().trim().toLowerCase());
+        
+        $.ajax({
+            type: "POST",
+            url: "/api/authenticate",
+            // The key needs to match your method's input parameter (case-sensitive).
+            data: JSON.stringify({ username: username, password: password }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data) {
+                $loginPage.fadeOut();
+                // $chatPage.show();
+                $loginPage.off('click');
+                $homeScreen.show();
+                // $currentInput = $inputMessage.focus();
+                $username.blur();
+                $password.blur();
+                // Tell the server your username
+                playerID = data.playerID
+                // console.log(playerID)
+                document.cookie = `playerID=${playerID}; expires=Mon, 19 Jan 2088 12:00:00 UTC`;
+                document.cookie = `username=${username}; expires=Mon, 19 Jan 2088 12:00:00 UTC`;
+                // socket.emit('add user', {username: username, playerID: playerID});
+            },
+            error: function(data) {
+                alert(data.responseJSON.reason);
+            }
+        });
+        // username = username.toUpperCase();
         // If the username is valid
-        if (username) {
-            $loginPage.fadeOut();
-            $chatPage.show();
-            $loginPage.off('click');
-            $currentInput = $inputMessage.focus();
-            $usernameInput.blur();
-            // Tell the server your username
-            socket.emit('add user', username);
+        // if (username) {
+        //     $loginPage.fadeOut();
+        //     $chatPage.show();
+        //     $loginPage.off('click');
+        //     $currentInput = $inputMessage.focus();
+        //     $username.blur();
+        //     // Tell the server your username
+        //     socket.emit('add user', username);
+        // }
+    }
+
+    function playWithFriends () {
+        $homeScreen.fadeOut();
+        $chatPage.fadeIn();
+        console.log(username);
+        socket.emit('add user', {username: username, playerID: playerID});
+    }
+
+    function resetTrumpCaller() {
+        for (var i=1; i <=4 ; i++) {
+            $(".avatar-"+i).removeClass('trumpCaller');
+        }
+    }
+
+    function resetPlayerNames() {
+        for (var i = 0; i < 4; i++) {
+            $(".name-"+(i+1)).html("<center><b></b></center>");
         }
     }
 
@@ -353,20 +430,26 @@ $(function() {
 
 
     // Keyboard events
-    $window.keydown(function(event) {
-        // Auto-focus the current input when a key is typed
-        if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-            $currentInput.focus();
-        }
-        // When the client hits ENTER on their keyboard
+    $('#chat-msg').keydown(function(event) {
         if (event.which === 13) {
             if (username) {
                 sendMessage();
-            } else {
-                setUsername();
-            }
+            } 
         }
     });
+
+    $password.keydown(function(event) {
+        if (event.which === 13) {
+            login()
+        }
+    });
+
+    $username.keydown(function(event) {
+        if (event.which === 13) {
+            $password.focus();
+        }
+    });
+
 
     $inputMessage.on('input', function() {
 
@@ -376,8 +459,12 @@ $(function() {
 
     // Focus input when clicking anywhere on login page
     $loginPage.click(function() {
-        $currentInput.focus();
+        // $currentInput.focus();
     });
+
+    $withFriendsBtn.click( function() {
+        playWithFriends()
+      })
 
     // Focus input when clicking on the message input's border
     $inputMessage.click(function() {
@@ -393,6 +480,12 @@ $(function() {
 
     function sendMessage() {
         var msg = $("#chat-msg").val();
+        if (msg.length == 0 || msg == "") {
+            $("#chat-msg").val('');
+            $("#chat-msg").blur();
+            $(".chatBox").fadeOut();
+            return
+        }
 
         if (msg.toLowerCase() === 'c:') {
             $("#chat-msg").val('');
@@ -406,6 +499,10 @@ $(function() {
             username: username,
             message: msg,
         });
+        updateMsgBox({
+            username: username,
+            message: msg,
+        })
         $("#chat-msg").val('');
         $("#chat-msg").blur();
         $(".chatBox").fadeOut();
@@ -421,8 +518,8 @@ $(function() {
         enableMoodaBtn = false;
     });
 
-    $('.close').on('click', function() {
-        $('.close').parent().hide();
+    $('.closebtn').on('click', function() {
+        $('.closebtn').parent().hide();
     });
 
     $('#btn_close').on('click', function() {
@@ -694,10 +791,10 @@ $(function() {
     });
 
     socket.on('disconnect', function() {
-        showOverlay('You have been disconnected');
-        setTimeout(function() {
-            location.reload(true);
-        }, 3000);
+        setTimeout(function() { 
+            $chatPage.fadeOut()
+            $homeScreen.fadeIn() 
+          }, 3000);
     });
 
     socket.on('reconnect', function() {
@@ -843,6 +940,8 @@ $(function() {
     });
 
     socket.on('redeal', function(data) {
+        $('.controller').hide();
+        $('.betbox').hide();
         choosingTrump = false;
         trumpCard = "";
         currentRoundSuit;
@@ -854,14 +953,9 @@ $(function() {
         turn = 0;
         youRequestedTrump = false;
         playerSequence = data.playerSequence;
-        playerNumber = data.playerNumber;
+        playerNumber = playerSequence.indexOf(username) + 1;;
         playerPerspective = getPlayerPerspective(playerSequence);
-        // x = {
-        //     playerSequence: playerSequence,
-        //     playerNumber: playerNumber,
-        //     playerPerspective: playerPerspective
-        // };
-        // // console.log(x);
+        
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);
         clearTable(playerSequence[0]);
@@ -876,7 +970,7 @@ $(function() {
 
     socket.on('new sequence', function(data) {
         playerSequence = data.playerSequence;
-        playerNumber = data.playerNumber;
+        playerNumber = playerSequence.indexOf(username) + 1;
         playerPerspective = getPlayerPerspective(playerSequence);
         indicateTrumpCaller(playerPerspective.indexOf(playerSequence[0]));
         bounceAvatar(0);
@@ -908,11 +1002,32 @@ $(function() {
     socket.on('reset', function() {
         setTimeout(function() {
             showOverlay('game will reset');
+            // socket.disconnect();
+            // myTurn = false;
+            // cardsInHand = [];
+            // suitsInHand = [];
+            // playerNumber = 0;
+            // playerSequence=[];
+            // playerPerspective = [];
+            // turn = 0;
+            // youRequestedTrump = false;
+            // highestBet = 0;
+            // resetPlayerNames();
+            // $(".betBubble").hide();
+            // $(".tableCard").remove();
+            // $(".betbox").hide();
+            // bounceAvatar(0);
+            // resetTrumpCaller();
+            // $chatPage.fadeOut();
+            // $homeScreen.fadeIn();
+
             location.reload(true);
-        }, 3000);
+           }, 3000);
     });
 
     socket.on('message', function(data) {
+        updateMsgBox(data)
+        console.log(messages);
         var num = playerPerspective.indexOf(data.username) + 1;
         $(".chatBubble-" + num).html('<p>' + data.message + '</p>');
         $(".chatBubble-" + num).show();
@@ -920,6 +1035,12 @@ $(function() {
             $(".chatBubble-" + num).fadeOut();
         }, 5000);
     });
+    
+    const updateMsgBox = (data) => {
+        let color = COLORS[playerPerspective.indexOf(data.username)]
+        $('.msgBoxList').append(`<li><div style="color: ${color}" class="msgUsername">${data.username}:</div><div class="msgText">${data.message}</div></li>`)
+        $msgBox.scrollTop($msgBox.prop("scrollHeight"));
+    }
 
     socket.on('bet', function(data) {
         var num = playerPerspective.indexOf(data.username) + 1;

@@ -25,7 +25,7 @@
   width: 100%;
 }
 
-.login.page .form .usernameInput {
+.login.page .form .input  {
   background-color: transparent;
   border: none;
   border-bottom: 2px solid #fff;
@@ -39,12 +39,16 @@
   font-size: 200%;
 }
 
-.login.page .usernameInput {
+.login.page .input {
   font-size: 200%;
   letter-spacing: 3px;
 }
 
-.login.page .title, .login.page .usernameInput {
+.login.page .title, .login.page .input {
   color: #fff;
   font-weight: 100;
+}
+
+.input {
+  display: block;
 }

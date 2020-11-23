@@ -5,3 +5,5 @@ package-lock.json
 *workspace
 cardsgameuitesting
 *DS_Store
+*.env
+postgres/data
