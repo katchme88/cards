@@ -46,6 +46,7 @@ export default function App() {
           </Stack.Screen>
         ) : (
           <>
+            {/* HomeScreen disabled — go directly to Game
             <Stack.Screen name="Home">
               {({ navigation }) => (
                 <HomeScreen
@@ -55,6 +56,7 @@ export default function App() {
                 />
               )}
             </Stack.Screen>
+            */}
             <Stack.Screen name="Game">
               {() => <GameScreen session={session} onReset={logout} />}
             </Stack.Screen>
