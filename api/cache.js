@@ -55,16 +55,24 @@ const searchForUserRoom = (username) => {
     for (let roomID in usersByRoom){
         if (username in usersByRoom[roomID].usersCards){
             return roomID
-        } else {
-            return false
         }
     }
+    return false
 }
 
 module.exports = {
-    addUser: (socket, username) => {
+    addUser: (socket, username, requestedRoomID = null) => {
+        if (requestedRoomID) {
+            if (!usersByRoom[requestedRoomID]) {
+                return null;
+            }
+            usersByRoom[requestedRoomID]['users'][socket.id] = socket;
+            return requestedRoomID;
+        }
+
         let roomID = searchForUserRoom(username)
         if (roomID) {
+            usersByRoom[roomID]['users'][socket.id] = socket;
             return roomID
         }
         roomID = getRoomID();
@@ -80,5 +88,8 @@ module.exports = {
     deleteRoom: (roomID) => {
         delete usersByRoom[roomID];
         return true
+    },
+    roomExists: (roomID) => {
+        return !!usersByRoom[roomID];
     }
 }

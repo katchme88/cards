@@ -73,6 +73,7 @@ export default function GameScreen({ session, onReset }) {
   const [playerPerspective, setPlayerPerspective] = useState([]);
   const [playerNumber, setPlayerNumber] = useState(0);
   const [activePlayer, setActivePlayer] = useState(-1); // perspective index 0-3 with gold border
+  const [playerOnline, setPlayerOnline] = useState({}); // { username: true|false }
 
   // ---- cards --------------------------------------------------------------
   const [hand, setHand] = useState([]);
@@ -116,12 +117,16 @@ export default function GameScreen({ session, onReset }) {
   const [countdown, setCountdown] = useState(null);
   const overlayTimer = useRef(null);
   const countdownTimer = useRef(null);
+  const needsFreshHandRef = useRef(false);
 
   // ---- refs for mutable state in callbacks --------------------------------
   const handRef = useRef(hand);
   handRef.current = hand;
   const perspectiveRef = useRef(playerPerspective);
   perspectiveRef.current = playerPerspective;
+  const activePlayerRef = useRef(activePlayer);
+  activePlayerRef.current = activePlayer;
+  const roomIdRef = useRef(null);
   const sequenceRef = useRef(playerSequence);
   sequenceRef.current = playerSequence;
 
@@ -152,6 +157,14 @@ export default function GameScreen({ session, onReset }) {
     }, 1000);
   }, []);
 
+  function setOnlineFromSequence(seq) {
+    const next = {};
+    seq.forEach((name) => {
+      if (name) next[name] = true;
+    });
+    setPlayerOnline(next);
+  }
+
   function updateSuitsInHand(cards) {
     const s = [...new Set(cards.map((c) => c[0]))];
     setSuitsInHand(s);
@@ -179,11 +192,16 @@ export default function GameScreen({ session, onReset }) {
 
   function onCardPress(cardCode) {
     if (choosingTrump) {
-      socket.emit("trump card", cardCode);
-      const next = hand.filter((c) => c !== cardCode);
-      setHand(next);
-      updateSuitsInHand(next);
-      setChoosingTrump(false);
+      if (selectedCard === cardCode) {
+        socket.emit("trump card", cardCode);
+        const next = hand.filter((c) => c !== cardCode);
+        setHand(next);
+        updateSuitsInHand(next);
+        setChoosingTrump(false);
+        setSelectedCard(null);
+        return;
+      }
+      setSelectedCard(cardCode);
       return;
     }
     if (!myTurn) {
@@ -278,10 +296,13 @@ export default function GameScreen({ session, onReset }) {
       socket.emit("add user", {
         username: session.username,
         playerID: session.playerID,
+        roomID: roomIdRef.current,
       });
     }
     function onDisconnect(reason) {
       setSocketStatus("disconnected");
+      needsFreshHandRef.current = true;
+      setPartnerCards(null);
       // If server closed the connection (not a client-initiated disconnect), go to login
       if (reason === "io server disconnect" || reason === "transport close") {
         setTimeout(() => onReset?.(), 2000);
@@ -294,7 +315,9 @@ export default function GameScreen({ session, onReset }) {
     // -- login / join -------------------------------------------------------
     socket.on("login", (data) => {
       const seq = data.playerSequence || [];
+      roomIdRef.current = data.roomID || roomIdRef.current;
       setPlayerSequence(seq);
+      setOnlineFromSequence(seq);
       setPlayerNumber(data.playerNumber);
       const persp = getPlayerPerspective(seq, session.username);
       setPlayerPerspective(persp);
@@ -307,6 +330,7 @@ export default function GameScreen({ session, onReset }) {
     socket.on("user joined", (data) => {
       const seq = data.playerSequence || [];
       setPlayerSequence(seq);
+      setOnlineFromSequence(seq);
       const persp = getPlayerPerspective(seq, session.username);
       setPlayerPerspective(persp);
       if (seq.length === 4 && !data.reConnected) {
@@ -317,6 +341,9 @@ export default function GameScreen({ session, onReset }) {
     });
 
     socket.on("user left", (data) => {
+      if (data?.username) {
+        setPlayerOnline((prev) => ({ ...prev, [data.username]: false }));
+      }
       const seconds = Math.ceil((data.timeout || 30000) / 1000);
       showOverlayWithCountdown(data.message, seconds);
     });
@@ -324,11 +351,19 @@ export default function GameScreen({ session, onReset }) {
     // -- deal ---------------------------------------------------------------
     socket.on("deal", (data) => {
       if (!data?.hand) return;
-      const merged = data.redeal ? data.hand : [...handRef.current, ...data.hand];
+      const shouldReplace = data.redeal || needsFreshHandRef.current;
+      const merged = shouldReplace ? data.hand : [...handRef.current, ...data.hand];
       const sorted = arrangeCards(merged.slice().sort());
       setHand(sorted);
       updateSuitsInHand(sorted);
       setBetBubbles({});
+      if (shouldReplace) {
+        setTableCards({});
+        setSelectedCard(null);
+        setMyTurn(false);
+        setPartnerCards(null);
+      }
+      needsFreshHandRef.current = false;
     });
 
     // -- turns & cards ------------------------------------------------------
@@ -375,6 +410,7 @@ export default function GameScreen({ session, onReset }) {
     // -- trump --------------------------------------------------------------
     socket.on("choose trump", () => {
       setChoosingTrump(true);
+      setSelectedCard(null);
       showOverlay("Tap a card to choose the trump");
     });
 
@@ -423,6 +459,7 @@ export default function GameScreen({ session, onReset }) {
     });
 
     socket.on("share cards", (data) => {
+      if (needsFreshHandRef.current) return;
       setPartnerCards(arrangeCards(data.partnerCards.slice().sort()));
     });
 
@@ -444,6 +481,7 @@ export default function GameScreen({ session, onReset }) {
     socket.on("redeal", (data) => {
       const seq = data.playerSequence || [];
       setPlayerSequence(seq);
+      setOnlineFromSequence(seq);
       const persp = getPlayerPerspective(seq, session.username);
       setPlayerPerspective(persp);
       setPlayerNumber(seq.indexOf(session.username) + 1);
@@ -459,6 +497,7 @@ export default function GameScreen({ session, onReset }) {
       setChoosingTrump(false);
       setMyTurn(false);
       setBetBubbles({});
+      setPartnerCards(null);
       setSelectedCard(null);
       setScores((s) => ({ ...s, teamAHands: 0, teamBHands: 0 }));
     });
@@ -466,6 +505,7 @@ export default function GameScreen({ session, onReset }) {
     socket.on("new sequence", (data) => {
       const seq = data.playerSequence || [];
       setPlayerSequence(seq);
+      setOnlineFromSequence(seq);
       const persp = getPlayerPerspective(seq, session.username);
       setPlayerPerspective(persp);
       setPlayerNumber(seq.indexOf(session.username) + 1);
@@ -478,12 +518,27 @@ export default function GameScreen({ session, onReset }) {
       Alert.alert("Room full", "A game is in progress.");
       setTimeout(() => onReset?.(), 2000);
     });
+    socket.on("room missing", (data) => {
+      showOverlay(data?.message || "Room does not exist anymore", 1800);
+      setTimeout(() => onReset?.(), 1800);
+    });
     socket.on("reset", () => {
       showOverlay("Game will reset\u2026");
+      needsFreshHandRef.current = true;
+      roomIdRef.current = null;
+      setHand([]);
+      setTableCards({});
+      setPartnerCards(null);
+      setSelectedCard(null);
+      setMoodaSuit(null);
       setTimeout(() => onReset?.(), 3000);
     });
     socket.on("disable ui", () => setMyTurn(false));
-    socket.on("enable ui", () => {});
+    socket.on("enable ui", () => {
+      if (activePlayerRef.current === 0) {
+        setMyTurn(true);
+      }
+    });
     socket.on("message", (data) => {
       showOverlay(`${data.username}: ${data.message}`, 4000);
     });
@@ -499,7 +554,7 @@ export default function GameScreen({ session, onReset }) {
         "trump card","trump setted","request trump","reveal trump",
         "choose bet","bet","mooda","share cards","accepted","rejected",
         "redeal","new sequence","room full","reset","disable ui","enable ui",
-        "message","reconnect","reconnect_error",
+        "message","reconnect","reconnect_error","room missing",
       ].forEach((e) => socket.removeAllListeners(e));
     };
   }, [session.playerID, session.username, socket, showOverlay, showOverlayWithCountdown]);
@@ -532,6 +587,7 @@ export default function GameScreen({ session, onReset }) {
   // =========================================================================
   function renderAvatar(perspIdx, style) {
     const name = p[perspIdx] || "";
+    const isOnline = name ? !!playerOnline[name] : false;
     const isActive = activePlayer === perspIdx;
     const isTrumpCaller = trumpCaller === perspIdx;
     const isMe = perspIdx === 0;
@@ -557,7 +613,12 @@ export default function GameScreen({ session, onReset }) {
         ) : (
           circle
         )}
-        <Text style={styles.avatarName} numberOfLines={1}>{name}</Text>
+        <View style={styles.avatarNameRow}>
+          {name ? (
+            <View style={[styles.playerDot, isOnline ? styles.playerDotGreen : styles.playerDotRed]} />
+          ) : null}
+          <Text style={styles.avatarName} numberOfLines={1}>{name}</Text>
+        </View>
         {betBubbles[perspIdx] != null && (
           <View style={styles.betBubble}>
             <Text style={styles.betBubbleText}>{String(betBubbles[perspIdx])}</Text>
@@ -782,11 +843,18 @@ export default function GameScreen({ session, onReset }) {
       {/* ---- Partner Cards Modal ---- */}
       <Modal visible={!!partnerCards} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalBox}>
+          <View style={[styles.modalBox, styles.partnerModalBox]}>
             <Text style={styles.modalTitle}>Partner's Cards</Text>
-            <ScrollView horizontal contentContainerStyle={styles.partnerScroll}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.partnerScrollView}
+              contentContainerStyle={styles.partnerScroll}
+            >
               {(partnerCards || []).map((c, i) => (
-                <Image key={`${c}-${i}`} source={cardImageUri(c)} style={styles.partnerCard} resizeMode="contain" />
+                <View key={`${c}-${i}`} style={[styles.partnerCardWrap, { zIndex: i }]}>
+                  <Image source={cardImageUri(c)} style={styles.partnerCard} resizeMode="contain" />
+                </View>
               ))}
             </ScrollView>
             <View style={styles.partnerBtns}>
@@ -883,7 +951,11 @@ const styles = StyleSheet.create({
   avatarActive: { borderColor: "gold", borderWidth: 3 },
   avatarTrumpCaller: { backgroundColor: "#8b2020" },
   avatarInitial: { color: "#f8efcf", fontSize: 18, fontWeight: "700" },
-  avatarName: { color: "#f8efcf", fontSize: 10, marginTop: 2, textAlign: "center" },
+  avatarNameRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+  avatarName: { color: "#f8efcf", fontSize: 10, textAlign: "center" },
+  playerDot: { width: 6, height: 6, borderRadius: 3 },
+  playerDotGreen: { backgroundColor: "#4caf50" },
+  playerDotRed: { backgroundColor: "#f44336" },
 
   // -- bet bubbles --
   betBubble: {
@@ -970,7 +1042,10 @@ const styles = StyleSheet.create({
   moodaSuitImg: { width: 40, height: 40 },
 
   // -- partner cards --
-  partnerScroll: { paddingVertical: 10, gap: 6, paddingHorizontal: 8 },
-  partnerCard: { width: CARD_W * 0.9, height: CARD_H * 0.9 },
+  partnerModalBox: { width: "94%", paddingHorizontal: 10, paddingVertical: 14 },
+  partnerScrollView: { width: "100%", marginTop: 4 },
+  partnerScroll: { alignItems: "center", paddingVertical: 10, paddingHorizontal: 8, paddingRight: CARD_W * 0.45 },
+  partnerCardWrap: { marginRight: -CARD_W * 0.4 },
+  partnerCard: { width: CARD_W * 0.86, height: CARD_H * 0.86 },
   partnerBtns: { flexDirection: "row", gap: 14, marginTop: 10 },
 });

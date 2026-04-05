@@ -82,7 +82,15 @@ io.on('connection', function(socket) {
         if (addedUser) return;
         const username = data.username
         const playerID = data.playerID
-        roomID = cache.addUser(socket, username);
+        const requestedRoomID = data.roomID || null;
+        roomID = cache.addUser(socket, username, requestedRoomID);
+        if (!roomID) {
+            socket.emit('room missing', {
+                roomID: requestedRoomID,
+                message: 'Room does not exist anymore'
+            });
+            return;
+        }
         socket.roomID = roomID;
         socket.join(roomID);
         thisCache = cache.getGameCache(roomID);
@@ -123,12 +131,14 @@ io.on('connection', function(socket) {
             numUsers: thisCache.numUsers,
             playerNumber: thisCache.playerSequence.indexOf(socket.username) + 1,
             playerSequence: thisCache.playerSequence,
+            roomID: roomID,
         });
 
         log(UP, username, 'login', {
             numUsers: thisCache.numUsers,
             playerNumber: thisCache.playerSequence.indexOf(socket.username) + 1,
-            playerSequence: thisCache.playerSequence
+            playerSequence: thisCache.playerSequence,
+            roomID: roomID,
         });
 
         // echo globally (all clients) that a person has connected
