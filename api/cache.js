@@ -25,6 +25,7 @@ let gameObjTemplate = {
     highestBet: 7,
     highestBettor: '',
     moodaCalled: false,
+    trumpRequested: false,
     moodaStatus: [],
     moodaAccepted: false,
     winningTeam: '',

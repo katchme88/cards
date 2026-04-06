@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
+// import * as ScreenCapture from "expo-screen-capture";
 import { connectSocket } from "../services/socketService";
 import { API_BASE_URL } from "../config/network";
 
@@ -92,6 +93,18 @@ export default function GameScreen({ session, onReset }) {
   const [moodaSuit, setMoodaSuit] = useState(null);
   const [trumpCaller, setTrumpCaller] = useState(-1); // perspective index
 
+  // ---- trump reveal fx ---------------------------------------------------
+  const [requesterPulseIdx, setRequesterPulseIdx] = useState(-1);
+  const requesterPulseAnim = useRef(new Animated.Value(1)).current;
+  const [trumpFxVisible, setTrumpFxVisible] = useState(false);
+  const [trumpFxCard, setTrumpFxCard] = useState(null);
+  const [trumpFxBy, setTrumpFxBy] = useState("");
+  const trumpFxDimAnim = useRef(new Animated.Value(0)).current;
+  const trumpFxScaleAnim = useRef(new Animated.Value(0.7)).current;
+  const trumpFxFlipAnim = useRef(new Animated.Value(0)).current;
+  const trumpFxGlowAnim = useRef(new Animated.Value(0)).current;
+  const trumpFxOpacityAnim = useRef(new Animated.Value(0)).current;
+
   // ---- scores -------------------------------------------------------------
   const [scores, setScores] = useState({
     teamAscore: 0,
@@ -126,6 +139,8 @@ export default function GameScreen({ session, onReset }) {
   perspectiveRef.current = playerPerspective;
   const activePlayerRef = useRef(activePlayer);
   activePlayerRef.current = activePlayer;
+  const playerNumberRef = useRef(playerNumber);
+  playerNumberRef.current = playerNumber;
   const roomIdRef = useRef(null);
   const sequenceRef = useRef(playerSequence);
   sequenceRef.current = playerSequence;
@@ -156,6 +171,63 @@ export default function GameScreen({ session, onReset }) {
       }
     }, 1000);
   }, []);
+
+  const animateRequesterPulse = useCallback((username) => {
+    const persp = perspectiveRef.current || [];
+    const idx = persp.indexOf(username);
+    if (idx < 0) return;
+
+    setRequesterPulseIdx(idx);
+    requesterPulseAnim.setValue(1);
+
+    const onePulse = Animated.sequence([
+      Animated.timing(requesterPulseAnim, { toValue: 1.2, duration: 140, useNativeDriver: true }),
+      Animated.timing(requesterPulseAnim, { toValue: 1, duration: 140, useNativeDriver: true }),
+    ]);
+
+    Animated.sequence([onePulse, onePulse, onePulse]).start(() => {
+      requesterPulseAnim.setValue(1);
+      setRequesterPulseIdx(-1);
+    });
+  }, [requesterPulseAnim]);
+
+  const animateTrumpReveal = useCallback((cardCode, openedBy) => {
+    if (!cardCode) return;
+
+    setTrumpFxCard(cardCode);
+    setTrumpFxBy(openedBy || "");
+    setTrumpFxVisible(true);
+
+    trumpFxDimAnim.setValue(0);
+    trumpFxScaleAnim.setValue(0.7);
+    trumpFxFlipAnim.setValue(0);
+    trumpFxGlowAnim.setValue(0);
+    trumpFxOpacityAnim.setValue(0);
+
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(trumpFxDimAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
+        Animated.timing(trumpFxOpacityAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
+        Animated.timing(trumpFxScaleAnim, { toValue: 1.12, duration: 220, useNativeDriver: true }),
+        Animated.timing(trumpFxFlipAnim, { toValue: 1, duration: 320, useNativeDriver: true }),
+        Animated.timing(trumpFxGlowAnim, { toValue: 1, duration: 220, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(trumpFxScaleAnim, { toValue: 1, duration: 140, useNativeDriver: true }),
+        Animated.timing(trumpFxGlowAnim, { toValue: 0.35, duration: 220, useNativeDriver: true }),
+      ]),
+      Animated.delay(3000),
+      Animated.parallel([
+        Animated.timing(trumpFxDimAnim, { toValue: 0, duration: 240, useNativeDriver: true }),
+        Animated.timing(trumpFxOpacityAnim, { toValue: 0, duration: 240, useNativeDriver: true }),
+        Animated.timing(trumpFxGlowAnim, { toValue: 0, duration: 240, useNativeDriver: true }),
+      ]),
+    ]).start(() => {
+      setTrumpFxVisible(false);
+      setTrumpFxCard(null);
+      setTrumpFxBy("");
+    });
+  }, [trumpFxDimAnim, trumpFxFlipAnim, trumpFxGlowAnim, trumpFxOpacityAnim, trumpFxScaleAnim]);
 
   function setOnlineFromSequence(seq) {
     const next = {};
@@ -247,16 +319,9 @@ export default function GameScreen({ session, onReset }) {
 
   // ---- request / reveal trump ---------------------------------------------
   function onTrumpPress() {
-    // Trump caller can reveal trump by tapping it
+    // Trump is opened automatically when p2/p4 requests it.
     if (playerNumber === 1 && trumpCard && !trumpRevealed) {
-      socket.emit("reveal trump");
-      // Add trump card back to hand
-      const cardCode = trumpCard;
-      const next = [...hand, cardCode];
-      setHand(arrangeCards(next.slice().sort()));
-      updateSuitsInHand(next);
-      setTrumpRevealed(true);
-      setTrumpCard(null);
+      showOverlay("Wait for player 2 or 4 to request trump");
       return;
     }
     // Opponents (p2/p4) request trump when they don't have the round suit
@@ -417,6 +482,7 @@ export default function GameScreen({ session, onReset }) {
     socket.on("trump card", (data) => {
       setTrumpCard(data.data);
       setMoodaSuit(null);
+      setTrumpAsked(false);
     });
 
     socket.on("trump setted", () => {
@@ -426,17 +492,33 @@ export default function GameScreen({ session, onReset }) {
 
     socket.on("request trump", (data) => {
       setTrumpAsked(true);
-      showOverlay(`${data.username} opened the trump`);
+      if (data?.username) {
+        animateRequesterPulse(data.username);
+      }
+      showOverlay(`${data?.username || "Player"} requested trump`, 1200);
     });
 
     socket.on("reveal trump", (data) => {
       setTrumpRevealed(true);
       setTrumpCard(data.trumpCard);
+      setTrumpAsked(false);
+      animateTrumpReveal(data?.trumpCard, data?.username);
+
+      // Player 1 gets the trump card back when trump is opened.
+      if (playerNumberRef.current === 1 && data?.trumpCard) {
+        setHand((prev) => {
+          if (prev.includes(data.trumpCard)) return prev;
+          const next = arrangeCards([...prev, data.trumpCard].slice().sort());
+          updateSuitsInHand(next);
+          return next;
+        });
+      }
     });
 
     // -- bets ---------------------------------------------------------------
     socket.on("choose bet", (data) => {
       setHighestBet(data.highestBet || 0);
+      setMyTurn(false);
       setShowBetModal(true);
     });
 
@@ -467,14 +549,12 @@ export default function GameScreen({ session, onReset }) {
       const persp = perspectiveRef.current;
       const pos = persp.indexOf(data.username);
       setBetBubbles((prev) => ({ ...prev, [pos]: "Accepted" }));
-      setPartnerCards(null);
     });
 
     socket.on("rejected", (data) => {
       const persp = perspectiveRef.current;
       const pos = persp.indexOf(data.username);
       setBetBubbles((prev) => ({ ...prev, [pos]: "Rejected" }));
-      setPartnerCards(null);
     });
 
     // -- redeal / new sequence ----------------------------------------------
@@ -499,6 +579,10 @@ export default function GameScreen({ session, onReset }) {
       setBetBubbles({});
       setPartnerCards(null);
       setSelectedCard(null);
+      setRequesterPulseIdx(-1);
+      setTrumpFxVisible(false);
+      setTrumpFxCard(null);
+      setTrumpFxBy("");
       setScores((s) => ({ ...s, teamAHands: 0, teamBHands: 0 }));
     });
 
@@ -511,6 +595,7 @@ export default function GameScreen({ session, onReset }) {
       setPlayerNumber(seq.indexOf(session.username) + 1);
       setTrumpCaller(persp.indexOf(seq[0]));
       setActivePlayer(persp.indexOf(seq[0]));
+      setMyTurn(false);
     });
 
     // -- misc ---------------------------------------------------------------
@@ -531,6 +616,10 @@ export default function GameScreen({ session, onReset }) {
       setPartnerCards(null);
       setSelectedCard(null);
       setMoodaSuit(null);
+      setRequesterPulseIdx(-1);
+      setTrumpFxVisible(false);
+      setTrumpFxCard(null);
+      setTrumpFxBy("");
       setTimeout(() => onReset?.(), 3000);
     });
     socket.on("disable ui", () => setMyTurn(false));
@@ -541,6 +630,10 @@ export default function GameScreen({ session, onReset }) {
     });
     socket.on("message", (data) => {
       showOverlay(`${data.username}: ${data.message}`, 4000);
+    });
+    socket.on("screenshot attempted", (data) => {
+      const name = data?.username || "A player";
+      showOverlay(data?.message || `${name} attempted to take a screenshot`, 4500);
     });
 
     if (!socket.connected) socket.connect();
@@ -554,10 +647,47 @@ export default function GameScreen({ session, onReset }) {
         "trump card","trump setted","request trump","reveal trump",
         "choose bet","bet","mooda","share cards","accepted","rejected",
         "redeal","new sequence","room full","reset","disable ui","enable ui",
-        "message","reconnect","reconnect_error","room missing",
+        "message","reconnect","reconnect_error","room missing","screenshot attempted",
       ].forEach((e) => socket.removeAllListeners(e));
     };
-  }, [session.playerID, session.username, socket, showOverlay, showOverlayWithCountdown]);
+  }, [
+    animateRequesterPulse,
+    animateTrumpReveal,
+    session.playerID,
+    session.username,
+    showOverlay,
+    showOverlayWithCountdown,
+    socket,
+  ]);
+
+  // ---- screenshot protection (disabled for development) ------------------
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   let subscription;
+  //
+  //   ScreenCapture.preventScreenCaptureAsync().catch(() => {});
+  //
+  //   try {
+  //     subscription = ScreenCapture.addScreenshotListener(() => {
+  //       if (!isMounted) return;
+  //       showOverlay("Screenshots are blocked in this room", 2500);
+  //       if (socket.connected) {
+  //         socket.emit("screenshot attempted", {
+  //           username: session.username,
+  //           timestamp: Date.now(),
+  //         });
+  //       }
+  //     });
+  //   } catch (_) {
+  //     // Ignore unsupported platforms and continue game flow.
+  //   }
+  //
+  //   return () => {
+  //     isMounted = false;
+  //     if (subscription) subscription.remove();
+  //     ScreenCapture.allowScreenCaptureAsync().catch(() => {});
+  //   };
+  // }, [session.username, showOverlay, socket]);
 
   // ---- pulse animation for my turn ----------------------------------------
   useEffect(() => {
@@ -591,6 +721,7 @@ export default function GameScreen({ session, onReset }) {
     const isActive = activePlayer === perspIdx;
     const isTrumpCaller = trumpCaller === perspIdx;
     const isMe = perspIdx === 0;
+    const isRequesterPulse = requesterPulseIdx === perspIdx;
     const circle = (
       <View
         style={[
@@ -606,8 +737,8 @@ export default function GameScreen({ session, onReset }) {
     );
     return (
       <View style={[styles.avatarWrap, style]}>
-        {isMe && myTurn ? (
-          <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+        {(isMe && myTurn) || isRequesterPulse ? (
+          <Animated.View style={{ transform: [{ scale: isRequesterPulse ? requesterPulseAnim : pulseAnim }] }}>
             {circle}
           </Animated.View>
         ) : (
@@ -627,6 +758,11 @@ export default function GameScreen({ session, onReset }) {
       </View>
     );
   }
+
+  const trumpFxRotateY = trumpFxFlipAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["90deg", "0deg"],
+  });
 
   function renderTableCard(perspIdx) {
     const code = tableCards[perspIdx];
@@ -733,6 +869,32 @@ export default function GameScreen({ session, onReset }) {
           </View>
         </View>
       </View>
+
+      {trumpFxVisible && (
+        <Animated.View style={[styles.trumpFxLayer, { opacity: trumpFxDimAnim }]} pointerEvents="none">
+          <Animated.View
+            style={[
+              styles.trumpFxCardWrap,
+              {
+                opacity: trumpFxOpacityAnim,
+                transform: [
+                  { perspective: 900 },
+                  { rotateY: trumpFxRotateY },
+                  { scale: trumpFxScaleAnim },
+                ],
+              },
+            ]}
+          >
+            <Animated.View style={[styles.trumpFxGlow, { opacity: trumpFxGlowAnim }]} />
+            {trumpFxCard ? (
+              <Image source={cardImageUri(trumpFxCard)} style={styles.trumpFxCardImg} resizeMode="contain" />
+            ) : null}
+          </Animated.View>
+          <Text style={styles.trumpFxText}>
+            {trumpFxBy ? `${trumpFxBy} opened trump` : "Trump opened"}
+          </Text>
+        </Animated.View>
+      )}
 
       {/* ---- HAND (fan) ---- */}
       {myTurn && (
@@ -1005,6 +1167,38 @@ const styles = StyleSheet.create({
   },
   overlayText: { color: "#f8efcf", fontSize: 16, textAlign: "center", fontWeight: "600" },
   countdownText: { color: "#ff9944", fontSize: 28, fontWeight: "700", marginTop: 8 },
+
+  // -- trump reveal fx --
+  trumpFxLayer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(3,14,11,0.58)",
+    zIndex: 20,
+  },
+  trumpFxCardWrap: {
+    width: CARD_W * 2.2,
+    height: CARD_H * 2.2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  trumpFxGlow: {
+    position: "absolute",
+    width: CARD_W * 2.9,
+    height: CARD_W * 2.9,
+    borderRadius: CARD_W * 1.45,
+    backgroundColor: "rgba(255, 215, 74, 0.5)",
+  },
+  trumpFxCardImg: {
+    width: CARD_W * 1.8,
+    height: CARD_H * 1.8,
+  },
+  trumpFxText: {
+    marginTop: 14,
+    color: "#f8efcf",
+    fontSize: 16,
+    fontWeight: "700",
+  },
 
   // -- modals --
   modalBackdrop: {

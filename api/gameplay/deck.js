@@ -1,28 +1,67 @@
 var shuffle = require('mess');
 
-// function shuffle(card, n) {       
-//     var test = card.slice()
-//     for (var i = 0; i < n; i++) { 
-//         // Random for remaining positions. 
-//         var r = i + Math.floor(Math.random() * Math.floor(52 - i))
-        
-//         //swapping the elements 
-//         var temp = test[r]; 
-//         test[r] = test[i]; 
-//         test[i] = temp; 
-//     } 
-//     return(test)
-// } 
+function sampleBinomialHalf(size) {
+    var cut = 0;
+    for (var i = 0; i < size; i++) {
+        if (Math.random() < 0.5) cut++;
+    }
+    return cut;
+}
+
+function gsrRiffleOnce(cards) {
+    var cut = sampleBinomialHalf(cards.length);
+    var left = cards.slice(0, cut);
+    var right = cards.slice(cut);
+    var shuffled = [];
+
+    while (left.length || right.length) {
+        if (!left.length) {
+            shuffled.push(right.shift());
+            continue;
+        }
+
+        if (!right.length) {
+            shuffled.push(left.shift());
+            continue;
+        }
+
+        var total = left.length + right.length;
+        if (Math.random() < (left.length / total)) {
+            shuffled.push(left.shift());
+        } else {
+            shuffled.push(right.shift());
+        }
+    }
+
+    return shuffled;
+}
+
+function gsrRiffleShuffle(cards, riffles) {
+    var runs = (typeof riffles === 'number' && riffles > 0) ? Math.floor(riffles) : 1;
+    var shuffled = cards.slice();
+    for (var i = 0; i < runs; i++) {
+        shuffled = gsrRiffleOnce(shuffled);
+    }
+    return shuffled;
+}
+
 
 var deck = {
+    gsrShuffle: function(myCards, riffles) {
+        if (!Array.isArray(myCards)) return [];
+        return gsrRiffleShuffle(myCards, riffles);
+    },
+
     cards: function() {
         var myCards = [ 'C02','C03','C04','C05','C06','C07','C08','C09','C10','C11','C12','C13','C14',
                         'D02','D03','D04','D05','D06','D07','D08','D09','D10','D11','D12','D13','D14',
                         'H02','H03','H04','H05','H06','H07','H08','H09','H10','H11','H12','H13','H14',
                         'S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12','S13','S14' 
                     ];
-        // var cards = shuffle(myCards, 52)
-        return deck.distribute(shuffle(myCards, 52));
+
+        myCards = shuffle(myCards, 52); // initial shuffle to add more randomness before GSR shuffle
+        myCards = deck.gsrShuffle(myCards, 52); // GSR shuffle with 52 riffles for good measure
+        return deck.distribute(shuffle(myCards, 52)); // final shuffle before distribution
     },
 
     distribute: function (arr) {
@@ -36,10 +75,6 @@ var deck = {
                 }
             }
         }
-        // pcards.p1 = arr.splice(0,13)
-        // pcards.p2 = arr.splice(0,13)
-        // pcards.p3 = arr.splice(0,13)
-        // pcards.p4 = arr.splice(0,13)
 
         shuffled_deck = (pcards.p1).concat(pcards.p2).concat(pcards.p3).concat(pcards.p4);
         return shuffled_deck;
