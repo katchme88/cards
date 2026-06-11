@@ -1,7 +1,20 @@
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Dimensions,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { authenticate } from "../services/authService";
-import { saveSession } from "../state/sessionStorage";
+
+const LOGIN_BG = require("../../assets/img_7680.jpg");
+const BG_SHIFT = Dimensions.get("window").height * 0.1;
 
 function randomName() {
   const adj = ["Swift", "Bold", "Sly", "Lucky", "Keen", "Brave", "Cool", "Sharp"];
@@ -39,42 +52,66 @@ export default function LoginScreen({ onLoggedIn }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>DubRung</Text>
-      <Text style={styles.subtitle}>Tap Play to join</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="nickname"
-        autoCapitalize="none"
-        value={username}
-        onChangeText={setUsername}
-      />
-
-      <Pressable
-        style={[styles.button, loading && styles.buttonDisabled]}
-        disabled={loading}
-        onPress={handleLogin}
+    <ImageBackground source={LOGIN_BG} style={styles.container} imageStyle={styles.bgImage} resizeMode="cover">
+      <View style={styles.overlay} />
+      <KeyboardAvoidingView
+        style={styles.keyboardWrap}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
       >
-        <Text style={styles.buttonText}>{loading ? "Joining..." : "Play"}</Text>
-      </Pressable>
-    </View>
+        <View style={styles.content}>
+          <Text style={styles.subtitle}>Tap Play to join</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="nickname"
+            autoCapitalize="none"
+            value={username}
+            onChangeText={setUsername}
+          />
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.buttonShell,
+              styles.primaryShell,
+              loading && styles.buttonDisabled,
+              pressed && !loading && styles.buttonShellPressed,
+            ]}
+            disabled={loading}
+            onPress={handleLogin}
+          >
+            {({ pressed }) => (
+              <View style={[styles.buttonFace, styles.primaryFace, pressed && !loading && styles.buttonFacePressed]}>
+                <Text style={styles.buttonText}>{loading ? "Joining..." : "Play"}</Text>
+              </View>
+            )}
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0d1f16",
-    paddingHorizontal: 24,
-    justifyContent: "center",
-    gap: 12,
   },
-  title: {
-    fontSize: 40,
-    fontWeight: "700",
-    color: "#f8efcf",
-    textAlign: "center",
+  bgImage: {
+    top: -BG_SHIFT,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(7, 16, 13, 0.34)",
+  },
+  keyboardWrap: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingBottom: 150,
+    justifyContent: "flex-end",
+    gap: 12,
   },
   subtitle: {
     fontSize: 16,
@@ -89,19 +126,52 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
   },
-  button: {
+  buttonShell: {
     marginTop: 4,
-    backgroundColor: "#c84f2f",
-    borderRadius: 10,
+    borderRadius: 14,
+    paddingBottom: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  buttonShellPressed: {
+    paddingBottom: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  buttonFace: {
+    borderRadius: 13,
     paddingVertical: 13,
     alignItems: "center",
+    borderWidth: 2,
+    borderTopColor: "rgba(255, 248, 228, 0.9)",
+    borderLeftColor: "rgba(255, 238, 200, 0.85)",
+    borderRightColor: "rgba(38, 24, 18, 0.5)",
+    borderBottomColor: "rgba(38, 24, 18, 0.62)",
+  },
+  buttonFacePressed: {
+    transform: [{ translateY: 2 }],
+  },
+  primaryShell: {
+    backgroundColor: "#6b2518",
+  },
+  primaryFace: {
+    backgroundColor: "#bb4a2b",
   },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonText: {
-    color: "white",
-    fontWeight: "700",
+    color: "#fff9ec",
+    fontWeight: "800",
     fontSize: 16,
+    letterSpacing: 0.45,
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
 });

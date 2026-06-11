@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 // import * as ScreenCapture from "expo-screen-capture";
-import { connectSocket } from "../services/socketService";
+import { connectSocket, disconnectSocket } from "../services/socketService";
 import { API_BASE_URL } from "../config/network";
 
 // ---------------------------------------------------------------------------
@@ -63,9 +63,10 @@ function cardImageUri(code) {
 // ===========================================================================
 // Component
 // ===========================================================================
-export default function GameScreen({ session, onReset }) {
+export default function GameScreen({ session, onReset, gameOptions }) {
   // ---- connection ---------------------------------------------------------
   const [socketStatus, setSocketStatus] = useState("connecting");
+  const [activeRoomID, setActiveRoomID] = useState(gameOptions?.roomID || null);
   const socket = useMemo(() => connectSocket(), []);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -141,9 +142,16 @@ export default function GameScreen({ session, onReset }) {
   activePlayerRef.current = activePlayer;
   const playerNumberRef = useRef(playerNumber);
   playerNumberRef.current = playerNumber;
-  const roomIdRef = useRef(null);
+  const roomIdRef = useRef(gameOptions?.roomID || null);
+  const createRoomRef = useRef(!!gameOptions?.createRoom);
   const sequenceRef = useRef(playerSequence);
   sequenceRef.current = playerSequence;
+
+  useEffect(() => {
+    roomIdRef.current = gameOptions?.roomID || null;
+    createRoomRef.current = !!gameOptions?.createRoom;
+    setActiveRoomID(gameOptions?.roomID || null);
+  }, [gameOptions?.createRoom, gameOptions?.roomID]);
 
   // ---- helpers ------------------------------------------------------------
   const showOverlay = useCallback((msg, timeout = 3000) => {
@@ -356,12 +364,20 @@ export default function GameScreen({ session, onReset }) {
   // Socket wiring
   // =========================================================================
   useEffect(() => {
+    const goHomeWithFreshSocket = (delayMs = 0) => {
+      setTimeout(() => {
+        disconnectSocket();
+        onReset?.();
+      }, delayMs);
+    };
+
     function onConnect() {
       setSocketStatus("connected");
       socket.emit("add user", {
         username: session.username,
         playerID: session.playerID,
         roomID: roomIdRef.current,
+        createRoom: createRoomRef.current,
       });
     }
     function onDisconnect(reason) {
@@ -370,7 +386,7 @@ export default function GameScreen({ session, onReset }) {
       setPartnerCards(null);
       // If server closed the connection (not a client-initiated disconnect), go to login
       if (reason === "io server disconnect" || reason === "transport close") {
-        setTimeout(() => onReset?.(), 2000);
+        goHomeWithFreshSocket(2000);
       }
     }
 
@@ -380,12 +396,18 @@ export default function GameScreen({ session, onReset }) {
     // -- login / join -------------------------------------------------------
     socket.on("login", (data) => {
       const seq = data.playerSequence || [];
+      const createdRoom = createRoomRef.current;
       roomIdRef.current = data.roomID || roomIdRef.current;
+      createRoomRef.current = false;
+      setActiveRoomID(roomIdRef.current);
       setPlayerSequence(seq);
       setOnlineFromSequence(seq);
       setPlayerNumber(data.playerNumber);
       const persp = getPlayerPerspective(seq, session.username);
       setPlayerPerspective(persp);
+      if (createdRoom && roomIdRef.current) {
+        showOverlay(`Room created: ${roomIdRef.current}`, 5000);
+      }
       if (seq.length === 4) {
         setActivePlayer(persp.indexOf(seq[0]));
         setTrumpCaller(persp.indexOf(seq[0]));
@@ -601,16 +623,18 @@ export default function GameScreen({ session, onReset }) {
     // -- misc ---------------------------------------------------------------
     socket.on("room full", () => {
       Alert.alert("Room full", "A game is in progress.");
-      setTimeout(() => onReset?.(), 2000);
+      goHomeWithFreshSocket(2000);
     });
     socket.on("room missing", (data) => {
       showOverlay(data?.message || "Room does not exist anymore", 1800);
-      setTimeout(() => onReset?.(), 1800);
+      goHomeWithFreshSocket(1800);
     });
     socket.on("reset", () => {
       showOverlay("Game will reset\u2026");
       needsFreshHandRef.current = true;
       roomIdRef.current = null;
+      createRoomRef.current = false;
+      setActiveRoomID(null);
       setHand([]);
       setTableCards({});
       setPartnerCards(null);
@@ -620,7 +644,7 @@ export default function GameScreen({ session, onReset }) {
       setTrumpFxVisible(false);
       setTrumpFxCard(null);
       setTrumpFxBy("");
-      setTimeout(() => onReset?.(), 3000);
+      goHomeWithFreshSocket(3000);
     });
     socket.on("disable ui", () => setMyTurn(false));
     socket.on("enable ui", () => {
@@ -636,7 +660,11 @@ export default function GameScreen({ session, onReset }) {
       showOverlay(data?.message || `${name} attempted to take a screenshot`, 4500);
     });
 
-    if (!socket.connected) socket.connect();
+    if (socket.connected) {
+      onConnect();
+    } else {
+      socket.connect();
+    }
 
     return () => {
       socket.off("connect", onConnect);
@@ -649,6 +677,9 @@ export default function GameScreen({ session, onReset }) {
         "redeal","new sequence","room full","reset","disable ui","enable ui",
         "message","reconnect","reconnect_error","room missing","screenshot attempted",
       ].forEach((e) => socket.removeAllListeners(e));
+
+      // Ensure next entry to Game starts with a new socket session.
+      disconnectSocket();
     };
   }, [
     animateRequesterPulse,
@@ -788,6 +819,7 @@ export default function GameScreen({ session, onReset }) {
       <View style={styles.statusBar}>
         <View style={[styles.dot, socketStatus === "connected" ? styles.dotGreen : styles.dotRed]} />
         <Text style={styles.statusText}>{session.username}</Text>
+        {activeRoomID ? <Text style={styles.roomText}>Room: {activeRoomID}</Text> : null}
       </View>
 
       {/* ---- Score Card ---- */}
@@ -1054,6 +1086,7 @@ const styles = StyleSheet.create({
   dotGreen: { backgroundColor: "#4caf50" },
   dotRed: { backgroundColor: "#f44336" },
   statusText: { color: "#c3d0c8", fontSize: 12 },
+  roomText: { color: "#f8efcf", fontSize: 11 },
 
   // -- score card --
   scoreCard: {

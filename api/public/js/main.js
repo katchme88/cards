@@ -71,21 +71,12 @@ $(function() {
     var socket = io();
 
     window.onload = function() {
-        
-        let cookies = document.cookie
-            .split(';')
-            .reduce((res, c) => {
-                const [key, val] = c.trim().split('=').map(decodeURIComponent)
-                try {
-                return Object.assign(res, { [key]: JSON.parse(val) })
-                } catch (e) {
-                return Object.assign(res, { [key]: val })
-                }
-            }, {});
+        const savedUsername = window.sessionStorage.getItem('username');
+        const savedPlayerID = window.sessionStorage.getItem('playerID');
 
-        if (typeof(cookies.playerID) != 'undefined' && typeof(cookies.username) != 'undefined') {
-            username = cookies.username;
-            playerID = cookies.playerID
+        if (savedUsername && savedPlayerID) {
+            username = savedUsername;
+            playerID = savedPlayerID;
             $loginPage.fadeOut();
             // $chatPage.show();
             $loginPage.off('click');
@@ -141,8 +132,8 @@ $(function() {
                 // Tell the server your username
                 playerID = data.playerID
                 // console.log(playerID)
-                document.cookie = `playerID=${playerID}; expires=Mon, 19 Jan 2088 12:00:00 UTC`;
-                document.cookie = `username=${username}; expires=Mon, 19 Jan 2088 12:00:00 UTC`;
+                window.sessionStorage.setItem('playerID', playerID);
+                window.sessionStorage.setItem('username', username);
                 // socket.emit('add user', {username: username, playerID: playerID});
             },
             error: function(data) {
